@@ -1,0 +1,7 @@
+{
+  "name": "Copy of Prode Mundial 2026",
+  "description": "Una aplicación de pronósticos deportivos para el Mundial de Fútbol 2026. Predice resultados, compite con amigos y obtén análisis de IA.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

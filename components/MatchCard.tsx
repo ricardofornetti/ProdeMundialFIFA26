@@ -1,0 +1,82 @@
+
+import React from 'react';
+import { Match, Prediction } from '../types';
+import { TEAM_FLAGS } from '../constants';
+
+interface MatchCardProps {
+  match: Match;
+  prediction?: Prediction;
+  onPredictionChange: (matchId: string, homeScore: number | '', awayScore: number | '') => void;
+}
+
+export const MatchCard: React.FC<MatchCardProps> = ({ match, prediction, onPredictionChange }) => {
+  const isPredictionComplete = prediction && prediction.homeScore !== '' && prediction.awayScore !== '';
+  
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-md p-4 sm:p-6 border border-slate-100 dark:border-slate-700 transition-all duration-300">
+      <div className="flex justify-between items-center mb-4 sm:mb-6">
+        <div className="flex items-center gap-2">
+          <span className="text-[9px] sm:text-xs font-bold tracking-wider uppercase px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600">
+            {match.group}
+          </span>
+        </div>
+        <div className="text-right">
+          <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200">{match.date}</p>
+          <p className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-tighter">{match.time} HS ARG</p>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between gap-2 sm:gap-6">
+        {/* Home Team */}
+        <div className="flex flex-col items-center flex-1 space-y-2">
+          <div className="w-14 h-10 xs:w-16 xs:h-12 sm:w-24 sm:h-16 overflow-hidden rounded-lg shadow-sm border border-slate-100 dark:border-slate-700">
+            <img 
+              src={TEAM_FLAGS[match.homeFlag] || TEAM_FLAGS['FIFA']} 
+              alt={match.homeTeam} 
+              className="w-full h-full object-cover" 
+            />
+          </div>
+          <span className="text-[10px] sm:text-base font-black text-slate-900 dark:text-white text-center uppercase truncate w-full">{match.homeTeam}</span>
+        </div>
+
+        {/* Prediction Inputs */}
+        <div className="flex flex-col items-center gap-1 sm:gap-2">
+          <div className="flex items-center gap-1 sm:gap-3">
+            <input
+              type="number"
+              min="0"
+              value={prediction?.homeScore ?? ''}
+              onChange={(e) => onPredictionChange(match.id, e.target.value === '' ? '' : parseInt(e.target.value), prediction?.awayScore ?? '')}
+              className="w-10 h-10 xs:w-12 xs:h-12 sm:w-16 sm:h-16 text-center text-lg xs:text-xl sm:text-3xl font-black border-2 border-slate-200 dark:border-slate-600 rounded-xl focus:border-black dark:focus:border-white focus:ring-4 focus:ring-slate-50 dark:focus:ring-slate-700 focus:outline-none transition-all text-black dark:text-white bg-white dark:bg-slate-700"
+              placeholder="-"
+            />
+            <span className="text-xl sm:text-2xl font-black text-slate-300 dark:text-slate-500">:</span>
+            <input
+              type="number"
+              min="0"
+              value={prediction?.awayScore ?? ''}
+              onChange={(e) => onPredictionChange(match.id, prediction?.homeScore ?? '', e.target.value === '' ? '' : parseInt(e.target.value))}
+              className="w-10 h-10 xs:w-12 xs:h-12 sm:w-16 sm:h-16 text-center text-lg xs:text-xl sm:text-3xl font-black border-2 border-slate-200 dark:border-slate-600 rounded-xl focus:border-black dark:focus:border-white focus:ring-4 focus:ring-slate-50 dark:focus:ring-slate-700 focus:outline-none transition-all text-black dark:text-white bg-white dark:bg-slate-700"
+              placeholder="-"
+            />
+          </div>
+          <p className={`text-[8px] sm:text-[10px] font-black uppercase mt-1 ${isPredictionComplete ? 'text-green-500' : 'text-slate-400'}`}>
+            {isPredictionComplete ? 'CARGADO' : 'Cargar'}
+          </p>
+        </div>
+
+        {/* Away Team */}
+        <div className="flex flex-col items-center flex-1 space-y-2">
+          <div className="w-14 h-10 xs:w-16 xs:h-12 sm:w-24 sm:h-16 overflow-hidden rounded-lg shadow-sm border border-slate-100 dark:border-slate-700">
+            <img 
+              src={TEAM_FLAGS[match.awayFlag] || TEAM_FLAGS['FIFA']} 
+              alt={match.awayTeam} 
+              className="w-full h-full object-cover" 
+            />
+          </div>
+          <span className="text-[10px] sm:text-base font-black text-slate-900 dark:text-white text-center uppercase truncate w-full">{match.awayTeam}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
