@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Match, Prediction } from '../types';
 import { TEAM_FLAGS } from '../constants';
@@ -15,10 +14,11 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, prediction, onPredi
   return (
     <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-md p-4 sm:p-6 border border-slate-100 dark:border-slate-700 transition-all duration-300">
       <div className="flex justify-between items-center mb-4 sm:mb-6">
-        <div className="flex items-center gap-2">
-          <span className="text-[9px] sm:text-xs font-bold tracking-wider uppercase px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600">
+        <div className="flex flex-col gap-1">
+          <span className="text-[9px] sm:text-xs font-bold tracking-wider uppercase px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 self-start">
             {match.group}
           </span>
+          <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">{match.venue.split(',')[0]}</p>
         </div>
         <div className="text-right">
           <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200">{match.date}</p>
@@ -29,7 +29,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, prediction, onPredi
       <div className="flex items-center justify-between gap-2 sm:gap-6">
         {/* Home Team */}
         <div className="flex flex-col items-center flex-1 space-y-2">
-          <div className="w-14 h-10 xs:w-16 xs:h-12 sm:w-24 sm:h-16 overflow-hidden rounded-lg shadow-sm border border-slate-100 dark:border-slate-700">
+          <div className="w-14 h-10 xs:w-16 xs:h-12 sm:w-24 sm:h-16 overflow-hidden rounded-lg shadow-sm border border-slate-100 dark:border-slate-700 bg-slate-50">
             <img 
               src={TEAM_FLAGS[match.homeFlag] || TEAM_FLAGS['FIFA']} 
               alt={match.homeTeam} 
@@ -67,7 +67,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, prediction, onPredi
 
         {/* Away Team */}
         <div className="flex flex-col items-center flex-1 space-y-2">
-          <div className="w-14 h-10 xs:w-16 xs:h-12 sm:w-24 sm:h-16 overflow-hidden rounded-lg shadow-sm border border-slate-100 dark:border-slate-700">
+          <div className="w-14 h-10 xs:w-16 xs:h-12 sm:w-24 sm:h-16 overflow-hidden rounded-lg shadow-sm border border-slate-100 dark:border-slate-700 bg-slate-50">
             <img 
               src={TEAM_FLAGS[match.awayFlag] || TEAM_FLAGS['FIFA']} 
               alt={match.awayTeam} 

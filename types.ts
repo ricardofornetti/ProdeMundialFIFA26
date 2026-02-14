@@ -1,4 +1,3 @@
-
 export interface User {
   username: string; // Apodo
   email: string;    // Correo electrónico
@@ -36,4 +35,4 @@ export interface Prediction {
 
 export type AuthMode = 'login' | 'register' | 'verify' | 'forgot-password';
 
-export type View = 'auth' | 'main-menu' | 'groups' | 'predictions' | 'leaderboard' | 'world-zones' | 'zone-detail' | 'next-matches' | 'account';
+export type View = 'auth' | 'main-menu' | 'groups' | 'predictions' | 'leaderboard' | 'world-zones' | 'zone-detail' | 'calendar' | 'account';
