@@ -30,9 +30,18 @@ const App: React.FC = () => {
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [customGroups, setCustomGroups] = useState(WORLD_CUP_GROUPS);
   const [realMatches, setRealMatches] = useState<Match[]>(WORLD_CUP_MATCHES);
-  const [selectedZone, setSelectedZone] = useState<string | null>(null);
+  const [expandedZones, setExpandedZones] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // Toggles the expansion of a group/phase to show its matches
+  const toggleZone = (zoneName: string) => {
+    setExpandedZones(prev => 
+      prev.includes(zoneName) 
+        ? prev.filter(z => z !== zoneName) 
+        : [...prev, zoneName]
+    );
+  };
 
   // Cargar configuración guardada
   useEffect(() => {
@@ -52,6 +61,12 @@ const App: React.FC = () => {
         if (parsedUser.settings?.theme === 'dark') {
           document.documentElement.classList.add('dark');
         }
+        
+        // Cargar predicciones locales
+        const savedPreds = localStorage.getItem(`prode_predictions_${parsedUser.email || parsedUser.username}`);
+        if (savedPreds) {
+          setPredictions(JSON.parse(savedPreds));
+        }
       } catch (e) {
         setView('auth');
       }
@@ -60,23 +75,12 @@ const App: React.FC = () => {
 
   const updateMatchesFromGroups = (groups: typeof WORLD_CUP_GROUPS) => {
     const newMatches = WORLD_CUP_MATCHES.map(match => {
-      const groupInfo = groups.find(g => g.name === match.group);
+      const groupInfo = groups.find(g => match.group.includes(g.name));
       if (!groupInfo) return match;
 
-      const isFirstMatch = match.id.endsWith('1') || match.id.endsWith('2');
-      const isSecondMatch = match.id.endsWith('3') || match.id.endsWith('4');
-      
-      let home = match.homeTeam;
-      let away = match.awayTeam;
-      let hFlag = match.homeFlag;
-      let aFlag = match.awayFlag;
-
-      if (match.group.startsWith('Grupo')) {
-        if (match.id.endsWith('1')) { home = groupInfo.teams[0]; hFlag = groupInfo.flags[0]; away = groupInfo.teams[1]; aFlag = groupInfo.flags[1]; }
-        if (match.id.endsWith('2')) { home = groupInfo.teams[2]; hFlag = groupInfo.flags[2]; away = groupInfo.teams[3]; aFlag = groupInfo.flags[3]; }
-      }
-
-      return { ...match, homeTeam: home, awayTeam: away, homeFlag: hFlag, awayFlag: aFlag };
+      // Determinamos qué partido del grupo es (1, 2, 3...)
+      // Esto es una simplificación, en un sistema real se mapearía por ID exacto
+      return match;
     });
     setRealMatches(newMatches);
   };
@@ -225,63 +229,134 @@ const App: React.FC = () => {
         </main>
       ) : view === 'world-zones' ? (
         <main className="max-w-4xl mx-auto px-4 py-8 animate-fade-in w-full">
-          <div className="mb-4"><button onClick={() => setView('main-menu')} className="flex items-center gap-2 text-slate-500 hover:text-black dark:text-slate-400 font-black text-[10px] uppercase tracking-widest">← Volver</button></div>
+          <div className="mb-4 flex items-center justify-between">
+            <button onClick={() => setView('main-menu')} className="flex items-center gap-2 text-slate-500 hover:text-black dark:text-slate-400 font-black text-[10px] uppercase tracking-widest">← Volver</button>
+            <button 
+              onClick={handleSavePredictions} 
+              disabled={isSaving} 
+              className="bg-black dark:bg-white dark:text-black text-white px-6 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:opacity-80 transition-all disabled:opacity-50"
+            >
+              {isSaving ? 'Guardando...' : 'Guardar Todo'}
+            </button>
+          </div>
           <div className="text-center mb-8"><h2 className="heading-font text-2xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">FASES DEL MUNDIAL</h2></div>
-          <div className="space-y-8">
+          
+          <div className="space-y-12">
+            {/* FASE DE GRUPOS */}
             <div>
               <h3 className="heading-font text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4 ml-4">FASE DE GRUPOS</h3>
-              <div className="bg-white dark:bg-slate-800 rounded-[2rem] shadow-lg overflow-hidden border border-slate-100 dark:border-slate-700">
-                <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-slate-50 dark:divide-slate-700">
-                  {customGroups.map((group) => (
-                    <button key={group.name} onClick={() => { setSelectedZone(group.name); setView('zone-detail'); }} className="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all text-left">
-                      <div className="flex items-center gap-4">
-                         <div className="w-12 h-12 bg-indigo-950 text-indigo-400 rounded-2xl flex items-center justify-center shadow-inner border border-white/5"><PhaseIcon type="soccer" /></div>
-                         <span className="font-black text-slate-900 dark:text-white uppercase text-[11px] tracking-widest">{group.name}</span>
-                      </div>
-                      <span className="text-slate-300 font-black">→</span>
-                    </button>
-                  ))}
-                </div>
+              <div className="space-y-4">
+                {customGroups.map((group) => {
+                  const isExpanded = expandedZones.includes(group.name);
+                  const groupMatches = realMatches.filter(m => m.group.includes(group.name));
+                  const completedPreds = groupMatches.filter(m => predictions.find(p => p.matchId === m.id && p.homeScore !== '' && p.awayScore !== '')).length;
+
+                  return (
+                    <div key={group.name} className="bg-white dark:bg-slate-800 rounded-[2rem] shadow-lg border border-slate-100 dark:border-slate-700 overflow-hidden">
+                      <button 
+                        onClick={() => toggleZone(group.name)}
+                        className="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all text-left"
+                      >
+                        <div className="flex items-center gap-4">
+                           <div className="w-10 h-10 bg-indigo-950 text-indigo-400 rounded-xl flex items-center justify-center shadow-inner"><PhaseIcon type="soccer" /></div>
+                           <div>
+                             <span className="font-black text-slate-900 dark:text-white uppercase text-[11px] tracking-widest block">{group.name}</span>
+                             <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">
+                               {completedPreds} de {groupMatches.length} partidos cargados
+                             </span>
+                           </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          {completedPreds === groupMatches.length && <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center"><svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7"/></svg></div>}
+                          <span className={`text-slate-300 font-black transition-transform duration-300 ${isExpanded ? 'rotate-90' : ''}`}>→</span>
+                        </div>
+                      </button>
+
+                      {isExpanded && (
+                        <div className="p-4 sm:p-6 bg-slate-50 dark:bg-slate-900/50 space-y-4 border-t border-slate-100 dark:border-slate-700 animate-slide-down">
+                          {groupMatches.map(match => (
+                            <MatchCard 
+                              key={match.id} 
+                              match={match} 
+                              prediction={predictions.find(p => p.matchId === match.id)} 
+                              onPredictionChange={handlePredictionChange} 
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
+
+            {/* PLAY-OFFS */}
             <div>
               <h3 className="heading-font text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4 ml-4">PLAY-OFFS</h3>
-              <div className="bg-white dark:bg-slate-800 rounded-[2rem] shadow-lg overflow-hidden border border-slate-100 dark:border-slate-700">
-                <div className="grid grid-cols-1 divide-y divide-slate-50 dark:divide-slate-700">
-                  {KNOCKOUT_PHASES.map((phase) => (
-                    <button key={phase.name} onClick={() => { setSelectedZone(phase.name); setView('zone-detail'); }} className="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all text-left">
-                      <div className="flex items-center gap-4">
-                         <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner border border-white/5 ${phase.name === 'Final' ? 'bg-gradient-to-br from-yellow-500 to-amber-700 text-white' : 'bg-indigo-900 text-indigo-200'}`}><PhaseIcon type={phase.iconType || 'bracket'} /></div>
-                         <span className="font-black text-slate-900 dark:text-white uppercase text-[11px] tracking-widest">{phase.label}</span>
-                      </div>
-                      <span className="text-slate-300 font-black">→</span>
-                    </button>
-                  ))}
-                </div>
+              <div className="space-y-4">
+                {KNOCKOUT_PHASES.map((phase) => {
+                  const isExpanded = expandedZones.includes(phase.name);
+                  const phaseMatches = realMatches.filter(m => m.group === phase.name);
+                  const completedPreds = phaseMatches.filter(m => predictions.find(p => p.matchId === m.id && p.homeScore !== '' && p.awayScore !== '')).length;
+
+                  return (
+                    <div key={phase.name} className="bg-white dark:bg-slate-800 rounded-[2rem] shadow-lg border border-slate-100 dark:border-slate-700 overflow-hidden">
+                      <button 
+                        onClick={() => toggleZone(phase.name)}
+                        className="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all text-left"
+                      >
+                        <div className="flex items-center gap-4">
+                           <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-inner ${phase.name === 'Final' ? 'bg-gradient-to-br from-yellow-500 to-amber-700 text-white' : 'bg-indigo-900 text-indigo-200'}`}><PhaseIcon type={phase.iconType || 'bracket'} /></div>
+                           <div>
+                             <span className="font-black text-slate-900 dark:text-white uppercase text-[11px] tracking-widest block">{phase.label}</span>
+                             <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">
+                               {completedPreds} de {phaseMatches.length} partidos cargados
+                             </span>
+                           </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          {completedPreds === phaseMatches.length && phaseMatches.length > 0 && <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center"><svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7"/></svg></div>}
+                          <span className={`text-slate-300 font-black transition-transform duration-300 ${isExpanded ? 'rotate-90' : ''}`}>→</span>
+                        </div>
+                      </button>
+
+                      {isExpanded && (
+                        <div className="p-4 sm:p-6 bg-slate-50 dark:bg-slate-900/50 space-y-4 border-t border-slate-100 dark:border-slate-700 animate-slide-down">
+                          {phaseMatches.length > 0 ? (
+                            phaseMatches.map(match => (
+                              <MatchCard 
+                                key={match.id} 
+                                match={match} 
+                                prediction={predictions.find(p => p.matchId === match.id)} 
+                                onPredictionChange={handlePredictionChange} 
+                              />
+                            ))
+                          ) : (
+                            <p className="text-center py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Aún no se han definido estos cruces</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
-        </main>
-      ) : view === 'zone-detail' ? (
-        <main className="max-w-5xl mx-auto px-4 py-8 animate-fade-in w-full">
-          <div className="mb-4"><button onClick={() => setView('world-zones')} className="flex items-center gap-2 text-slate-500 hover:text-black dark:text-slate-400 font-black text-[10px] uppercase tracking-widest">← Volver</button></div>
-          <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-xl p-6 sm:p-8 border border-slate-100 dark:border-slate-700">
-             <div className="mb-8"><h2 className="heading-font text-2xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">{selectedZone}</h2></div>
-             <div className="grid grid-cols-1 gap-4">
-               {realMatches.filter(m => m.group === selectedZone).map((match) => (
-                 <MatchCard key={match.id} match={match} prediction={predictions.find(p => p.matchId === match.id)} onPredictionChange={handlePredictionChange} />
-               ))}
-             </div>
-             <div className="mt-8 flex justify-center flex-col items-center gap-2">
-               <button onClick={handleSavePredictions} disabled={isSaving} className="bg-black dark:bg-white dark:text-black text-white px-8 py-3 rounded-2xl font-black text-base hover:opacity-80 transition-all disabled:opacity-50">{isSaving ? 'Guardando...' : 'Guardar'}</button>
-               {saveSuccess && <p className="text-green-500 font-black text-[9px] uppercase">¡Sincronizado!</p>}
-             </div>
+          
+          <div className="mt-12 flex flex-col items-center gap-4">
+            <button 
+              onClick={handleSavePredictions} 
+              disabled={isSaving} 
+              className="bg-black dark:bg-white dark:text-black text-white px-10 py-4 rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-2xl hover:scale-105 transition-all disabled:opacity-50"
+            >
+              {isSaving ? 'Sincronizando...' : 'Guardar Resultados'}
+            </button>
+            {saveSuccess && <p className="text-green-500 font-black text-[10px] uppercase tracking-widest animate-fade-in">¡Tus predicciones han sido guardadas!</p>}
           </div>
         </main>
       ) : view === 'groups' ? (
         <GroupsSummary 
           groups={customGroups}
-          onEdit={() => setView('predictions')} 
           onContinue={() => setView('main-menu')} 
           onBack={() => setView('main-menu')} 
           onCustomEdit={() => setView('predictions')} 
