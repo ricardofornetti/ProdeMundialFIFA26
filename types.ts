@@ -14,11 +14,19 @@ export interface User {
   };
 }
 
+export interface GroupMember {
+  username: string;
+  photoUrl: string;
+  score: number;
+  email?: string;
+}
+
 export interface PrivateGroup {
   id: string;
   name: string;
   adminEmail: string;
-  members: string[]; // Lista de nombres de usuario o emails
+  groupPhotoUrl?: string;
+  members: GroupMember[]; 
   createdAt: string;
 }
 
