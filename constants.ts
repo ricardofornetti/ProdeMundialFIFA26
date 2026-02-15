@@ -224,6 +224,7 @@ export const TEAM_FLAGS: Record<string, string> = {
   PL: 'https://flagcdn.com/pl.svg',
   SE: 'https://flagcdn.com/se.svg',
   PA: 'https://flagcdn.com/pa.svg',
+  HU: 'https://flagcdn.com/hu.svg',
   FIFA: 'https://upload.wikimedia.org/wikipedia/commons/4/43/FIFA_World_Cup_2026_logo.svg'
 };
 
@@ -277,5 +278,6 @@ export const TEAM_NAMES: Record<string, string> = {
   PL: 'Polonia',
   SE: 'Suecia',
   PA: 'Panamá',
+  HU: 'Hungría',
   FIFA: 'POR DEFINIR'
 };

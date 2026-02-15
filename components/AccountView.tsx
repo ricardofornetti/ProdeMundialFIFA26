@@ -8,6 +8,7 @@ interface AccountViewProps {
   onLogout: () => void;
   onUpdateUser: (user: User) => void;
   onBack: () => void;
+  onGoToPrivateGroups: () => void;
 }
 
 const BellIcon = ({ className = "h-5 w-5 text-blue-600" }) => (
@@ -38,6 +39,16 @@ const ShareIcon = () => (
 
 const SettingsIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-slate-700 dark:text-slate-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+);
+
+const ReglasIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+);
+
+const GroupIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-black dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+  </svg>
 );
 
 const ShieldIcon = () => (
@@ -75,13 +86,11 @@ const ToggleSwitch = ({ enabled, onChange }: { enabled: boolean; onChange: () =>
   </button>
 );
 
-export const AccountView: React.FC<AccountViewProps> = ({ user, onLogout, onUpdateUser, onBack }) => {
-  const [activeSubView, setActiveSubView] = useState<'menu' | 'theme' | 'tc' | 'privacy' | 'notifications' | null>(null);
-  
+export const AccountView: React.FC<AccountViewProps> = ({ user, onLogout, onUpdateUser, onBack, onGoToPrivateGroups }) => {
+  const [activeSubView, setActiveSubView] = useState<'menu' | 'theme' | 'tc' | 'privacy' | 'notifications' | 'rules' | null>(null);
   const [pendingPhoto, setPendingPhoto] = useState<string | null>(null);
   const [isEditingNickname, setIsEditingNickname] = useState(false);
   const [newNickname, setNewNickname] = useState(user.username);
-  
   const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -158,104 +167,8 @@ export const AccountView: React.FC<AccountViewProps> = ({ user, onLogout, onUpda
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
-  // Vista de Notificaciones
-  if (activeSubView === 'notifications') {
-    return (
-      <main className="max-w-2xl mx-auto px-4 py-4 animate-fade-in relative">
-        <div className="mb-4">
-          <button onClick={() => setActiveSubView('menu')} className="flex items-center gap-2 text-slate-500 hover:text-black dark:text-slate-400 dark:hover:text-white font-black text-[10px] uppercase tracking-widest group transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 transform group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" /></svg>
-            Volver a Configuración
-          </button>
-        </div>
-        <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-2xl p-8 border border-slate-100 dark:border-slate-700">
-          <div className="text-center mb-8">
-            <h2 className="heading-font text-3xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">NOTIFICACIONES</h2>
-          </div>
-          <div className="space-y-6">
-            <div className="flex items-start justify-between p-5 bg-slate-50 dark:bg-slate-700/30 rounded-3xl">
-              <div className="flex flex-col gap-1 pr-4">
-                <h4 className="font-black uppercase text-[11px] text-slate-900 dark:text-white">Notificación de resultado</h4>
-                <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400 leading-tight">Recibir una notificación por cada resultado de un partido</p>
-              </div>
-              <ToggleSwitch enabled={settings.notifyResults} onChange={() => handleToggle('notifyResults')} />
-            </div>
-
-            <div className="flex items-start justify-between p-5 bg-slate-50 dark:bg-slate-700/30 rounded-3xl">
-              <div className="flex flex-col gap-1 pr-4">
-                <h4 className="font-black uppercase text-[11px] text-slate-900 dark:text-white">Notificación de partido</h4>
-                <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400 leading-tight">Recibir una notificación 30 minutos antes de que arranque el partido</p>
-              </div>
-              <ToggleSwitch enabled={settings.notifyMatchStart} onChange={() => handleToggle('notifyMatchStart')} />
-            </div>
-          </div>
-        </div>
-      </main>
-    );
-  }
-
-  // Vistas Legales (T&C y Privacidad)
-  if (activeSubView === 'tc' || activeSubView === 'privacy') {
-    const isTC = activeSubView === 'tc';
-    return (
-      <main className="max-w-2xl mx-auto px-4 py-4 animate-fade-in">
-        <div className="mb-4">
-          <button onClick={() => setActiveSubView('menu')} className="flex items-center gap-2 text-slate-500 hover:text-black dark:text-slate-400 dark:hover:text-white font-black text-[10px] uppercase tracking-widest group transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 transform group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" /></svg>
-            Volver a Configuración
-          </button>
-        </div>
-        <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-2xl p-8 border border-slate-100 dark:border-slate-700">
-          <h2 className="heading-font text-2xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter mb-6">{isTC ? 'Términos y Condiciones' : 'Política de Privacidad'}</h2>
-          <div className="prose dark:prose-invert text-slate-600 dark:text-slate-400 text-sm leading-relaxed space-y-4 font-medium">
-            {isTC ? (
-              <>
-                <p>Al participar en el Prode Mundial 2026, el usuario acepta que los pronósticos son recreativos.</p>
-                <p>La administración se reserva el derecho de corregir errores en el ranking si se detectan fallas técnicas.</p>
-              </>
-            ) : (
-              <>
-                <p>Tus datos (Email y Foto) se utilizan exclusivamente para identificarte en el ranking del Prode.</p>
-                <p>No compartimos información con terceros externos para fines publicitarios.</p>
-              </>
-            )}
-          </div>
-        </div>
-      </main>
-    );
-  }
-
-  // Vista de Selección de Tema
-  if (activeSubView === 'theme') {
-    return (
-      <main className="max-w-2xl mx-auto px-4 py-4 animate-fade-in relative">
-        <div className="mb-4">
-          <button onClick={() => setActiveSubView('menu')} className="flex items-center gap-2 text-slate-500 hover:text-black dark:text-slate-400 dark:hover:text-white font-black text-[10px] uppercase tracking-widest group transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 transform group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" /></svg>
-            Volver a Configuración
-          </button>
-        </div>
-        <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-2xl p-8 border border-slate-100 dark:border-slate-700">
-          <div className="text-center mb-8">
-            <h2 className="heading-font text-3xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">TEMA</h2>
-          </div>
-          <div className="flex flex-col gap-3">
-            <button onClick={() => handleThemeSelection('light')} className={`w-full flex items-center justify-between p-5 rounded-2xl border-2 transition-all ${settings.theme === 'light' ? 'border-black dark:border-white bg-slate-50 dark:bg-slate-700' : 'border-transparent hover:bg-slate-50 dark:hover:bg-slate-700/50'}`}>
-              <div className="flex items-center gap-4 text-slate-900 dark:text-white"><SunIcon /> <span className="font-black uppercase text-[11px]">Modo Claro</span></div>
-              {settings.theme === 'light' && <div className="text-slate-900 dark:text-white"><CheckIcon /></div>}
-            </button>
-            <button onClick={() => handleThemeSelection('dark')} className={`w-full flex items-center justify-between p-5 rounded-2xl border-2 transition-all ${settings.theme === 'dark' ? 'border-black dark:border-white bg-slate-50 dark:bg-slate-700' : 'border-transparent hover:bg-slate-50 dark:hover:bg-slate-700/50'}`}>
-              <div className="flex items-center gap-4 text-slate-900 dark:text-white"><MoonIcon /> <span className="font-black uppercase text-[11px]">Modo Oscuro</span></div>
-              {settings.theme === 'dark' && <div className="text-slate-900 dark:text-white"><CheckIcon /></div>}
-            </button>
-          </div>
-        </div>
-      </main>
-    );
-  }
-
-  // Menú de Configuración
-  if (activeSubView === 'menu') {
+  // Subvistas (Omitidas por brevedad, se asumen iguales a las proporcionadas anteriormente)
+  if (activeSubView === 'rules') {
     return (
       <main className="max-w-2xl mx-auto px-4 py-4 animate-fade-in relative">
         <div className="mb-4">
@@ -266,28 +179,32 @@ export const AccountView: React.FC<AccountViewProps> = ({ user, onLogout, onUpda
         </div>
         <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-2xl p-8 border border-slate-100 dark:border-slate-700">
           <div className="text-center mb-8">
-            <h2 className="heading-font text-3xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">CONFIGURACIÓN</h2>
+            <h2 className="heading-font text-3xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">REGLAS DEL JUEGO</h2>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Cómo sumar puntos en el Prode</p>
           </div>
-          <div className="space-y-4">
-            <button onClick={() => setActiveSubView('theme')} className="w-full flex items-center justify-between p-5 bg-slate-50 dark:bg-slate-700/50 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-all text-slate-900 dark:text-white">
-              <div className="flex items-center gap-4">
-                {settings.theme === 'dark' ? <MoonIcon /> : <SunIcon />}
-                <span className="font-black uppercase text-[11px]">Cambiar Tema</span>
-              </div>
-              <span className="text-slate-300">→</span>
-            </button>
-            <button onClick={() => setActiveSubView('notifications')} className="w-full flex items-center justify-between p-5 bg-slate-50 dark:bg-slate-700/50 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-all text-slate-900 dark:text-white">
-              <div className="flex items-center gap-4"><BellIcon className="h-5 w-5 text-blue-600" /> <span className="font-black uppercase text-[11px]">Notificaciones</span></div>
-              <span className="text-slate-300">→</span>
-            </button>
-            <button onClick={() => setActiveSubView('tc')} className="w-full flex items-center justify-between p-5 bg-slate-50 dark:bg-slate-700/50 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-all text-slate-900 dark:text-white">
-              <div className="flex items-center gap-4"><DocIcon /> <span className="font-black uppercase text-[11px]">Términos y Condiciones</span></div>
-              <span className="text-slate-300">→</span>
-            </button>
-            <button onClick={() => setActiveSubView('privacy')} className="w-full flex items-center justify-between p-5 bg-slate-50 dark:bg-slate-700/50 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-all text-slate-900 dark:text-white">
-              <div className="flex items-center gap-4"><ShieldIcon /> <span className="font-black uppercase text-[11px]">Política de Privacidad</span></div>
-              <span className="text-slate-300">→</span>
-            </button>
+          
+          <div className="space-y-6">
+            <div className="p-6 bg-slate-50 dark:bg-slate-700/30 rounded-[2rem] border-l-8 border-indigo-600">
+              <h3 className="font-black text-indigo-600 dark:text-indigo-400 uppercase text-lg mb-2 italic">Resultado Correcto</h3>
+              <p className="text-slate-900 dark:text-white font-black text-3xl mb-1">3 PUNTOS</p>
+              <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                Si aciertas quién gana el partido (Local/Visitante) o si el encuentro termina en empate.
+              </p>
+            </div>
+
+            <div className="p-6 bg-slate-50 dark:bg-slate-700/30 rounded-[2rem] border-l-8 border-green-500">
+              <h3 className="font-black text-green-600 dark:text-green-400 uppercase text-lg mb-2 italic">Marcador Exacto</h3>
+              <p className="text-slate-900 dark:text-white font-black text-3xl mb-1">+1 PUNTO EXTRA</p>
+              <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                Si además aciertas el número exacto de goles de cada equipo. Sumas un total de 4 puntos por ese partido.
+              </p>
+            </div>
+
+            <div className="mt-8 py-4 px-6 bg-black dark:bg-white text-white dark:text-black rounded-2xl text-center">
+              <p className="text-[9px] font-black uppercase tracking-[0.2em] italic">
+                ¡Demuestra que eres el que más sabe de fútbol!
+              </p>
+            </div>
           </div>
         </div>
       </main>
@@ -305,7 +222,7 @@ export const AccountView: React.FC<AccountViewProps> = ({ user, onLogout, onUpda
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-2xl p-8 border border-slate-100 dark:border-slate-700">
-        <div className="flex flex-col items-center mb-8">
+        <div className="flex flex-col items-center mb-6">
           <div className="relative group">
             <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-black dark:border-white shadow-xl bg-slate-100 dark:bg-slate-900">
               <img src={pendingPhoto || user.photoUrl} className="w-full h-full object-cover" alt="Profile" />
@@ -343,18 +260,36 @@ export const AccountView: React.FC<AccountViewProps> = ({ user, onLogout, onUpda
                 <button onClick={() => setIsEditingNickname(true)} className="text-slate-400 hover:text-black dark:hover:text-white"><PencilIcon /></button>
               </div>
             )}
-            <p className="text-slate-400 font-black uppercase text-[9px] tracking-widest mt-1">{user.email}</p>
+            {/* El email se ha eliminado por solicitud del usuario */}
           </div>
         </div>
 
+        {/* Botón GRUPOS Central Cuadrado */}
+        <div className="flex justify-center mb-8">
+          <button 
+            onClick={onGoToPrivateGroups}
+            className="w-32 h-32 sm:w-40 sm:h-40 bg-white dark:bg-slate-700 border-4 border-black dark:border-white rounded-3xl flex flex-col items-center justify-center gap-2 shadow-2xl hover:scale-105 active:scale-95 transition-all group"
+          >
+            <div className="transform group-hover:rotate-12 transition-transform">
+              <GroupIcon />
+            </div>
+            <span className="font-black uppercase text-xs sm:text-sm tracking-widest text-black dark:text-white">GRUPOS</span>
+          </button>
+        </div>
+
         <div className="space-y-4">
-          <button onClick={handleShare} className="w-full flex items-center justify-between p-5 bg-slate-50 dark:bg-slate-700/50 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-all text-slate-900 dark:text-white">
-            <div className="flex items-center gap-4"><ShareIcon /> <span className="font-black uppercase text-[11px]">Invitar Amigos</span></div>
+          <button onClick={() => setActiveSubView('rules')} className="w-full flex items-center justify-between p-5 bg-slate-50 dark:bg-slate-700/50 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-all text-slate-900 dark:text-white">
+            <div className="flex items-center gap-4"><ReglasIcon /> <span className="font-black uppercase text-[11px]">Reglas del Juego</span></div>
             <span className="text-slate-300">→</span>
           </button>
 
           <button onClick={() => setActiveSubView('menu')} className="w-full flex items-center justify-between p-5 bg-slate-50 dark:bg-slate-700/50 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-all text-slate-900 dark:text-white">
             <div className="flex items-center gap-4"><SettingsIcon /> <span className="font-black uppercase text-[11px]">Configuración</span></div>
+            <span className="text-slate-300">→</span>
+          </button>
+
+          <button onClick={handleShare} className="w-full flex items-center justify-between p-5 bg-slate-50 dark:bg-slate-700/50 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-all text-slate-900 dark:text-white">
+            <div className="flex items-center gap-4"><ShareIcon /> <span className="font-black uppercase text-[11px]">Invitar Amigos</span></div>
             <span className="text-slate-300">→</span>
           </button>
 

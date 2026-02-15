@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { User, Prediction, View, Match, AuthMode } from './types';
 import { AuthForm } from './components/AuthForm';
@@ -7,6 +8,9 @@ import { Leaderboard } from './components/Leaderboard';
 import { AccountView } from './components/AccountView';
 import { GroupEditor } from './components/GroupEditor';
 import { FullCalendar } from './components/FullCalendar';
+import { HistoryView } from './components/HistoryView';
+import { GalleryView } from './components/GalleryView';
+import { PrivateGroupsView } from './components/PrivateGroupsView';
 import { WORLD_CUP_MATCHES, WORLD_CUP_GROUPS, KNOCKOUT_PHASES } from './constants';
 import { db, saveUserPrediction, getUserPredictions, getRealMatches } from './services/firebaseService';
 import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -23,6 +27,15 @@ const PhaseIcon = ({ type }: { type: string }) => {
   }
 };
 
+const NavIcon = ({ type }: { type: 'rank' | 'history' | 'gallery' | 'user' }) => {
+  switch (type) {
+    case 'rank': return <svg className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>;
+    case 'history': return <svg className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
+    case 'gallery': return <svg className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>;
+    case 'user': return <svg className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>;
+  }
+};
+
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [view, setView] = useState<View>('auth');
@@ -34,7 +47,6 @@ const App: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  // Toggles the expansion of a group/phase to show its matches
   const toggleZone = (zoneName: string) => {
     setExpandedZones(prev => 
       prev.includes(zoneName) 
@@ -43,7 +55,6 @@ const App: React.FC = () => {
     );
   };
 
-  // Cargar configuración guardada
   useEffect(() => {
     const savedGroups = localStorage.getItem('custom_world_cup_groups');
     if (savedGroups) {
@@ -62,7 +73,6 @@ const App: React.FC = () => {
           document.documentElement.classList.add('dark');
         }
         
-        // Cargar predicciones locales
         const savedPreds = localStorage.getItem(`prode_predictions_${parsedUser.email || parsedUser.username}`);
         if (savedPreds) {
           setPredictions(JSON.parse(savedPreds));
@@ -71,18 +81,28 @@ const App: React.FC = () => {
         setView('auth');
       }
     }
+
+    const fetchMatches = async () => {
+      const cloudMatches = await getRealMatches();
+      if (cloudMatches.length > 0) {
+        // Combinar datos locales estáticos con resultados reales de la nube
+        const merged = WORLD_CUP_MATCHES.map(m => {
+          const cloud = cloudMatches.find(cm => cm.id === m.id);
+          return cloud ? { ...m, ...cloud } : m;
+        });
+        setRealMatches(merged as Match[]);
+      }
+    };
+    fetchMatches();
   }, []);
 
   const updateMatchesFromGroups = (groups: typeof WORLD_CUP_GROUPS) => {
     const newMatches = WORLD_CUP_MATCHES.map(match => {
       const groupInfo = groups.find(g => match.group.includes(g.name));
       if (!groupInfo) return match;
-
-      // Determinamos qué partido del grupo es (1, 2, 3...)
-      // Esto es una simplificación, en un sistema real se mapearía por ID exacto
       return match;
     });
-    setRealMatches(newMatches);
+    setRealMatches(newMatches as Match[]);
   };
 
   const handleSaveCustomGroups = (updatedGroups: typeof WORLD_CUP_GROUPS) => {
@@ -179,15 +199,44 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full bg-slate-50 dark:bg-slate-900 pb-20 transition-colors duration-300 overflow-x-hidden">
-      <header className="sticky top-0 z-40 bg-black border-b border-white/10 shadow-xl">
-        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between gap-2">
-          <button onClick={() => setView('main-menu')} className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full transition-all border-2 font-black text-[9px] sm:text-[10px] uppercase tracking-widest ${view === 'main-menu' ? 'bg-white border-white text-black' : 'bg-white/10 border-transparent text-white hover:bg-white/20'}`}>
-             <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded flex items-center justify-center font-black text-[8px] sm:text-[10px] ${view === 'main-menu' ? 'bg-black text-white' : 'bg-white text-black'}`}>26</div>
-             <span className="hidden xs:inline">PRODE</span>
-          </button>
-          <div className="flex items-center gap-2">
-            <button onClick={() => setView('leaderboard')} className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full transition-all border-2 font-black text-[9px] sm:text-[10px] uppercase tracking-widest ${view === 'leaderboard' ? 'bg-white border-white text-black' : 'bg-white/10 border-transparent text-white hover:bg-white/20'}`}><span className="hidden xs:inline">RANKING</span></button>
-            <button onClick={() => setView('account')} className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full transition-all border-2 font-black text-[9px] sm:text-[10px] uppercase tracking-widest ${view === 'account' ? 'bg-white border-white text-black' : 'bg-white/10 border-transparent text-white hover:bg-white/20'}`}><span className="hidden xs:inline">CUENTA</span></button>
+      <header className="sticky top-0 z-40 bg-black border-b border-white/10 shadow-xl w-full">
+        <div className="w-full px-1 h-16 flex items-center">
+          <div className="grid grid-cols-5 gap-1 w-full max-w-7xl mx-auto px-1">
+            <button 
+              onClick={() => setView('main-menu')} 
+              className={`flex flex-row items-center justify-center py-2 rounded-xl transition-all border font-black text-[7.5px] sm:text-[10px] uppercase tracking-tighter sm:tracking-widest ${view === 'main-menu' ? 'bg-white border-white text-black' : 'bg-white/5 border-transparent text-white/70 hover:bg-white/20'}`}
+            >
+              <span>PRODE</span>
+              <div className={`w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 rounded flex items-center justify-center font-black text-[6px] sm:text-[9px] ml-1 ${view === 'main-menu' ? 'bg-black text-white' : 'bg-white text-black'}`}>26</div>
+            </button>
+            <button 
+              onClick={() => setView('leaderboard')} 
+              className={`flex flex-row items-center justify-center py-2 rounded-xl transition-all border font-black text-[7.5px] sm:text-[10px] uppercase tracking-tighter sm:tracking-widest ${view === 'leaderboard' ? 'bg-white border-white text-black' : 'bg-white/5 border-transparent text-white/70 hover:bg-white/20'}`}
+            >
+              <span>RANKING</span>
+              <NavIcon type="rank" />
+            </button>
+            <button 
+              onClick={() => setView('history')} 
+              className={`flex flex-row items-center justify-center py-2 rounded-xl transition-all border font-black text-[7.5px] sm:text-[10px] uppercase tracking-tighter sm:tracking-widest ${view === 'history' ? 'bg-white border-white text-black' : 'bg-white/5 border-transparent text-white/70 hover:bg-white/20'}`}
+            >
+              <span>HISTORIA</span>
+              <NavIcon type="history" />
+            </button>
+            <button 
+              onClick={() => setView('gallery')} 
+              className={`flex flex-row items-center justify-center py-2 rounded-xl transition-all border font-black text-[7.5px] sm:text-[10px] uppercase tracking-tighter sm:tracking-widest ${view === 'gallery' ? 'bg-white border-white text-black' : 'bg-white/5 border-transparent text-white/70 hover:bg-white/20'}`}
+            >
+              <span>GALERIA</span>
+              <NavIcon type="gallery" />
+            </button>
+            <button 
+              onClick={() => setView('account')} 
+              className={`flex flex-row items-center justify-center py-2 rounded-xl transition-all border font-black text-[7.5px] sm:text-[10px] uppercase tracking-tighter sm:tracking-widest ${view === 'account' ? 'bg-white border-white text-black' : 'bg-white/5 border-transparent text-white/70 hover:bg-white/20'}`}
+            >
+              <span>CUENTA</span>
+              <NavIcon type="user" />
+            </button>
           </div>
         </div>
       </header>
@@ -219,7 +268,7 @@ const App: React.FC = () => {
             </button>
             <button onClick={() => setView('calendar')} className="group bg-white dark:bg-slate-800 p-6 rounded-[2rem] shadow-lg border-2 border-transparent hover:border-blue-600 transition-all text-left flex flex-col justify-between h-44 sm:h-52">
               <div>
-                <div className="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center mb-3 shadow-md"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg></div>
+                <div className="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center mb-3 shadow-md"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z" /></svg></div>
                 <h3 className="heading-font text-lg font-black text-slate-900 dark:text-white uppercase">Calendario</h3>
                 <p className="text-slate-400 font-bold text-[8px] uppercase tracking-widest">Fixture Completo</p>
               </div>
@@ -242,7 +291,6 @@ const App: React.FC = () => {
           <div className="text-center mb-8"><h2 className="heading-font text-2xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">FASES DEL MUNDIAL</h2></div>
           
           <div className="space-y-12">
-            {/* FASE DE GRUPOS */}
             <div>
               <h3 className="heading-font text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4 ml-4">FASE DE GRUPOS</h3>
               <div className="space-y-4">
@@ -267,7 +315,7 @@ const App: React.FC = () => {
                            </div>
                         </div>
                         <div className="flex items-center gap-3">
-                          {completedPreds === groupMatches.length && <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center"><svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7"/></svg></div>}
+                          {completedPreds === groupMatches.length && <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center"><svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M5 13l4 4L19 7"/></svg></div>}
                           <span className={`text-slate-300 font-black transition-transform duration-300 ${isExpanded ? 'rotate-90' : ''}`}>→</span>
                         </div>
                       </button>
@@ -290,7 +338,6 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            {/* PLAY-OFFS */}
             <div>
               <h3 className="heading-font text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4 ml-4">PLAY-OFFS</h3>
               <div className="space-y-4">
@@ -315,7 +362,7 @@ const App: React.FC = () => {
                            </div>
                         </div>
                         <div className="flex items-center gap-3">
-                          {completedPreds === phaseMatches.length && phaseMatches.length > 0 && <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center"><svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7"/></svg></div>}
+                          {completedPreds === phaseMatches.length && phaseMatches.length > 0 && <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center"><svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M5 13l4 4L19 7"/></svg></div>}
                           <span className={`text-slate-300 font-black transition-transform duration-300 ${isExpanded ? 'rotate-90' : ''}`}>→</span>
                         </div>
                       </button>
@@ -357,6 +404,7 @@ const App: React.FC = () => {
       ) : view === 'groups' ? (
         <GroupsSummary 
           groups={customGroups}
+          matches={realMatches}
           onContinue={() => setView('main-menu')} 
           onBack={() => setView('main-menu')} 
           onCustomEdit={() => setView('predictions')} 
@@ -369,8 +417,20 @@ const App: React.FC = () => {
         />
       ) : view === 'leaderboard' ? (
         <Leaderboard user={user!} userScore={userScore} onBack={() => setView('main-menu')} />
+      ) : view === 'history' ? (
+        <HistoryView onBack={() => setView('main-menu')} />
+      ) : view === 'gallery' ? (
+        <GalleryView onBack={() => setView('main-menu')} />
       ) : view === 'account' ? (
-        <AccountView user={user!} onLogout={logout} onUpdateUser={handleUpdateUser} onBack={() => setView('main-menu')} />
+        <AccountView 
+          user={user!} 
+          onLogout={logout} 
+          onUpdateUser={handleUpdateUser} 
+          onBack={() => setView('main-menu')} 
+          onGoToPrivateGroups={() => setView('private-groups')}
+        />
+      ) : view === 'private-groups' ? (
+        <PrivateGroupsView user={user!} onBack={() => setView('account')} />
       ) : view === 'calendar' ? (
         <main className="max-w-4xl mx-auto px-4 py-8 animate-fade-in w-full">
            <div className="mb-6"><button onClick={() => setView('main-menu')} className="flex items-center gap-2 text-slate-500 hover:text-black dark:text-slate-400 dark:hover:text-white font-black text-[10px] uppercase tracking-widest">← Volver</button></div>
