@@ -11,9 +11,10 @@ import {
   where, 
   orderBy,
   updateDoc,
-  limit
+  limit,
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { Match, User } from "../types";
+import { Match, User, PrivateGroup } from "../types";
 
 // Credenciales reales proporcionadas por el usuario
 const firebaseConfig = {
@@ -37,7 +38,6 @@ export { db };
 
 // --- GESTIÓN DE USUARIOS ---
 
-// Crea o actualiza una cuenta de usuario completa
 export const saveUserAccount = async (user: User) => {
   if (!db) return;
   const userRef = doc(db, "users", user.email || user.username);
@@ -47,27 +47,42 @@ export const saveUserAccount = async (user: User) => {
   }, { merge: true });
 };
 
-// Busca un usuario para el login (por email o username)
 export const getUserAccount = async (identifier: string): Promise<any | null> => {
   if (!db) return null;
-  
-  // Intentar buscar por el ID de documento (email o username exacto)
   const userRef = doc(db, "users", identifier);
   const userDoc = await getDoc(userRef);
-  
-  if (userDoc.exists()) {
-    return userDoc.data();
-  }
-
-  // Si no se encuentra, intentar buscar en el campo 'username'
+  if (userDoc.exists()) return userDoc.data();
   const q = query(collection(db, "users"), where("username", "==", identifier), limit(1));
   const querySnapshot = await getDocs(q);
-  
-  if (!querySnapshot.empty) {
-    return querySnapshot.docs[0].data();
-  }
-
+  if (!querySnapshot.empty) return querySnapshot.docs[0].data();
   return null;
+};
+
+// --- GESTIÓN DE GRUPOS PRIVADOS ---
+
+export const saveCloudGroup = async (group: PrivateGroup) => {
+  if (!db) return;
+  // Guardamos una lista de correos para facilitar las consultas de "mis grupos"
+  const memberEmails = group.members.map(m => m.email).filter(Boolean);
+  const groupRef = doc(db, "groups", group.id);
+  await setDoc(groupRef, {
+    ...group,
+    memberEmails, // Campo extra para consultas eficientes
+    updatedAt: new Date().toISOString()
+  }, { merge: true });
+};
+
+export const getUserCloudGroups = async (userEmail: string): Promise<PrivateGroup[]> => {
+  if (!db) return [];
+  try {
+    // Buscamos grupos donde el usuario sea miembro (ya sea admin o invitado)
+    const q = query(collection(db, "groups"), where("memberEmails", "array-contains", userEmail));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => doc.data() as PrivateGroup);
+  } catch (e) {
+    console.error("Error al obtener grupos de la nube:", e);
+    return [];
+  }
 };
 
 // --- GESTIÓN DE PARTIDOS Y PREDICCIONES ---

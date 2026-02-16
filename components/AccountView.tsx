@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { User } from '../types';
 import { Toast, ToastType } from './Toast';
 
@@ -11,7 +11,7 @@ interface AccountViewProps {
   onGoToPrivateGroups: () => void;
 }
 
-const BellIcon = ({ className = "h-5 w-5 text-blue-600" }) => (
+const BellIcon = ({ className = "h-5 w-5 text-sky-400" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
   </svg>
@@ -69,12 +69,6 @@ const PencilIcon = ({ color = 'currentColor' }: { color?: string }) => (
   </svg>
 );
 
-const CheckIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-  </svg>
-);
-
 const ToggleSwitch = ({ enabled, onChange }: { enabled: boolean; onChange: () => void }) => (
   <button
     onClick={onChange}
@@ -118,12 +112,14 @@ export const AccountView: React.FC<AccountViewProps> = ({ user, onLogout, onUpda
     
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
+      localStorage.setItem('theme_preference', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme_preference', 'light');
     }
     
     showAlert(`Tema ${theme === 'light' ? 'claro' : 'oscuro'} aplicado`, 'success');
-    setActiveSubView('menu');
+    setActiveSubView(null);
   };
 
   const handleSaveNickname = () => {
@@ -167,7 +163,6 @@ export const AccountView: React.FC<AccountViewProps> = ({ user, onLogout, onUpda
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
-  // Subvistas (Omitidas por brevedad, se asumen iguales a las proporcionadas anteriormente)
   if (activeSubView === 'rules') {
     return (
       <main className="max-w-2xl mx-auto px-4 py-4 animate-fade-in relative">
@@ -182,28 +177,16 @@ export const AccountView: React.FC<AccountViewProps> = ({ user, onLogout, onUpda
             <h2 className="heading-font text-3xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">REGLAS DEL JUEGO</h2>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Cómo sumar puntos en el Prode</p>
           </div>
-          
           <div className="space-y-6">
             <div className="p-6 bg-slate-50 dark:bg-slate-700/30 rounded-[2rem] border-l-8 border-indigo-600">
               <h3 className="font-black text-indigo-600 dark:text-indigo-400 uppercase text-lg mb-2 italic">Resultado Correcto</h3>
               <p className="text-slate-900 dark:text-white font-black text-3xl mb-1">3 PUNTOS</p>
-              <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-                Si aciertas quién gana el partido (Local/Visitante) o si el encuentro termina en empate.
-              </p>
+              <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Si aciertas quién gana el partido (Local/Visitante) o si el encuentro termina en empate.</p>
             </div>
-
             <div className="p-6 bg-slate-50 dark:bg-slate-700/30 rounded-[2rem] border-l-8 border-green-500">
               <h3 className="font-black text-green-600 dark:text-green-400 uppercase text-lg mb-2 italic">Marcador Exacto</h3>
               <p className="text-slate-900 dark:text-white font-black text-3xl mb-1">+1 PUNTO EXTRA</p>
-              <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-                Si además aciertas el número exacto de goles de cada equipo. Sumas un total de 4 puntos por ese partido.
-              </p>
-            </div>
-
-            <div className="mt-8 py-4 px-6 bg-black dark:bg-white text-white dark:text-black rounded-2xl text-center">
-              <p className="text-[9px] font-black uppercase tracking-[0.2em] italic">
-                ¡Demuestra que eres el que más sabe de fútbol!
-              </p>
+              <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Si además aciertas el número exacto de goles de cada equipo. Sumas un total de 4 puntos por ese partido.</p>
             </div>
           </div>
         </div>
@@ -211,7 +194,85 @@ export const AccountView: React.FC<AccountViewProps> = ({ user, onLogout, onUpda
     );
   }
 
-  // Vista Principal de Cuenta
+  if (activeSubView === 'menu') {
+    return (
+      <main className="max-w-2xl mx-auto px-4 py-4 animate-fade-in relative">
+        <div className="mb-4">
+          <button onClick={() => setActiveSubView(null)} className="flex items-center gap-2 text-slate-500 hover:text-black dark:text-slate-400 dark:hover:text-white font-black text-[10px] uppercase tracking-widest group transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 transform group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" /></svg>
+            Volver
+          </button>
+        </div>
+        <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-2xl p-8 border border-slate-100 dark:border-slate-700">
+          <div className="text-center mb-8">
+            <h2 className="heading-font text-3xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">CONFIGURACIÓN</h2>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Ajusta tu experiencia mundialista</p>
+          </div>
+          
+          <div className="space-y-8">
+            <section>
+              <h3 className="text-[10px] font-black text-sky-400 uppercase tracking-[0.3em] mb-4 flex items-center gap-2">
+                <BellIcon className="h-4 w-4 text-sky-400" /> NOTIFICACIONES
+              </h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700/30 rounded-2xl">
+                  <div>
+                    <span className="block font-black text-[11px] text-slate-900 dark:text-white uppercase">Resultados de Partidos</span>
+                    <span className="text-[9px] font-bold text-slate-400 uppercase">Te avisaremos cuando finalice un encuentro</span>
+                  </div>
+                  <ToggleSwitch enabled={settings.notifyResults} onChange={() => handleToggle('notifyResults')} />
+                </div>
+                <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700/30 rounded-2xl">
+                  <div>
+                    <span className="block font-black text-[11px] text-slate-900 dark:text-white uppercase">Inicio de Partidos</span>
+                    <span className="text-[9px] font-bold text-slate-400 uppercase">Avisos 15 min antes del pitazo inicial</span>
+                  </div>
+                  <ToggleSwitch enabled={settings.notifyMatchStart} onChange={() => handleToggle('notifyMatchStart')} />
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4 flex items-center gap-2">
+                APARIENCIA
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <button 
+                  onClick={() => handleThemeSelection('light')}
+                  className={`p-6 rounded-3xl border-2 transition-all flex flex-col items-center gap-3 ${settings.theme === 'light' ? 'border-black bg-slate-50' : 'border-transparent bg-slate-100/50'}`}
+                >
+                  <SunIcon />
+                  <span className="font-black text-[10px] uppercase text-slate-900 dark:text-white">Claro</span>
+                </button>
+                <button 
+                  onClick={() => handleThemeSelection('dark')}
+                  className={`p-6 rounded-3xl border-2 transition-all flex flex-col items-center gap-3 ${settings.theme === 'dark' ? 'border-white bg-slate-700' : 'border-transparent bg-slate-100/50'}`}
+                >
+                  <MoonIcon />
+                  <span className="font-black text-[10px] uppercase text-slate-900 dark:text-white">Oscuro</span>
+                </button>
+              </div>
+            </section>
+
+            <section>
+              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4">LEGAL</h3>
+              <div className="space-y-2">
+                <button className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700/30 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
+                  <div className="flex items-center gap-3"><DocIcon /> <span className="font-black text-[10px] uppercase text-slate-900 dark:text-white">Términos y Condiciones</span></div>
+                  <span className="text-slate-300">→</span>
+                </button>
+                <button className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700/30 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
+                  <div className="flex items-center gap-3"><ShieldIcon /> <span className="font-black text-[10px] uppercase text-slate-900 dark:text-white">Política de Privacidad</span></div>
+                  <span className="text-slate-300">→</span>
+                </button>
+              </div>
+            </section>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="max-w-2xl mx-auto px-4 py-4 animate-fade-in relative">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
@@ -260,11 +321,9 @@ export const AccountView: React.FC<AccountViewProps> = ({ user, onLogout, onUpda
                 <button onClick={() => setIsEditingNickname(true)} className="text-slate-400 hover:text-black dark:hover:text-white"><PencilIcon /></button>
               </div>
             )}
-            {/* El email se ha eliminado por solicitud del usuario */}
           </div>
         </div>
 
-        {/* Botón GRUPOS Central Cuadrado */}
         <div className="flex justify-center mb-8">
           <button 
             onClick={onGoToPrivateGroups}

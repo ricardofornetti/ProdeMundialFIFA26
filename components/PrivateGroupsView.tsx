@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { User, PrivateGroup, GroupMember } from '../types';
+import { db, saveCloudGroup, getUserCloudGroups } from '../services/firebaseService';
 
 interface PrivateGroupsViewProps {
   user: User;
@@ -11,6 +12,7 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
   const [viewMode, setViewMode] = useState<'list' | 'create' | 'detail' | 'ranking' | 'edit'>('list');
   const [groups, setGroups] = useState<PrivateGroup[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<PrivateGroup | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   
   // States for creation/editing
   const [groupName, setGroupName] = useState('');
@@ -21,17 +23,24 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Carga inicial desde la nube
   useEffect(() => {
-    const savedGroups = localStorage.getItem(`private_groups_${user.email}`);
-    if (savedGroups) {
-      setGroups(JSON.parse(savedGroups));
-    }
+    const fetchGroups = async () => {
+      setIsLoading(true);
+      try {
+        const cloudGroups = await getUserCloudGroups(user.email);
+        setGroups(cloudGroups);
+      } catch (err) {
+        console.error("Error fetching cloud groups:", err);
+        // Fallback a local storage por si acaso el usuario no tiene conexión pero sí datos previos
+        const saved = localStorage.getItem(`private_groups_${user.email}`);
+        if (saved) setGroups(JSON.parse(saved));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchGroups();
   }, [user.email]);
-
-  const saveGroupsToLocal = (newGroups: PrivateGroup[]) => {
-    setGroups(newGroups);
-    localStorage.setItem(`private_groups_${user.email}`, JSON.stringify(newGroups));
-  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -56,61 +65,57 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
   };
 
   const handleRemoveMember = (memberEmail?: string) => {
-    // No permitir remover al administrador si es el creador
     if (memberEmail === selectedGroup?.adminEmail && viewMode === 'edit') return;
     setInvitedMembers(invitedMembers.filter(m => m.email !== memberEmail));
   };
 
-  const handleSaveGroup = () => {
+  const handleSaveGroup = async () => {
     if (!groupName.trim()) return;
     setIsProcessing(true);
     
-    if (viewMode === 'create') {
-      const adminMember: GroupMember = {
-        username: user.username,
-        photoUrl: user.photoUrl,
-        score: user.totalScore || 0,
-        email: user.email
-      };
+    try {
+      if (viewMode === 'create') {
+        const adminMember: GroupMember = {
+          username: user.username,
+          photoUrl: user.photoUrl,
+          score: user.totalScore || 0,
+          email: user.email
+        };
 
-      const newGroup: PrivateGroup = {
-        id: Math.random().toString(36).substr(2, 9),
-        name: groupName,
-        adminEmail: user.email,
-        groupPhotoUrl: groupPhoto || undefined,
-        members: [adminMember, ...invitedMembers],
-        createdAt: new Date().toISOString()
-      };
+        const newGroup: PrivateGroup = {
+          id: Math.random().toString(36).substr(2, 9),
+          name: groupName,
+          adminEmail: user.email,
+          groupPhotoUrl: groupPhoto || undefined,
+          members: [adminMember, ...invitedMembers],
+          createdAt: new Date().toISOString()
+        };
 
-      setTimeout(() => {
-        const updatedGroups = [...groups, newGroup];
-        saveGroupsToLocal(updatedGroups);
+        await saveCloudGroup(newGroup);
+        setGroups(prev => [...prev, newGroup]);
         resetFormAndToList();
-      }, 800);
-    } else if (viewMode === 'edit' && selectedGroup) {
-      const updatedGroups = groups.map(g => {
-        if (g.id === selectedGroup.id) {
-          return {
-            ...g,
-            name: groupName,
-            groupPhotoUrl: groupPhoto || g.groupPhotoUrl,
-            members: invitedMembers
-          };
-        }
-        return g;
-      });
-      
-      setTimeout(() => {
-        saveGroupsToLocal(updatedGroups);
-        const updated = updatedGroups.find(g => g.id === selectedGroup.id);
-        if (updated) setSelectedGroup(updated);
+      } else if (viewMode === 'edit' && selectedGroup) {
+        const updatedGroup: PrivateGroup = {
+          ...selectedGroup,
+          name: groupName,
+          groupPhotoUrl: groupPhoto || selectedGroup.groupPhotoUrl,
+          members: invitedMembers
+        };
+
+        await saveCloudGroup(updatedGroup);
+        setGroups(prev => prev.map(g => g.id === updatedGroup.id ? updatedGroup : g));
+        setSelectedGroup(updatedGroup);
         resetFormAndToDetail();
-      }, 800);
+      }
+    } catch (err) {
+      console.error("Error saving group:", err);
+      alert("Hubo un error al guardar el grupo en la nube.");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   const resetFormAndToList = () => {
-    setIsProcessing(false);
     setGroupName('');
     setGroupPhoto(null);
     setInvitedMembers([]);
@@ -118,7 +123,6 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
   };
 
   const resetFormAndToDetail = () => {
-    setIsProcessing(false);
     setGroupName('');
     setGroupPhoto(null);
     setInvitedMembers([]);
@@ -174,7 +178,12 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-2xl p-8 border border-slate-100 dark:border-slate-700 min-h-[400px]">
-        {viewMode === 'list' && (
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="w-12 h-12 border-4 border-black dark:border-white border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sincronizando grupos...</p>
+          </div>
+        ) : viewMode === 'list' ? (
           <div className="animate-fade-in">
             <div className="text-center mb-8">
               <h2 className="heading-font text-3xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">MIS GRUPOS</h2>
@@ -220,9 +229,7 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
               </div>
             )}
           </div>
-        )}
-
-        {(viewMode === 'create' || viewMode === 'edit') && (
+        ) : (viewMode === 'create' || viewMode === 'edit') ? (
           <div className="animate-fade-in">
             <div className="text-center mb-8">
               <h2 className="heading-font text-3xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">
@@ -313,9 +320,7 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
               </div>
             </div>
           </div>
-        )}
-
-        {viewMode === 'detail' && selectedGroup && (
+        ) : viewMode === 'detail' && selectedGroup ? (
           <div className="animate-fade-in">
             <div className="flex flex-col items-center mb-8">
               <div className="w-24 h-24 rounded-[2rem] overflow-hidden border-4 border-black dark:border-white shadow-xl bg-slate-100 mb-4">
@@ -395,9 +400,7 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
               </div>
             </div>
           </div>
-        )}
-
-        {viewMode === 'ranking' && selectedGroup && (
+        ) : viewMode === 'ranking' && selectedGroup ? (
           <div className="animate-fade-in">
             <div className="text-center mb-8">
               <h3 className="text-yellow-500 font-black text-[10px] uppercase tracking-[0.3em] mb-2">TABLA DE POSICIONES</h3>
@@ -446,7 +449,7 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
               </button>
             </div>
           </div>
-        )}
+        ) : null}
       </div>
     </main>
   );

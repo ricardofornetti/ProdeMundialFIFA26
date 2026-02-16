@@ -11,6 +11,7 @@ import { FullCalendar } from './components/FullCalendar';
 import { HistoryView } from './components/HistoryView';
 import { GalleryView } from './components/GalleryView';
 import { PrivateGroupsView } from './components/PrivateGroupsView';
+import { Chatbot } from './components/Chatbot';
 import { WORLD_CUP_MATCHES, WORLD_CUP_GROUPS, KNOCKOUT_PHASES } from './constants';
 import { db, saveUserPrediction, getUserPredictions, getRealMatches } from './services/firebaseService';
 import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -63,14 +64,24 @@ const App: React.FC = () => {
       updateMatchesFromGroups(parsedGroups);
     }
 
+    // Aplicar tema persistente inmediatamente
+    const themePref = localStorage.getItem('theme_preference');
+    if (themePref === 'dark') {
+      document.documentElement.classList.add('dark');
+    }
+
     const activeUser = localStorage.getItem('active_user');
     if (activeUser) {
       try {
         const parsedUser = JSON.parse(activeUser);
         setUser(parsedUser);
         setView('main-menu');
+        
+        // El tema del usuario logueado manda si existe
         if (parsedUser.settings?.theme === 'dark') {
           document.documentElement.classList.add('dark');
+        } else if (parsedUser.settings?.theme === 'light') {
+          document.documentElement.classList.remove('dark');
         }
         
         const savedPreds = localStorage.getItem(`prode_predictions_${parsedUser.email || parsedUser.username}`);
@@ -85,7 +96,6 @@ const App: React.FC = () => {
     const fetchMatches = async () => {
       const cloudMatches = await getRealMatches();
       if (cloudMatches.length > 0) {
-        // Combinar datos locales estáticos con resultados reales de la nube
         const merged = WORLD_CUP_MATCHES.map(m => {
           const cloud = cloudMatches.find(cm => cm.id === m.id);
           return cloud ? { ...m, ...cloud } : m;
@@ -136,6 +146,14 @@ const App: React.FC = () => {
     localStorage.setItem('active_user', JSON.stringify(authUser));
     setUser(authUser);
     setView('main-menu');
+    
+    // Aplicar tema del usuario al entrar
+    if (authUser.settings?.theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else if (authUser.settings?.theme === 'light') {
+      document.documentElement.classList.remove('dark');
+    }
+    
     if (db) {
       const userRef = doc(db, "users", authUser.email || authUser.username);
       await setDoc(userRef, { ...authUser, lastLogin: new Date() }, { merge: true });
@@ -181,7 +199,11 @@ const App: React.FC = () => {
     setUser(null);
     setView('auth');
     setPredictions([]);
-    document.documentElement.classList.remove('dark');
+    // Mantener el tema de localStorage incluso al cerrar sesión si se desea
+    const themePref = localStorage.getItem('theme_preference');
+    if (themePref !== 'dark') {
+      document.documentElement.classList.remove('dark');
+    }
   };
 
   const userScore = calculateTotalScore(predictions);
@@ -437,6 +459,9 @@ const App: React.FC = () => {
            <FullCalendar matches={realMatches} />
         </main>
       ) : null}
+      
+      {/* Chatbot Integrado */}
+      <Chatbot />
     </div>
   );
 };

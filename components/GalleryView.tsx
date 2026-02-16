@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 
 interface GalleryImage {
@@ -20,7 +21,7 @@ const GALLERY_DATA: GalleryItem[] = [
     year: 2022,
     host: 'Catar',
     images: [
-      { url: 'https://images.unsplash.com/photo-1671207802802-3932782b5344?q=80&w=1200&auto=format&fit=crop', caption: 'Lionel Messi besando la Copa del Mundo tras vencer a Francia en la final más emocionante de la historia.' },
+      { url: 'https://images.unsplash.com/photo-1671212040038-473a8d9d332f?q=80&w=1200&auto=format&fit=crop', caption: 'Lionel Messi besando la Copa del Mundo tras vencer a Francia en la final más emocionante de la historia.' },
       { url: 'https://images.unsplash.com/photo-1671206734368-24cc541d40ca?q=80&w=1200&auto=format&fit=crop', caption: 'Emiliano "Dibu" Martínez realizando la atajada del siglo frente a Kolo Muani en el minuto 123.' }
     ]
   },
