@@ -2,8 +2,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
 interface Message {
   role: 'user' | 'model';
   text: string;
@@ -33,6 +31,9 @@ export const Chatbot: React.FC = () => {
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsTyping(true);
+
+    // Create a new GoogleGenAI instance right before making an API call to ensure it always uses the most up-to-date API key.
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
     try {
       const response = await ai.models.generateContent({

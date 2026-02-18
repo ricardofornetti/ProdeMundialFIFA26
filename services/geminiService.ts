@@ -1,9 +1,9 @@
 
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
+// Instantiate right before API calls to ensure most up-to-date API key
 export const generateValidationEmail = async (username: string, photoUrl: string) => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   try {
     const prompt = `Redacta un correo electrónico formal pero muy entusiasta para validar el registro de un usuario en la aplicación "Prode Mundial 2026". 
     Datos del usuario:
@@ -29,6 +29,7 @@ export const generateValidationEmail = async (username: string, photoUrl: string
 };
 
 export const getSportsAnalysis = async (username: string, score: number, analysisData: any[]) => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   try {
     const prompt = `Actúa como un analista deportivo experto y apasionado. 
     El usuario "${username}" ha obtenido ${score} puntos en el Prode del Mundial 2026.

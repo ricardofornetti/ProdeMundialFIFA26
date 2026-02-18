@@ -21,8 +21,8 @@ const GALLERY_DATA: GalleryItem[] = [
     year: 2022,
     host: 'Catar',
     images: [
-      { url: 'https://images.unsplash.com/photo-1671212040038-473a8d9d332f?q=80&w=1200&auto=format&fit=crop', caption: 'Lionel Messi besando la Copa del Mundo tras vencer a Francia en la final más emocionante de la historia.' },
-      { url: 'https://images.unsplash.com/photo-1671206734368-24cc541d40ca?q=80&w=1200&auto=format&fit=crop', caption: 'Emiliano "Dibu" Martínez realizando la atajada del siglo frente a Kolo Muani en el minuto 123.' }
+      { url: 'https://images.unsplash.com/photo-1671206734368-24cc541d40ca?q=80&w=1200&auto=format&fit=crop', caption: 'Lionel Messi besando la Copa del Mundo tras vencer a Francia en la final más emocionante de la historia.' },
+      { url: 'https://images.unsplash.com/photo-1671212040038-473a8d9d332f?q=80&w=1200&auto=format&fit=crop', caption: 'Emiliano "Dibu" Martínez realizando la atajada del siglo frente a Kolo Muani en el minuto 123.' }
     ]
   },
   {
@@ -63,134 +63,6 @@ const GALLERY_DATA: GalleryItem[] = [
     images: [
       { url: 'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?q=80&w=1200&auto=format&fit=crop', caption: 'Ronaldo Nazário con su icónico peinado tras marcar dos goles en la final contra Alemania.' },
       { url: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=1200&auto=format&fit=crop', caption: 'La decepción de Oliver Kahn tras su único error en todo el torneo.' }
-    ]
-  },
-  {
-    year: 1998,
-    host: 'Francia',
-    images: [
-      { url: 'https://images.unsplash.com/photo-1563299796-17596ed6b017?q=80&w=1200&auto=format&fit=crop', caption: 'Zinedine Zidane celebrando uno de sus dos goles de cabeza en la final contra Brasil.' },
-      { url: 'https://images.unsplash.com/photo-1551958219-acbc608c6377?q=80&w=1200&auto=format&fit=crop', caption: 'Dennis Bergkamp y su control irreal para eliminar a Argentina en cuartos.' }
-    ]
-  },
-  {
-    year: 1994,
-    host: 'EE. UU.',
-    images: [
-      { url: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=1200&auto=format&fit=crop', caption: 'Roberto Baggio desolado tras fallar el penal decisivo en el Rose Bowl.' },
-      { url: 'https://images.unsplash.com/photo-1529900948634-123497f1f9ce?q=80&w=1200&auto=format&fit=crop', caption: 'Romário y Bebeto celebrando el tetracampeonato de Brasil.' }
-    ]
-  },
-  {
-    year: 1990,
-    host: 'Italia',
-    images: [
-      { url: 'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?q=80&w=1200&auto=format&fit=crop', caption: 'Andreas Brehme marcando el penal que le dio el título a Alemania Occidental.' },
-      { url: 'https://images.unsplash.com/photo-1635327222717-38435d038f4d?q=80&w=1200&auto=format&fit=crop', caption: 'El llanto de Diego Maradona tras perder la final en el Estadio Olímpico.' }
-    ]
-  },
-  {
-    year: 1986,
-    host: 'México',
-    images: [
-      { url: 'https://images.unsplash.com/photo-1635327222717-38435d038f4d?q=80&w=1200&auto=format&fit=crop', caption: 'Maradona levantando la copa en el Estadio Azteca tras una actuación legendaria.' },
-      { url: 'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?q=80&w=1200&auto=format&fit=crop', caption: 'El "Gol del Siglo": Maradona eludiendo a media selección inglesa.' }
-    ]
-  },
-  {
-    year: 1982,
-    host: 'España',
-    images: [
-      { url: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=1200&auto=format&fit=crop', caption: 'Marco Tardelli y su icónico grito de gol en la final ante Alemania.' },
-      { url: 'https://images.unsplash.com/photo-1563299796-17596ed6b017?q=80&w=1200&auto=format&fit=crop', caption: 'Paolo Rossi, el héroe inesperado que llevó a Italia a la gloria.' }
-    ]
-  },
-  {
-    year: 1978,
-    host: 'Argentina',
-    images: [
-      { url: 'https://images.unsplash.com/photo-1628104597394-b25866f2842c?q=80&w=1200&auto=format&fit=crop', caption: 'Daniel Passarella levantando la primera Copa del Mundo para Argentina.' },
-      { url: 'https://images.unsplash.com/photo-1563299796-17596ed6b017?q=80&w=1200&auto=format&fit=crop', caption: 'Mario Alberto Kempes festejando entre los "papelitos" del Monumental.' }
-    ]
-  },
-  {
-    year: 1974,
-    host: 'Alemania Occidental',
-    images: [
-      { url: 'https://images.unsplash.com/photo-1431324155629-1a6eda1dec2d?q=80&w=1200&auto=format&fit=crop', caption: 'Franz Beckenbauer liderando a Alemania frente a la Naranja Mecánica.' },
-      { url: 'https://images.unsplash.com/photo-1510051640316-cee39563ddab?q=80&w=1200&auto=format&fit=crop', caption: 'Johan Cruyff y el despliegue del "Fútbol Total" de Holanda.' }
-    ]
-  },
-  {
-    year: 1970,
-    host: 'México',
-    images: [
-      { url: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=1200&auto=format&fit=crop', caption: 'Pelé siendo llevado en andas tras la exhibición de Brasil en la final.' },
-      { url: 'https://images.unsplash.com/photo-1431324155629-1a6eda1dec2d?q=80&w=1200&auto=format&fit=crop', caption: 'El "Partido del Siglo": Italia 4-3 Alemania en las semifinales.' }
-    ]
-  },
-  {
-    year: 1966,
-    host: 'Inglaterra',
-    images: [
-      { url: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=1200&auto=format&fit=crop', caption: 'Bobby Moore levantando el trofeo Jules Rimet en Wembley.' },
-      { url: 'https://images.unsplash.com/photo-1529900948634-123497f1f9ce?q=80&w=1200&auto=format&fit=crop', caption: 'El polémico "gol fantasma" de Geoff Hurst en la final contra Alemania.' }
-    ]
-  },
-  {
-    year: 1962,
-    host: 'Chile',
-    images: [
-      { url: 'https://images.unsplash.com/photo-1510051640316-cee39563ddab?q=80&w=1200&auto=format&fit=crop', caption: 'Garrincha asumiendo el liderazgo tras la lesión de Pelé.' },
-      { url: 'https://images.unsplash.com/photo-1431324155629-1a6eda1dec2d?q=80&w=1200&auto=format&fit=crop', caption: 'La Batalla de Santiago: El violento partido entre Chile e Italia.' }
-    ]
-  },
-  {
-    year: 1958,
-    host: 'Suecia',
-    images: [
-      { url: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=1200&auto=format&fit=crop', caption: 'Un joven Pelé de 17 años llorando en el hombro de Gilmar tras ganar el mundial.' },
-      { url: 'https://images.unsplash.com/photo-1529900948634-123497f1f9ce?q=80&w=1200&auto=format&fit=crop', caption: 'Just Fontaine marcando su gol número 13, récord absoluto en un solo torneo.' }
-    ]
-  },
-  {
-    year: 1954,
-    host: 'Suiza',
-    images: [
-      { url: 'https://images.unsplash.com/photo-1510051640316-cee39563ddab?q=80&w=1200&auto=format&fit=crop', caption: 'El Milagro de Berna: Alemania Occidental derrota a la imbatible Hungría de Puskás.' },
-      { url: 'https://images.unsplash.com/photo-1511886929837-399a8a11bcac?q=80&w=1200&auto=format&fit=crop', caption: 'Los "Magiares Poderosos" de Hungría, el equipo que cambió la táctica del fútbol.' }
-    ]
-  },
-  {
-    year: 1950,
-    host: 'Brasil',
-    images: [
-      { url: 'https://images.unsplash.com/photo-1431324155629-1a6eda1dec2d?q=80&w=1200&auto=format&fit=crop', caption: 'El Maracanazo: El momento en que Alcides Ghiggia silencia a 200.000 brasileños.' },
-      { url: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=1200&auto=format&fit=crop', caption: 'Obdulio Varela con el balón bajo el brazo, el capitán de la hazaña uruguaya.' }
-    ]
-  },
-  {
-    year: 1938,
-    host: 'Francia',
-    images: [
-      { url: 'https://images.unsplash.com/photo-1511886929837-399a8a11bcac?q=80&w=1200&auto=format&fit=crop', caption: 'Giuseppe Meazza liderando a Italia hacia su segundo título consecutivo.' },
-      { url: 'https://images.unsplash.com/photo-1529900948634-123497f1f9ce?q=80&w=1200&auto=format&fit=crop', caption: 'La selección de Italia en la previa de la final en París.' }
-    ]
-  },
-  {
-    year: 1934,
-    host: 'Italia',
-    images: [
-      { url: 'https://images.unsplash.com/photo-1510051640316-cee39563ddab?q=80&w=1200&auto=format&fit=crop', caption: 'Italia celebrando su primer campeonato del mundo como anfitriona.' },
-      { url: 'https://images.unsplash.com/photo-1431324155629-1a6eda1dec2d?q=80&w=1200&auto=format&fit=crop', caption: 'El Estadio Nacional del PNF en Roma, sede de la gran final.' }
-    ]
-  },
-  {
-    year: 1930,
-    host: 'Uruguay',
-    images: [
-      { url: 'https://images.unsplash.com/photo-1551958219-acbc608c6377?q=80&w=1200&auto=format&fit=crop', caption: 'La primera final de la historia entre Uruguay y Argentina en el Estadio Centenario.' },
-      { url: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=1200&auto=format&fit=crop', caption: 'Uruguay se consagra como el primer Campeón del Mundo ante su gente.' }
     ]
   }
 ];

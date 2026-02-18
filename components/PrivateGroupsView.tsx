@@ -25,6 +25,8 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
 
   // Carga inicial desde la nube
   useEffect(() => {
+    if (!user || !user.email) return;
+
     const fetchGroups = async () => {
       setIsLoading(true);
       try {
@@ -40,7 +42,7 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
       }
     };
     fetchGroups();
-  }, [user.email]);
+  }, [user?.email]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -70,7 +72,7 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
   };
 
   const handleSaveGroup = async () => {
-    if (!groupName.trim()) return;
+    if (!groupName.trim() || !user) return;
     setIsProcessing(true);
     
     try {

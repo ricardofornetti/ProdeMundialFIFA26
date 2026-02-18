@@ -11,7 +11,8 @@ interface AccountViewProps {
   onGoToPrivateGroups: () => void;
 }
 
-const BellIcon = ({ className = "h-5 w-5 text-sky-400" }) => (
+// Icono celeste para notificaciones (Celeste = sky-500)
+const BellIcon = ({ className = "h-5 w-5 text-sky-500" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
   </svg>
@@ -72,7 +73,7 @@ const PencilIcon = ({ color = 'currentColor' }: { color?: string }) => (
 const ToggleSwitch = ({ enabled, onChange }: { enabled: boolean; onChange: () => void }) => (
   <button
     onClick={onChange}
-    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${enabled ? 'bg-black dark:bg-white' : 'bg-slate-200 dark:bg-slate-700'}`}
+    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${enabled ? 'bg-sky-500' : 'bg-slate-200 dark:bg-slate-700'}`}
   >
     <span
       className={`inline-block h-4 w-4 transform rounded-full bg-white dark:bg-slate-900 transition-transform ${enabled ? 'translate-x-6' : 'translate-x-1'}`}
@@ -108,16 +109,17 @@ export const AccountView: React.FC<AccountViewProps> = ({ user, onLogout, onUpda
   const handleThemeSelection = (theme: 'light' | 'dark') => {
     const newSettings: NonNullable<User['settings']> = { ...settings, theme };
     setSettings(newSettings);
-    onUpdateUser({ ...user, settings: newSettings });
+    
+    // Guardamos en localStorage para persistencia absoluta
+    localStorage.setItem('theme_preference', theme);
     
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
-      localStorage.setItem('theme_preference', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme_preference', 'light');
     }
     
+    onUpdateUser({ ...user, settings: newSettings });
     showAlert(`Tema ${theme === 'light' ? 'claro' : 'oscuro'} aplicado`, 'success');
     setActiveSubView(null);
   };
@@ -211,8 +213,8 @@ export const AccountView: React.FC<AccountViewProps> = ({ user, onLogout, onUpda
           
           <div className="space-y-8">
             <section>
-              <h3 className="text-[10px] font-black text-sky-400 uppercase tracking-[0.3em] mb-4 flex items-center gap-2">
-                <BellIcon className="h-4 w-4 text-sky-400" /> NOTIFICACIONES
+              <h3 className="text-[10px] font-black text-sky-500 uppercase tracking-[0.3em] mb-4 flex items-center gap-2">
+                <BellIcon className="h-4 w-4 text-sky-500" /> NOTIFICACIONES
               </h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700/30 rounded-2xl">
@@ -353,7 +355,7 @@ export const AccountView: React.FC<AccountViewProps> = ({ user, onLogout, onUpda
           </button>
 
           <button onClick={handleEmail} className="w-full flex items-center justify-between p-5 bg-slate-50 dark:bg-slate-700/50 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-all text-left text-slate-900 dark:text-white">
-            <div className="flex items-center gap-4"><BellIcon /> <span className="font-black uppercase text-[11px]">Soporte Técnico</span></div>
+            <div className="flex items-center gap-4"><BellIcon className="h-5 w-5 text-sky-500" /> <span className="font-black uppercase text-[11px]">Soporte Técnico</span></div>
             <span className="text-slate-300">→</span>
           </button>
 
