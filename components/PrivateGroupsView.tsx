@@ -158,15 +158,13 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
 
   return (
     <main className="max-w-2xl mx-auto px-4 py-4 animate-fade-in relative">
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-between">
         <button 
           onClick={handleBack} 
-          className="flex items-center gap-2 text-slate-500 hover:text-black dark:text-slate-400 dark:hover:text-white font-black text-[10px] uppercase tracking-widest group transition-colors"
+          className="flex items-center gap-3 text-slate-500 hover:text-black dark:text-slate-400 dark:hover:text-white font-black text-xs sm:text-sm uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-5 py-3 rounded-2xl transition-all active:scale-95"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 transform group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
-          </svg>
-          Volver
+          <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          <span>Volver</span>
         </button>
 
         {viewMode === 'list' && (
@@ -395,9 +393,10 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
 
                 <button 
                   onClick={() => setViewMode('list')}
-                  className="w-full py-4 bg-transparent text-slate-400 font-black text-[10px] rounded-2xl uppercase tracking-widest hover:text-black dark:hover:text-white transition-all"
+                  className="w-full py-4 bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-black dark:text-slate-400 dark:hover:text-white font-black text-xs sm:text-sm uppercase tracking-widest rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-3"
                 >
-                  Volver
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                  <span>Volver</span>
                 </button>
               </div>
             </div>
@@ -445,9 +444,10 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
             <div className="mt-10 flex flex-col gap-4">
               <button 
                 onClick={() => setViewMode('detail')}
-                className="w-full py-4 bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-white font-black text-[10px] rounded-2xl uppercase tracking-widest hover:bg-slate-200 dark:hover:bg-slate-600 transition-all"
+                className="w-full py-4 bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-black dark:text-slate-400 dark:hover:text-white font-black text-xs sm:text-sm uppercase tracking-widest rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-3"
               >
-                Volver
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                <span>Volver</span>
               </button>
             </div>
           </div>

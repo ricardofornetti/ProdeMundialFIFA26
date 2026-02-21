@@ -35,8 +35,12 @@ export const GroupEditor: React.FC<GroupEditorProps> = ({ currentGroups, onSave,
     <div className="max-w-6xl mx-auto px-4 py-8 animate-fade-in">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <div>
-          <button onClick={onBack} className="flex items-center gap-2 text-slate-500 hover:text-black dark:text-slate-400 dark:hover:text-white font-black text-[10px] uppercase tracking-widest mb-2">
-            ← Volver
+          <button 
+            onClick={onBack} 
+            className="flex items-center gap-3 text-slate-500 hover:text-black dark:text-slate-400 dark:hover:text-white font-black text-xs sm:text-sm uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-5 py-3 rounded-2xl transition-all active:scale-95 mb-6"
+          >
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            <span>Volver</span>
           </button>
           <h2 className="heading-font text-3xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">Configurar Equipos</h2>
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Asigna los países a cada zona del mundial</p>

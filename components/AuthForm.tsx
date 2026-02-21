@@ -373,7 +373,16 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess, initialMode }
           <button type="submit" disabled={isLoading} className="w-full py-3 sm:py-4 bg-black text-white font-black rounded-2xl shadow-xl hover:bg-slate-900 transition-all uppercase tracking-widest text-xs sm:text-sm disabled:opacity-50">
             {isLoading ? 'ENVIANDO...' : 'ENVIAR INSTRUCCIONES'}
           </button>
-          <button type="button" onClick={() => setMode('login')} className="w-full font-black text-slate-400 hover:text-black uppercase text-[9px] tracking-widest mt-2">Volver</button>
+          <div className="pt-4">
+            <button 
+              type="button" 
+              onClick={() => setMode('login')} 
+              className="flex items-center justify-center gap-3 text-slate-500 hover:text-black font-black text-xs uppercase tracking-widest bg-slate-100 px-5 py-3 rounded-2xl transition-all active:scale-95 w-full"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+              <span>Volver</span>
+            </button>
+          </div>
         </form>
       </div>
     );

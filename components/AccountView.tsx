@@ -168,10 +168,13 @@ export const AccountView: React.FC<AccountViewProps> = ({ user, onLogout, onUpda
   if (activeSubView === 'rules') {
     return (
       <main className="max-w-2xl mx-auto px-4 py-4 animate-fade-in relative">
-        <div className="mb-4">
-          <button onClick={() => setActiveSubView(null)} className="flex items-center gap-2 text-slate-500 hover:text-black dark:text-slate-400 dark:hover:text-white font-black text-[10px] uppercase tracking-widest group transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 transform group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" /></svg>
-            Volver
+        <div className="mb-6">
+          <button 
+            onClick={() => setActiveSubView(null)} 
+            className="flex items-center gap-3 text-slate-500 hover:text-black dark:text-slate-400 dark:hover:text-white font-black text-xs sm:text-sm uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-5 py-3 rounded-2xl transition-all active:scale-95"
+          >
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            <span>Volver</span>
           </button>
         </div>
         <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-2xl p-8 border border-slate-100 dark:border-slate-700">
@@ -199,10 +202,13 @@ export const AccountView: React.FC<AccountViewProps> = ({ user, onLogout, onUpda
   if (activeSubView === 'menu') {
     return (
       <main className="max-w-2xl mx-auto px-4 py-4 animate-fade-in relative">
-        <div className="mb-4">
-          <button onClick={() => setActiveSubView(null)} className="flex items-center gap-2 text-slate-500 hover:text-black dark:text-slate-400 dark:hover:text-white font-black text-[10px] uppercase tracking-widest group transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 transform group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" /></svg>
-            Volver
+        <div className="mb-6">
+          <button 
+            onClick={() => setActiveSubView(null)} 
+            className="flex items-center gap-3 text-slate-500 hover:text-black dark:text-slate-400 dark:hover:text-white font-black text-xs sm:text-sm uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-5 py-3 rounded-2xl transition-all active:scale-95"
+          >
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            <span>Volver</span>
           </button>
         </div>
         <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-2xl p-8 border border-slate-100 dark:border-slate-700">
@@ -278,9 +284,13 @@ export const AccountView: React.FC<AccountViewProps> = ({ user, onLogout, onUpda
   return (
     <main className="max-w-2xl mx-auto px-4 py-4 animate-fade-in relative">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-      <div className="mb-4">
-        <button onClick={onBack} className="flex items-center gap-2 text-slate-500 hover:text-black dark:text-slate-400 dark:hover:text-white font-black text-[10px] uppercase tracking-widest">
-          ← Volver
+      <div className="mb-6">
+        <button 
+          onClick={onBack} 
+          className="flex items-center gap-3 text-slate-500 hover:text-black dark:text-slate-400 dark:hover:text-white font-black text-xs sm:text-sm uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-5 py-3 rounded-2xl transition-all active:scale-95"
+        >
+          <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          <span>Volver</span>
         </button>
       </div>
 
