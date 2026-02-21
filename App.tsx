@@ -88,12 +88,13 @@ const PhaseIcon = ({ type }: { type: string }) => {
   }
 };
 
-const NavIcon = ({ type }: { type: 'rank' | 'history' | 'gallery' | 'user' }) => {
+const NavIcon = ({ type }: { type: 'rank' | 'history' | 'gallery' | 'user' | 'menu' }) => {
   switch (type) {
     case 'rank': return <svg className="w-4 h-4 sm:w-5 sm:h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>;
     case 'history': return <svg className="w-4 h-4 sm:w-5 sm:h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
-    case 'gallery': return <svg className="w-4 h-4 sm:w-5 sm:h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2-2v12a2 2 0 002 2z" /></svg>;
+    case 'gallery': return <svg className="w-4 h-4 sm:w-5 sm:h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>;
     case 'user': return <svg className="w-4 h-4 sm:w-5 sm:h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>;
+    case 'menu': return <svg className="w-4 h-4 sm:w-5 sm:h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M4 6h16M4 12h16M4 18h16" /></svg>;
   }
 };
 
@@ -117,7 +118,7 @@ const App: React.FC = () => {
     );
   };
 
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const themePref = localStorage.getItem('theme_preference');
@@ -312,76 +313,97 @@ const App: React.FC = () => {
         </main>
       ) : (
         <>
-          <header className="sticky top-0 z-40 bg-indigo-950 border-b border-white/10 shadow-2xl w-full">
+          <header className="sticky top-0 z-40 bg-indigo-600 border-b border-white/10 shadow-2xl w-full">
             <div className="w-full">
-              <div className="grid grid-cols-5 gap-0 w-full max-w-full mx-auto h-24">
+              <div className="grid grid-cols-6 gap-0 w-full max-w-full mx-auto h-24">
+                <div className="relative h-full w-full">
+                  <button 
+                    onClick={() => setIsMenuOpen(!isMenuOpen)} 
+                    className={`flex flex-col items-center justify-center h-full w-full transition-all border-r border-white/10 font-black text-[9px] sm:text-xs uppercase tracking-tight ${isMenuOpen ? 'text-white bg-white/20' : 'text-white/90 hover:bg-white/10'}`}
+                  >
+                    <NavIcon type="menu" />
+                    <span>MENU</span>
+                  </button>
+                  
+                  {isMenuOpen && (
+                    <div className="absolute top-full left-0 w-48 bg-indigo-600 border border-white/10 shadow-2xl rounded-b-2xl overflow-hidden animate-slide-down z-50">
+                      <button 
+                        onClick={() => { setView('main-menu'); setIsMenuOpen(false); }}
+                        className="w-full px-6 py-4 text-left text-[10px] font-black text-white/90 hover:bg-white/10 uppercase tracking-widest border-b border-white/5 flex items-center gap-3"
+                      >
+                        <div className="w-4 h-4 rounded bg-white/20 flex items-center justify-center text-[8px]">26</div>
+                        Prode
+                      </button>
+                      <button 
+                        onClick={() => { setView('leaderboard'); setIsMenuOpen(false); }}
+                        className="w-full px-6 py-4 text-left text-[10px] font-black text-white/90 hover:bg-white/10 uppercase tracking-widest border-b border-white/5 flex items-center gap-3"
+                      >
+                        <NavIcon type="rank" />
+                        Ranking
+                      </button>
+                      <button 
+                        onClick={() => { setView('history'); setIsMenuOpen(false); }}
+                        className="w-full px-6 py-4 text-left text-[10px] font-black text-white/90 hover:bg-white/10 uppercase tracking-widest border-b border-white/5 flex items-center gap-3"
+                      >
+                        <NavIcon type="history" />
+                        Historia
+                      </button>
+                      <button 
+                        onClick={() => { setView('gallery'); setIsMenuOpen(false); }}
+                        className="w-full px-6 py-4 text-left text-[10px] font-black text-white/90 hover:bg-white/10 uppercase tracking-widest border-b border-white/5 flex items-center gap-3"
+                      >
+                        <NavIcon type="gallery" />
+                        Galería
+                      </button>
+                      <button 
+                        onClick={() => { setView('account'); setIsMenuOpen(false); }}
+                        className="w-full px-6 py-4 text-left text-[10px] font-black text-white/90 hover:bg-white/10 uppercase tracking-widest flex items-center gap-3"
+                      >
+                        <NavIcon type="user" />
+                        Cuenta
+                      </button>
+                    </div>
+                  )}
+                </div>
                 <button 
-                  onClick={() => { setView('main-menu'); setIsDropdownOpen(false); }} 
-                  className={`flex flex-col items-center justify-center h-full w-full transition-all border-r border-white/5 font-black text-[9px] sm:text-xs uppercase tracking-tight ${view === 'main-menu' ? 'text-white bg-white/10' : 'text-indigo-300/60 hover:text-white hover:bg-white/5'}`}
+                  onClick={() => { setView('main-menu'); setIsMenuOpen(false); }} 
+                  className={`flex flex-col items-center justify-center h-full w-full transition-all border-r border-white/10 font-black text-[9px] sm:text-xs uppercase tracking-tight ${view === 'main-menu' ? 'text-white bg-white/20' : 'text-white/90 hover:bg-white/10'}`}
                 >
-                  <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center font-black text-[10px] sm:text-[14px] mb-1 ${view === 'main-menu' ? 'bg-white text-indigo-950 shadow-inner' : 'bg-indigo-900/50 text-indigo-300'}`}>26</div>
+                  <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center font-black text-[10px] sm:text-[14px] mb-1 ${view === 'main-menu' ? 'bg-white text-indigo-600 shadow-inner' : 'bg-white/20 text-white'}`}>26</div>
                   <span>PRODE</span>
                 </button>
                 <button 
-                  onClick={() => { setView('leaderboard'); setIsDropdownOpen(false); }} 
-                  className={`flex flex-col items-center justify-center h-full w-full transition-all border-r border-white/5 font-black text-[9px] sm:text-xs uppercase tracking-tight ${view === 'leaderboard' ? 'text-white bg-white/10' : 'text-indigo-300/60 hover:text-white hover:bg-white/5'}`}
+                  onClick={() => { setView('leaderboard'); setIsMenuOpen(false); }} 
+                  className={`flex flex-col items-center justify-center h-full w-full transition-all border-r border-white/10 font-black text-[9px] sm:text-xs uppercase tracking-tight ${view === 'leaderboard' ? 'text-white bg-white/20' : 'text-white/90 hover:bg-white/10'}`}
                 >
                   <NavIcon type="rank" />
                   <span className="hidden xs:inline">RANKING</span>
                   <span className="xs:hidden">TOP</span>
                 </button>
                 <button 
-                  onClick={() => { setView('history'); setIsDropdownOpen(false); }} 
-                  className={`flex flex-col items-center justify-center h-full w-full transition-all border-r border-white/5 font-black text-[9px] sm:text-xs uppercase tracking-tight ${view === 'history' ? 'text-white bg-white/10' : 'text-indigo-300/60 hover:text-white hover:bg-white/5'}`}
+                  onClick={() => { setView('history'); setIsMenuOpen(false); }} 
+                  className={`flex flex-col items-center justify-center h-full w-full transition-all border-r border-white/10 font-black text-[9px] sm:text-xs uppercase tracking-tight ${view === 'history' ? 'text-white bg-white/20' : 'text-white/90 hover:bg-white/10'}`}
                 >
                   <NavIcon type="history" />
                   <span className="hidden xs:inline">HISTORIA</span>
                   <span className="xs:hidden">HITO</span>
                 </button>
                 <button 
-                  onClick={() => { setView('gallery'); setIsDropdownOpen(false); }} 
-                  className={`flex flex-col items-center justify-center h-full w-full transition-all border-r border-white/5 font-black text-[9px] sm:text-xs uppercase tracking-tight ${view === 'gallery' ? 'text-white bg-white/10' : 'text-indigo-300/60 hover:text-white hover:bg-white/5'}`}
+                  onClick={() => { setView('gallery'); setIsMenuOpen(false); }} 
+                  className={`flex flex-col items-center justify-center h-full w-full transition-all border-r border-white/10 font-black text-[9px] sm:text-xs uppercase tracking-tight ${view === 'gallery' ? 'text-white bg-white/20' : 'text-white/90 hover:bg-white/10'}`}
                 >
                   <NavIcon type="gallery" />
                   <span className="hidden xs:inline">GALERIA</span>
                   <span className="xs:hidden">FOTO</span>
                 </button>
-                <div className="relative h-full w-full">
-                  <button 
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)} 
-                    className={`flex flex-col items-center justify-center h-full w-full transition-all font-black text-[9px] sm:text-xs uppercase tracking-tight ${view === 'account' || isDropdownOpen ? 'text-white bg-white/10' : 'text-indigo-300/60 hover:text-white hover:bg-white/5'}`}
-                  >
-                    <NavIcon type="user" />
-                    <span className="hidden xs:inline">CUENTA</span>
-                    <span className="xs:hidden">PERFIL</span>
-                  </button>
-                  
-                  {isDropdownOpen && (
-                    <div className="absolute top-full right-0 w-48 bg-indigo-950 border border-white/10 shadow-2xl rounded-b-2xl overflow-hidden animate-slide-down">
-                      <button 
-                        onClick={() => { setView('account'); setIsDropdownOpen(false); }}
-                        className="w-full px-6 py-4 text-left text-[10px] font-black text-indigo-300 hover:text-white hover:bg-white/5 uppercase tracking-widest border-b border-white/5 flex items-center gap-3"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                        Mi Perfil
-                      </button>
-                      <button 
-                        onClick={() => { setView('world-zones'); setIsDropdownOpen(false); }}
-                        className="w-full px-6 py-4 text-left text-[10px] font-black text-indigo-300 hover:text-white hover:bg-white/5 uppercase tracking-widest border-b border-white/5 flex items-center gap-3"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
-                        Cargar Prode
-                      </button>
-                      <button 
-                        onClick={() => { logout(); setIsDropdownOpen(false); }}
-                        className="w-full px-6 py-4 text-left text-[10px] font-black text-red-400 hover:text-red-300 hover:bg-red-500/10 uppercase tracking-widest flex items-center gap-3"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-                        Cerrar Sesión
-                      </button>
-                    </div>
-                  )}
-                </div>
+                <button 
+                  onClick={() => { setView('account'); setIsMenuOpen(false); }} 
+                  className={`flex flex-col items-center justify-center h-full w-full transition-all font-black text-[9px] sm:text-xs uppercase tracking-tight ${view === 'account' ? 'text-white bg-white/20' : 'text-white/90 hover:bg-white/10'}`}
+                >
+                  <NavIcon type="user" />
+                  <span className="hidden xs:inline">CUENTA</span>
+                  <span className="xs:hidden">PERFIL</span>
+                </button>
               </div>
             </div>
           </header>
@@ -465,7 +487,7 @@ const App: React.FC = () => {
                             className="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all text-left"
                           >
                             <div className="flex items-center gap-4 sm:gap-6">
-                               <div className="w-12 h-12 sm:w-16 sm:h-16 bg-indigo-950 text-indigo-400 rounded-2xl flex items-center justify-center shadow-inner"><PhaseIcon type="soccer" /></div>
+                               <div className="w-12 h-12 sm:w-16 sm:h-16 bg-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-inner"><PhaseIcon type="soccer" /></div>
                                <div>
                                  <span className="font-black text-slate-900 dark:text-white uppercase text-sm sm:text-xl tracking-widest block">{group.name}</span>
                                  <span className="text-[10px] sm:text-sm font-black text-slate-400 uppercase tracking-widest">
@@ -474,7 +496,7 @@ const App: React.FC = () => {
                                </div>
                             </div>
                             <div className="flex items-center gap-3">
-                              {completedPreds === groupMatches.length && <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center"><svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M5 13l4 4L19 7"/></svg></div>}
+                              {completedPreds === groupMatches.length && <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center shadow-md"><svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M5 13l4 4L19 7"/></svg></div>}
                               <span className={`text-slate-300 font-black transition-transform duration-300 ${isExpanded ? 'rotate-90' : ''}`}>→</span>
                             </div>
                           </button>
@@ -511,19 +533,19 @@ const App: React.FC = () => {
                         <div key={phase.name} className="bg-white dark:bg-slate-800 rounded-[2rem] shadow-lg border border-slate-100 dark:border-slate-700 overflow-hidden">
                           <button 
                             onClick={() => toggleZone(phase.name)}
-                            className="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all text-left"
+                            className="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all text-left text-slate-900 dark:text-white"
                           >
                             <div className="flex items-center gap-4 sm:gap-6">
-                               <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shadow-inner ${phase.name === 'Final' ? 'bg-gradient-to-br from-yellow-500 to-amber-700 text-white' : 'bg-indigo-900 text-indigo-200'}`}><PhaseIcon type={phase.iconType || 'bracket'} /></div>
+                               <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shadow-inner ${phase.name === 'Final' ? 'bg-gradient-to-br from-yellow-500 to-amber-700 text-white' : 'bg-indigo-600 text-white'}`}><PhaseIcon type={phase.iconType || 'bracket'} /></div>
                                <div>
-                                 <span className="font-black text-slate-900 dark:text-white uppercase text-sm sm:text-xl tracking-widest block">{phase.label}</span>
+                                 <span className="font-black uppercase text-sm sm:text-xl tracking-widest block">{phase.label}</span>
                                  <span className="text-[10px] sm:text-sm font-black text-slate-400 uppercase tracking-widest">
                                    {completedPreds} de {phaseMatches.length} partidos cargados
                                  </span>
                                </div>
                             </div>
                             <div className="flex items-center gap-3">
-                              {completedPreds === phaseMatches.length && phaseMatches.length > 0 && <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center"><svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M5 13l4 4L19 7"/></svg></div>}
+                              {completedPreds === phaseMatches.length && phaseMatches.length > 0 && <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center shadow-md"><svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M5 13l4 4L19 7"/></svg></div>}
                               <span className={`text-slate-300 font-black transition-transform duration-300 ${isExpanded ? 'rotate-90' : ''}`}>→</span>
                             </div>
                           </button>
