@@ -116,6 +116,48 @@ export const getRealMatches = async (): Promise<Partial<Match>[]> => {
   }
 };
 
+// --- GESTIÓN DE GALERÍA ---
+
+export const getGalleryCloudData = async (): Promise<any[]> => {
+  if (!db) return [];
+  try {
+    const q = query(collection(db, "gallery_uploads"), orderBy("createdAt", "desc"));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (e) {
+    console.error("Error al obtener galería:", e);
+    return [];
+  }
+};
+
+export const deleteGalleryCloudImage = async (docId: string) => {
+  if (!db || !docId) return;
+  try {
+    // Usar una referencia más explícita al documento
+    const photoRef = doc(db, "gallery_uploads", docId);
+    await deleteDoc(photoRef);
+  } catch (e) {
+    console.error("Error crítico al eliminar imagen:", e);
+    throw e;
+  }
+};
+
+export const addGalleryCloudImage = async (year: number, host: string, url: string, caption: string) => {
+  if (!db) return;
+  try {
+    const docRef = doc(collection(db, "gallery_uploads"));
+    await setDoc(docRef, {
+      year,
+      host,
+      url,
+      caption: caption || "Aporte de la comunidad",
+      createdAt: new Date()
+    });
+  } catch (e) {
+    console.error("Error al agregar imagen:", e);
+  }
+};
+
 export const getGlobalRanking = async () => {
   if (!db) return [];
   try {
