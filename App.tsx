@@ -13,7 +13,7 @@ import { GalleryView } from './components/GalleryView';
 import { PrivateGroupsView } from './components/PrivateGroupsView';
 import { WORLD_CUP_MATCHES, WORLD_CUP_GROUPS, KNOCKOUT_PHASES } from './constants';
 import { db, saveUserPrediction, getUserPredictions, getRealMatches } from './services/firebaseService';
-import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { doc, setDoc } from "firebase/firestore";
 
 const PhaseIcon = ({ type }: { type: string }) => {
   const iconClass = "h-6 w-6 sm:h-8 sm:w-8";

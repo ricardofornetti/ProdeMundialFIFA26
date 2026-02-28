@@ -1,5 +1,5 @@
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { initializeApp } from "firebase/app";
 import { 
   getFirestore, 
   collection, 
@@ -13,7 +13,7 @@ import {
   updateDoc,
   limit,
   deleteDoc
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+} from "firebase/firestore";
 import { Match, User, PrivateGroup } from "../types";
 
 // Credenciales reales proporcionadas por el usuario
