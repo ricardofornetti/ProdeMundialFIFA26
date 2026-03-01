@@ -6,7 +6,7 @@ import { ArrowLeft, ZoomIn, X, Award, Upload } from 'lucide-react';
 interface GalleryImage {
   url: string;
   caption: string;
-  type: 'logo';
+  type: 'logo' | 'mascot';
 }
 
 interface GalleryItem {
@@ -24,161 +24,177 @@ const GALLERY_DATA: GalleryItem[] = [
     year: 2026,
     host: 'Canadá, México y EE.UU.',
     images: [
-      { url: 'https://images.weserv.nl/?url=https://en.wikipedia.org/wiki/Special:FilePath/2026_FIFA_World_Cup_logo.svg&w=1000&h=1000&fit=contain&il', caption: 'Logo Oficial de 2026', type: 'logo' }
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/2026_FIFA_World_Cup_logo.svg/800px-2026_FIFA_World_Cup_logo.svg.png', caption: 'Logo Oficial de 2026', type: 'logo' },
+      { url: 'https://digitalhub.fifa.com/transform/759763b5faef/launch-ENf264c4ce0fad4ce4bf7503fd7be51245.min.js', caption: 'Mascotas: Maple, Zayu y Clutch (Alce, Jaguar y Águila)', type: 'mascot' }
     ]
   },
   {
     year: 2022,
     host: 'Catar',
     images: [
-      { url: 'https://images.weserv.nl/?url=https://en.wikipedia.org/wiki/Special:FilePath/2022_FIFA_World_Cup.svg&w=1000&h=1000&fit=contain&il', caption: 'Logo Oficial de Catar 2022', type: 'logo' }
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/2022_FIFA_World_Cup.svg/800px-2022_FIFA_World_Cup.svg.png', caption: 'Logo Oficial de Catar 2022', type: 'logo' },
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/a/a2/La%27eeb_-_Qatar_2022_Mascot.png/800px-La%27eeb_-_Qatar_2022_Mascot.png', caption: 'Mascota: La\'eeb', type: 'mascot' }
     ]
   },
   {
     year: 2018,
     host: 'Rusia',
     images: [
-      { url: 'https://images.weserv.nl/?url=https://en.wikipedia.org/wiki/Special:FilePath/2018_FIFA_World_Cup.svg&w=1000&h=1000&fit=contain&il', caption: 'Logo Oficial de Rusia 2018', type: 'logo' }
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/6/67/2018_FIFA_World_Cup.svg/800px-2018_FIFA_World_Cup.svg.png', caption: 'Logo Oficial de Rusia 2018', type: 'logo' },
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/Zabivaka.png/800px-Zabivaka.png', caption: 'Mascota: Zabivaka', type: 'mascot' }
     ]
   },
   {
     year: 2014,
     host: 'Brasil',
     images: [
-      { url: 'https://images.weserv.nl/?url=https://en.wikipedia.org/wiki/Special:FilePath/2014_FIFA_World_Cup.svg&w=1000&h=1000&fit=contain&il', caption: 'Logo Oficial de Brasil 2014', type: 'logo' }
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/e/e8/2014_FIFA_World_Cup.svg/800px-2014_FIFA_World_Cup.svg.png', caption: 'Logo Oficial de Brasil 2014', type: 'logo' },
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/e/e8/Fuleco_the_Armadillo.png/800px-Fuleco_the_Armadillo.png', caption: 'Mascota: Fuleco', type: 'mascot' }
     ]
   },
   {
     year: 2010,
     host: 'Sudáfrica',
     images: [
-      { url: 'https://images.weserv.nl/?url=https://en.wikipedia.org/wiki/Special:FilePath/2010_FIFA_World_Cup.svg&w=1000&h=1000&fit=contain&il', caption: 'Logo Oficial de Sudáfrica 2010', type: 'logo' }
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/1/10/2010_FIFA_World_Cup.svg/800px-2010_FIFA_World_Cup.svg.png', caption: 'Logo Oficial de Sudáfrica 2010', type: 'logo' },
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/a/a1/Zakumi.png/800px-Zakumi.png', caption: 'Mascota: Zakumi', type: 'mascot' }
     ]
   },
   {
     year: 2006,
     host: 'Alemania',
     images: [
-      { url: 'https://images.weserv.nl/?url=https://en.wikipedia.org/wiki/Special:FilePath/2006_FIFA_World_Cup.svg&w=1000&h=1000&fit=contain&il', caption: 'Logo Oficial de Alemania 2006', type: 'logo' }
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/6/67/2006_FIFA_World_Cup.svg/800px-2006_FIFA_World_Cup.svg.png', caption: 'Logo Oficial de Alemania 2006', type: 'logo' },
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/Goleo_VI.png/800px-Goleo_VI.png', caption: 'Mascota: Goleo VI', type: 'mascot' }
     ]
   },
   {
     year: 2002,
     host: 'Corea-Japón',
     images: [
-      { url: 'https://images.weserv.nl/?url=https://en.wikipedia.org/wiki/Special:FilePath/2002_FIFA_World_Cup.svg&w=1000&h=1000&fit=contain&il', caption: 'Logo Oficial de Corea-Japón 2002', type: 'logo' }
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/a/ad/2002_FIFA_World_Cup.svg/800px-2002_FIFA_World_Cup.svg.png', caption: 'Logo Oficial de Corea-Japón 2002', type: 'logo' },
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/b/b1/2002_FIFA_World_Cup_mascot.png/800px-2002_FIFA_World_Cup_mascot.png', caption: 'Mascotas: Los Spheriks (Ato, Kaz y Nik)', type: 'mascot' }
     ]
   },
   {
     year: 1998,
     host: 'Francia',
     images: [
-      { url: 'https://images.weserv.nl/?url=https://en.wikipedia.org/wiki/Special:FilePath/1998_FIFA_World_Cup.svg&w=1000&h=1000&fit=contain&il', caption: 'Logo Oficial de Francia 1998', type: 'logo' }
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/b/b2/1998_FIFA_World_Cup.svg/800px-1998_FIFA_World_Cup.svg.png', caption: 'Logo Oficial de Francia 1998', type: 'logo' },
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/e/e8/Footix.png/800px-Footix.png', caption: 'Mascota: Footix', type: 'mascot' }
     ]
   },
   {
     year: 1994,
     host: 'Estados Unidos',
     images: [
-      { url: 'https://images.weserv.nl/?url=https://en.wikipedia.org/wiki/Special:FilePath/1994_FIFA_World_Cup.svg&w=1000&h=1000&fit=contain&il', caption: 'Logo Oficial de EE.UU. 1994', type: 'logo' }
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/e/e0/1994_FIFA_World_Cup.svg/800px-1994_FIFA_World_Cup.svg.png', caption: 'Logo Oficial de EE.UU. 1994', type: 'logo' },
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/a/a2/Striker_the_World_Cup_Pup.png/800px-Striker_the_World_Cup_Pup.png', caption: 'Mascota: Striker', type: 'mascot' }
     ]
   },
   {
     year: 1990,
     host: 'Italia',
     images: [
-      { url: 'https://images.weserv.nl/?url=https://en.wikipedia.org/wiki/Special:FilePath/1990_FIFA_World_Cup.svg&w=1000&h=1000&fit=contain&il', caption: 'Logo Oficial de Italia 1990', type: 'logo' }
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/1/1d/1990_FIFA_World_Cup.svg/800px-1990_FIFA_World_Cup.svg.png', caption: 'Logo Oficial de Italia 1990', type: 'logo' },
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/9/91/Ciao_mascot.png/800px-Ciao_mascot.png', caption: 'Mascota: Ciao', type: 'mascot' }
     ]
   },
   {
     year: 1986,
     host: 'México',
     images: [
-      { url: 'https://images.weserv.nl/?url=https://en.wikipedia.org/wiki/Special:FilePath/1986_FIFA_World_Cup.svg&w=1000&h=1000&fit=contain&il', caption: 'Logo Oficial de México 1986', type: 'logo' }
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/b/b9/1986_FIFA_World_Cup.svg/800px-1986_FIFA_World_Cup.svg.png', caption: 'Logo Oficial de México 1986', type: 'logo' },
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/Pique_mascot.png/800px-Pique_mascot.png', caption: 'Mascota: Pique', type: 'mascot' }
     ]
   },
   {
     year: 1982,
     host: 'España',
     images: [
-      { url: 'https://images.weserv.nl/?url=https://en.wikipedia.org/wiki/Special:FilePath/1982_FIFA_World_Cup.svg&w=1000&h=1000&fit=contain&il', caption: 'Logo Oficial de España 1982', type: 'logo' }
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/a/ad/1982_FIFA_World_Cup.svg/800px-1982_FIFA_World_Cup.svg.png', caption: 'Logo Oficial de España 1982', type: 'logo' },
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/e/e0/Naranjito_mascot.png/800px-Naranjito_mascot.png', caption: 'Mascota: Naranjito', type: 'mascot' }
     ]
   },
   {
     year: 1978,
     host: 'Argentina',
     images: [
-      { url: 'https://images.weserv.nl/?url=https://en.wikipedia.org/wiki/Special:FilePath/1978_FIFA_World_Cup.svg&w=1000&h=1000&fit=contain&il', caption: 'Logo Oficial de Argentina 1978', type: 'logo' }
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/1/1d/1978_FIFA_World_Cup.svg/800px-1978_FIFA_World_Cup.svg.png', caption: 'Logo Oficial de Argentina 1978', type: 'logo' },
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/b/b8/Gauchito_mascot.png/800px-Gauchito_mascot.png', caption: 'Mascota: Gauchito', type: 'mascot' }
     ]
   },
   {
     year: 1974,
     host: 'Alemania Federal',
     images: [
-      { url: 'https://images.weserv.nl/?url=https://en.wikipedia.org/wiki/Special:FilePath/1974_FIFA_World_Cup.svg&w=1000&h=1000&fit=contain&il', caption: 'Logo Oficial de Alemania 1974', type: 'logo' }
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/1/1d/1974_FIFA_World_Cup.svg/800px-1974_FIFA_World_Cup.svg.png', caption: 'Logo Oficial de Alemania 1974', type: 'logo' },
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/b/b3/Tip_and_Tap.png/800px-Tip_and_Tap.png', caption: 'Mascotas: Tip y Tap', type: 'mascot' }
     ]
   },
   {
     year: 1970,
     host: 'México',
     images: [
-      { url: 'https://images.weserv.nl/?url=https://en.wikipedia.org/wiki/Special:FilePath/1970_FIFA_World_Cup.svg&w=1000&h=1000&fit=contain&il', caption: 'Logo Oficial de México 1970', type: 'logo' }
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/b/b9/1970_FIFA_World_Cup.svg/800px-1970_FIFA_World_Cup.svg.png', caption: 'Logo Oficial de México 1970', type: 'logo' },
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/0/0e/Juanito_mascot.png/800px-Juanito_mascot.png', caption: 'Mascota: Juanito', type: 'mascot' }
     ]
   },
   {
     year: 1966,
     host: 'Inglaterra',
     images: [
-      { url: 'https://images.weserv.nl/?url=https://en.wikipedia.org/wiki/Special:FilePath/1966_FIFA_World_Cup.svg&w=1000&h=1000&fit=contain&il', caption: 'Logo Oficial de Inglaterra 1966', type: 'logo' }
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/1/1d/1966_FIFA_World_Cup.svg/800px-1966_FIFA_World_Cup.svg.png', caption: 'Logo Oficial de Inglaterra 1966', type: 'logo' },
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/8/8e/World_Cup_Willie.png/800px-World_Cup_Willie.png', caption: 'Mascota: World Cup Willie', type: 'mascot' }
     ]
   },
   {
     year: 1962,
     host: 'Chile',
     images: [
-      { url: 'https://images.weserv.nl/?url=https://en.wikipedia.org/wiki/Special:FilePath/1962_FIFA_World_Cup.svg&w=1000&h=1000&fit=contain&il', caption: 'Logo Oficial de Chile 1962', type: 'logo' }
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/1/1d/1962_FIFA_World_Cup.svg/800px-1962_FIFA_World_Cup.svg.png', caption: 'Logo Oficial de Chile 1962', type: 'logo' }
     ]
   },
   {
     year: 1958,
     host: 'Suecia',
     images: [
-      { url: 'https://images.weserv.nl/?url=https://en.wikipedia.org/wiki/Special:FilePath/1958_FIFA_World_Cup_poster.jpg&w=1000&h=1000&fit=contain&il', caption: 'Póster Oficial de Suecia 1958', type: 'logo' }
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/1/1d/1958_FIFA_World_Cup_poster.jpg/800px-1958_FIFA_World_Cup_poster.jpg', caption: 'Póster Oficial de Suecia 1958', type: 'logo' }
     ]
   },
   {
     year: 1954,
     host: 'Suiza',
     images: [
-      { url: 'https://images.weserv.nl/?url=https://en.wikipedia.org/wiki/Special:FilePath/1954_FIFA_World_Cup.svg&w=1000&h=1000&fit=contain&il', caption: 'Logo Oficial de Suiza 1954', type: 'logo' }
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/1/1d/1954_FIFA_World_Cup.svg/800px-1954_FIFA_World_Cup.svg.png', caption: 'Logo Oficial de Suiza 1954', type: 'logo' }
     ]
   },
   {
     year: 1950,
     host: 'Brasil',
     images: [
-      { url: 'https://images.weserv.nl/?url=https://en.wikipedia.org/wiki/Special:FilePath/1950_FIFA_World_Cup_poster.jpg&w=1000&h=1000&fit=contain&il', caption: 'Póster Oficial de Brasil 1950', type: 'logo' }
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/1/1d/1950_FIFA_World_Cup_poster.jpg/800px-1950_FIFA_World_Cup_poster.jpg', caption: 'Póster Oficial de Brasil 1950', type: 'logo' }
     ]
   },
   {
     year: 1938,
     host: 'Francia',
     images: [
-      { url: 'https://images.weserv.nl/?url=https://en.wikipedia.org/wiki/Special:FilePath/1938_FIFA_World_Cup_poster.jpg&w=1000&h=1000&fit=contain&il', caption: 'Póster Oficial de Francia 1938', type: 'logo' }
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/1/1d/1938_FIFA_World_Cup_poster.jpg/800px-1938_FIFA_World_Cup_poster.jpg', caption: 'Póster Oficial de Francia 1938', type: 'logo' }
     ]
   },
   {
     year: 1934,
     host: 'Italia',
     images: [
-      { url: 'https://images.weserv.nl/?url=https://en.wikipedia.org/wiki/Special:FilePath/1934_FIFA_World_Cup_poster.jpg&w=1000&h=1000&fit=contain&il', caption: 'Póster Oficial de Italia 1934', type: 'logo' }
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/1/1d/1934_FIFA_World_Cup_poster.jpg/800px-1934_FIFA_World_Cup_poster.jpg', caption: 'Póster Oficial de Italia 1934', type: 'logo' }
     ]
   },
   {
     year: 1930,
     host: 'Uruguay',
     images: [
-      { url: 'https://images.weserv.nl/?url=https://en.wikipedia.org/wiki/Special:FilePath/1930_FIFA_World_Cup_poster.jpg&w=1000&h=1000&fit=contain&il', caption: 'Póster Oficial de Uruguay 1930', type: 'logo' }
+      { url: 'https://upload.wikimedia.org/wikipedia/en/thumb/1/1d/1930_FIFA_World_Cup_poster.jpg/800px-1930_FIFA_World_Cup_poster.jpg', caption: 'Póster Oficial de Uruguay 1930', type: 'logo' }
     ]
   }
 ];
@@ -273,12 +289,12 @@ export const GalleryView: React.FC<GalleryViewProps> = ({ onBack }) => {
               className="max-w-2xl w-full flex flex-col items-center gap-6"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className={`relative group overflow-hidden rounded-full shadow-2xl border border-white/10 aspect-square w-full max-w-md bg-white flex items-center justify-center p-8`}>
+              <div className={`relative group overflow-hidden rounded-3xl shadow-2xl border border-white/10 aspect-[3/4] w-full max-w-md bg-white flex items-center justify-center p-6`}>
                 <img 
                   src={selectedImg.url} 
                   alt={selectedImg.caption} 
                   referrerPolicy="no-referrer"
-                  className={`w-full h-full object-contain p-4`}
+                  className={`w-full h-full object-contain`}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     const year = GALLERY_DATA.find(d => d.images.some(i => i.url === selectedImg.url))?.year || 2022;
@@ -342,14 +358,14 @@ export const GalleryView: React.FC<GalleryViewProps> = ({ onBack }) => {
                     className="group relative cursor-pointer bg-white dark:bg-slate-800 rounded-[2.5rem] overflow-hidden shadow-xl border border-slate-100 dark:border-slate-700 transition-all duration-500 flex flex-col"
                     onClick={() => setSelectedImg(img)}
                   >
-                    <div className={`aspect-[3/4] overflow-hidden relative bg-white dark:bg-slate-50 p-6 flex items-center justify-center`}>
-                      <div className="w-full h-full flex items-center justify-center">
-                        <div className="w-48 h-48 sm:w-56 sm:h-56 rounded-full bg-white shadow-2xl flex items-center justify-center p-4 border-8 border-slate-50 dark:border-slate-100 overflow-hidden group-hover:scale-105 transition-transform duration-700">
+                    <div className={`aspect-[3/4] overflow-hidden relative bg-slate-50 dark:bg-slate-900 flex items-center justify-center`}>
+                      <div className="w-full h-full flex items-center justify-center p-4">
+                        <div className="w-full h-full rounded-2xl bg-white shadow-lg flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform duration-700 border-4 border-white">
                           <img 
                             src={img.url} 
                             alt={img.caption}
                             referrerPolicy="no-referrer"
-                            className="w-full h-full object-contain p-2"
+                            className="w-full h-full object-contain"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
                               target.src = `https://picsum.photos/seed/wc${item.year}${idx}/400/600`;
@@ -369,8 +385,10 @@ export const GalleryView: React.FC<GalleryViewProps> = ({ onBack }) => {
                       {/* Badge de Tipo */}
                       <div className="absolute top-6 right-6">
                         <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md px-3 py-1.5 rounded-full shadow-lg border border-white/20 flex items-center gap-2">
-                          <Award className="w-3 h-3 text-indigo-600" />
-                          <span className="text-[8px] font-black uppercase tracking-widest text-slate-900 dark:text-white">LOGO</span>
+                          <Award className={`w-3 h-3 ${img.type === 'mascot' ? 'text-emerald-600' : 'text-indigo-600'}`} />
+                          <span className="text-[8px] font-black uppercase tracking-widest text-slate-900 dark:text-white">
+                            {img.type === 'mascot' ? 'MASCOTA' : 'LOGO'}
+                          </span>
                         </div>
                       </div>
 
