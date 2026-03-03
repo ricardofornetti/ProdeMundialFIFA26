@@ -9,7 +9,6 @@ import { AccountView } from './components/AccountView';
 import { GroupEditor } from './components/GroupEditor';
 import { FullCalendar } from './components/FullCalendar';
 import { HistoryView } from './components/HistoryView';
-import { GalleryView } from './components/GalleryView';
 import { PrivateGroupsView } from './components/PrivateGroupsView';
 import { WORLD_CUP_MATCHES, WORLD_CUP_GROUPS, KNOCKOUT_PHASES } from './constants';
 import { db, saveUserPrediction, getUserPredictions, getRealMatches } from './services/firebaseService';
@@ -88,11 +87,10 @@ const PhaseIcon = ({ type }: { type: string }) => {
   }
 };
 
-const NavIcon = ({ type }: { type: 'rank' | 'history' | 'gallery' | 'user' | 'menu' }) => {
+const NavIcon = ({ type }: { type: 'rank' | 'history' | 'user' | 'menu' }) => {
   switch (type) {
     case 'rank': return <svg className="w-4 h-4 sm:w-5 sm:h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>;
     case 'history': return <svg className="w-4 h-4 sm:w-5 sm:h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
-    case 'gallery': return <svg className="w-4 h-4 sm:w-5 sm:h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>;
     case 'user': return <svg className="w-4 h-4 sm:w-5 sm:h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>;
     case 'menu': return <svg className="w-4 h-4 sm:w-5 sm:h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M4 6h16M4 12h16M4 18h16" /></svg>;
   }
@@ -315,7 +313,7 @@ const App: React.FC = () => {
         <>
           <header className="sticky top-0 z-40 bg-indigo-600 border-b border-white/10 shadow-2xl w-full">
             <div className="w-full">
-              <div className="grid grid-cols-6 gap-0 w-full max-w-full mx-auto h-24">
+              <div className="grid grid-cols-5 gap-0 w-full max-w-full mx-auto h-24">
                 <div className="relative h-full w-full">
                   <button 
                     onClick={() => setIsMenuOpen(!isMenuOpen)} 
@@ -349,13 +347,6 @@ const App: React.FC = () => {
                         Historia
                       </button>
                       <button 
-                        onClick={() => { setView('gallery'); setIsMenuOpen(false); }}
-                        className="w-full px-6 py-4 text-left text-[10px] font-black text-white/90 hover:bg-white/10 uppercase tracking-widest border-b border-white/5 flex items-center gap-3"
-                      >
-                        <NavIcon type="gallery" />
-                        Galería
-                      </button>
-                      <button 
                         onClick={() => { setView('account'); setIsMenuOpen(false); }}
                         className="w-full px-6 py-4 text-left text-[10px] font-black text-white/90 hover:bg-white/10 uppercase tracking-widest flex items-center gap-3"
                       >
@@ -387,14 +378,6 @@ const App: React.FC = () => {
                   <NavIcon type="history" />
                   <span className="hidden xs:inline">HISTORIA</span>
                   <span className="xs:hidden">HITO</span>
-                </button>
-                <button 
-                  onClick={() => { setView('gallery'); setIsMenuOpen(false); }} 
-                  className={`flex flex-col items-center justify-center h-full w-full transition-all border-r border-white/10 font-black text-[9px] sm:text-xs uppercase tracking-tight ${view === 'gallery' ? 'text-white bg-white/20' : 'text-white/90 hover:bg-white/10'}`}
-                >
-                  <NavIcon type="gallery" />
-                  <span className="hidden xs:inline">GALERIA</span>
-                  <span className="xs:hidden">FOTO</span>
                 </button>
                 <button 
                   onClick={() => { setView('account'); setIsMenuOpen(false); }} 
@@ -604,8 +587,6 @@ const App: React.FC = () => {
             <Leaderboard user={user} userScore={userScore} onBack={() => setView('main-menu')} />
           ) : view === 'history' ? (
             <HistoryView onBack={() => setView('main-menu')} />
-          ) : view === 'gallery' ? (
-            <GalleryView onBack={() => setView('main-menu')} />
           ) : view === 'account' ? (
             <AccountView 
               user={user} 

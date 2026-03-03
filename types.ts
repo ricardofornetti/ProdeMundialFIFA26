@@ -52,4 +52,4 @@ export interface Prediction {
 
 export type AuthMode = 'login' | 'register' | 'verify' | 'forgot-password';
 
-export type View = 'auth' | 'main-menu' | 'groups' | 'predictions' | 'leaderboard' | 'world-zones' | 'zone-detail' | 'calendar' | 'account' | 'history' | 'gallery' | 'private-groups';
+export type View = 'auth' | 'main-menu' | 'groups' | 'predictions' | 'leaderboard' | 'world-zones' | 'zone-detail' | 'calendar' | 'account' | 'history' | 'private-groups';
