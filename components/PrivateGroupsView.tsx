@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { User, PrivateGroup, GroupMember } from '../types';
-import { db, saveCloudGroup, getUserCloudGroups } from '../services/firebaseService';
+import { saveCloudGroup, getUserCloudGroups } from '../services/firebaseService';
+import { db } from '../firebase';
 
 interface PrivateGroupsViewProps {
   user: User;

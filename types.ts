@@ -1,10 +1,12 @@
 
 export interface User {
+  uid?: string;
   username: string; // Apodo
   email: string;    // Correo electrónico
   password?: string;
   photoUrl: string;
   isVerified: boolean;
+  role: 'admin' | 'user';
   // Puntaje total acumulado por el usuario en el prode
   totalScore?: number;
   settings?: {
@@ -45,6 +47,7 @@ export interface Match {
 }
 
 export interface Prediction {
+  userId: string;
   matchId: string;
   homeScore: number | '';
   awayScore: number | '';

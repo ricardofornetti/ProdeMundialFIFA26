@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { User } from '../types';
-import { db, getGlobalRanking } from '../services/firebaseService';
+import { getGlobalRanking } from '../services/firebaseService';
+import { db } from '../firebase';
 
 interface LeaderboardProps {
   user: User;

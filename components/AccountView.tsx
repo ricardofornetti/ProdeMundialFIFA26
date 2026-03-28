@@ -85,7 +85,7 @@ export const AccountView: React.FC<AccountViewProps> = ({ user, onLogout, onUpda
   const [activeSubView, setActiveSubView] = useState<'menu' | 'theme' | 'tc' | 'privacy' | 'notifications' | 'rules' | null>(null);
   const [pendingPhoto, setPendingPhoto] = useState<string | null>(null);
   const [isEditingNickname, setIsEditingNickname] = useState(false);
-  const [newNickname, setNewNickname] = useState(user.username);
+  const [newNickname, setNewNickname] = useState(user.username || '');
   const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -160,8 +160,7 @@ export const AccountView: React.FC<AccountViewProps> = ({ user, onLogout, onUpda
 
   const handleShare = () => {
     const currentUrl = new URL(window.location.href);
-    currentUrl.searchParams.set('mode', 'register');
-    const text = `⚽ ¡Sumate al Prode del Mundial 2026 conmigo! Registrate aca para jugar: ${currentUrl.toString()}`;
+    const text = `⚽ ¡Sumate al Prode del Mundial 2026 conmigo! Ingresá acá para jugar: ${currentUrl.toString()}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 

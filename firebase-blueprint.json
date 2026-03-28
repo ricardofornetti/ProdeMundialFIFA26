@@ -1,0 +1,106 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile and settings",
+      "type": "object",
+      "properties": {
+        "username": { "type": "string", "description": "User's display name" },
+        "email": { "type": "string", "format": "email", "description": "User's email address" },
+        "photoUrl": { "type": "string", "description": "URL to user's profile photo" },
+        "isVerified": { "type": "boolean", "description": "Whether the user's email is verified" },
+        "totalScore": { "type": "number", "description": "Total points accumulated" },
+        "settings": {
+          "type": "object",
+          "properties": {
+            "notifyResults": { "type": "boolean" },
+            "notifyMatchStart": { "type": "boolean" },
+            "theme": { "type": "string", "enum": ["light", "dark"] }
+          }
+        },
+        "lastLogin": { "type": "string", "format": "date-time" },
+        "lastUpdate": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["username", "email"]
+    },
+    "Match": {
+      "title": "Match",
+      "description": "World Cup match details",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "homeTeam": { "type": "string" },
+        "awayTeam": { "type": "string" },
+        "homeFlag": { "type": "string" },
+        "awayFlag": { "type": "string" },
+        "group": { "type": "string" },
+        "date": { "type": "string" },
+        "time": { "type": "string" },
+        "venue": { "type": "string" },
+        "actualHomeScore": { "type": "number" },
+        "actualAwayScore": { "type": "number" }
+      }
+    },
+    "Prediction": {
+      "title": "Prediction",
+      "description": "User's match prediction",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "matchId": { "type": "string" },
+        "homeScore": { "type": "number" },
+        "awayScore": { "type": "number" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "PrivateGroup": {
+      "title": "PrivateGroup",
+      "description": "A private group for competing with friends",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "adminEmail": { "type": "string" },
+        "groupPhotoUrl": { "type": "string" },
+        "members": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "username": { "type": "string" },
+              "photoUrl": { "type": "string" },
+              "score": { "type": "number" },
+              "email": { "type": "string" }
+            }
+          }
+        },
+        "memberEmails": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "GalleryUpload": {
+      "title": "GalleryUpload",
+      "description": "Mascot image uploaded by community",
+      "type": "object",
+      "properties": {
+        "year": { "type": "number" },
+        "host": { "type": "string" },
+        "url": { "type": "string" },
+        "caption": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "firestore": {
+    "users": { "schema": "User", "description": "User profiles" },
+    "groups": { "schema": "PrivateGroup", "description": "Private competition groups" },
+    "predictions": { "schema": "Prediction", "description": "Match predictions" },
+    "matches": { "schema": "Match", "description": "Official match data" },
+    "gallery_uploads": { "schema": "GalleryUpload", "description": "Community mascot images" }
+  }
+}

@@ -1,6 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
-import { User, Prediction, View, Match, AuthMode } from './types';
+import React, { useState, useEffect, Component } from 'react';
+import { User, Prediction, View, Match } from './types';
 import { AuthForm } from './components/AuthForm';
 import { MatchCard } from './components/MatchCard';
 import { GroupsSummary } from './components/GroupsSummary';
@@ -11,8 +11,59 @@ import { FullCalendar } from './components/FullCalendar';
 import { HistoryView } from './components/HistoryView';
 import { PrivateGroupsView } from './components/PrivateGroupsView';
 import { WORLD_CUP_MATCHES, WORLD_CUP_GROUPS, KNOCKOUT_PHASES } from './constants';
-import { db, saveUserPrediction, getUserPredictions, getRealMatches } from './services/firebaseService';
+import { testConnection, saveUserPrediction, getUserPredictions, getRealMatches, onAuthChange } from './services/firebaseService';
+import { db } from './firebase';
 import { doc, setDoc } from "firebase/firestore";
+
+// --- ERROR BOUNDARY ---
+class ErrorBoundary extends (Component as any) {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false, errorInfo: null };
+  }
+
+  static getDerivedStateFromError(error: any) {
+    return { hasError: true, errorInfo: error.message };
+  }
+
+  componentDidCatch(error: any, errorInfo: any) {
+    console.error("ErrorBoundary caught an error", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      let displayMessage = "Algo salió mal. Por favor, intenta de nuevo.";
+      try {
+        const parsed = JSON.parse(this.state.errorInfo || "");
+        if (parsed.error && parsed.operationType) {
+          displayMessage = `Error de base de datos (${parsed.operationType}): ${parsed.error}`;
+        }
+      } catch (e) {
+        // Not a JSON error
+      }
+
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
+          <div className="max-w-md w-full bg-white p-8 rounded-3xl shadow-xl border border-red-100 text-center">
+            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+            </div>
+            <h2 className="text-xl font-black text-slate-900 mb-2 uppercase tracking-tight">Error de Conexión</h2>
+            <p className="text-slate-500 text-sm mb-6">{displayMessage}</p>
+            <button 
+              onClick={() => window.location.reload()}
+              className="w-full py-3 bg-indigo-600 text-white font-black rounded-xl hover:bg-indigo-700 transition-all uppercase tracking-widest text-xs"
+            >
+              Recargar Aplicación
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 const PhaseIcon = ({ type }: { type: string }) => {
   const iconClass = "h-6 w-6 sm:h-8 sm:w-8";
@@ -99,7 +150,6 @@ const NavIcon = ({ type }: { type: 'rank' | 'history' | 'user' | 'menu' }) => {
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [view, setView] = useState<View>('auth');
-  const [initialAuthMode, setInitialAuthMode] = useState<AuthMode>('login');
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [customGroups, setCustomGroups] = useState(WORLD_CUP_GROUPS);
   const [realMatches, setRealMatches] = useState<Match[]>(WORLD_CUP_MATCHES);
@@ -118,7 +168,32 @@ const App: React.FC = () => {
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  const [isAuthReady, setIsAuthReady] = useState(false);
+
   useEffect(() => {
+    testConnection();
+
+    // Listen to Firebase Auth changes
+    const unsubscribe = onAuthChange((firebaseUser) => {
+      if (firebaseUser) {
+        // User is logged in, but we might already have the full profile in state or localStorage
+        const savedUser = localStorage.getItem('active_user');
+        if (savedUser) {
+          const parsed = JSON.parse(savedUser);
+          if (parsed.uid === firebaseUser.uid) {
+            setUser(parsed);
+            if (view === 'auth') setView('main-menu');
+          }
+        }
+      } else {
+        // User is logged out
+        setUser(null);
+        localStorage.removeItem('active_user');
+        if (view !== 'auth') setView('auth');
+      }
+      setIsAuthReady(true);
+    });
+
     const themePref = localStorage.getItem('theme_preference');
     if (themePref === 'dark') {
       document.documentElement.classList.add('dark');
@@ -146,7 +221,7 @@ const App: React.FC = () => {
           document.documentElement.classList.remove('dark');
         }
         
-        const savedPreds = localStorage.getItem(`prode_predictions_${parsedUser.email || parsedUser.username}`);
+        const savedPreds = localStorage.getItem(`prode_predictions_${parsedUser.uid || parsedUser.email || parsedUser.username}`);
         if (savedPreds) {
           setPredictions(JSON.parse(savedPreds));
         }
@@ -157,7 +232,7 @@ const App: React.FC = () => {
 
     const fetchMatches = async () => {
       const cloudMatches = await getRealMatches();
-      if (cloudMatches.length > 0) {
+      if (cloudMatches && cloudMatches.length > 0) {
         const merged = WORLD_CUP_MATCHES.map(m => {
           const cloud = cloudMatches.find(cm => cm.id === m.id);
           return cloud ? { ...m, ...cloud } : m;
@@ -166,6 +241,8 @@ const App: React.FC = () => {
       }
     };
     fetchMatches();
+
+    return () => unsubscribe();
   }, []);
 
   const updateMatchesFromGroups = (groups: typeof WORLD_CUP_GROUPS) => {
@@ -213,8 +290,8 @@ const App: React.FC = () => {
       document.documentElement.classList.remove('dark');
     }
     
-    if (db) {
-      const userRef = doc(db, "users", authUser.email || authUser.username);
+    if (db && authUser.uid) {
+      const userRef = doc(db, "users", authUser.uid);
       await setDoc(userRef, { ...authUser, lastLogin: new Date() }, { merge: true });
     }
   };
@@ -232,16 +309,16 @@ const App: React.FC = () => {
     if (!user) return;
     setIsSaving(true);
     try {
-      localStorage.setItem(`prode_predictions_${user.email || user.username}`, JSON.stringify(predictions));
-      if (db) {
+      localStorage.setItem(`prode_predictions_${user.uid || user.email || user.username}`, JSON.stringify(predictions));
+      if (db && user.uid) {
         await Promise.all(predictions.map(pred => {
           if (pred.homeScore !== '' && pred.awayScore !== '') {
-            return saveUserPrediction(user.email || user.username, pred.matchId, Number(pred.homeScore), Number(pred.awayScore));
+            return saveUserPrediction(user.uid!, pred.matchId, Number(pred.homeScore), Number(pred.awayScore));
           }
           return Promise.resolve();
         }));
         const newScore = calculateTotalScore(predictions);
-        const userRef = doc(db, "users", user.email || user.username);
+        const userRef = doc(db, "users", user.uid);
         await setDoc(userRef, { totalScore: newScore, lastUpdate: new Date() }, { merge: true });
       }
       setSaveSuccess(true);
@@ -262,14 +339,14 @@ const App: React.FC = () => {
     try {
       // Save to localStorage
       const updatedPredictions = [...predictions];
-      localStorage.setItem(`prode_predictions_${user.email || user.username}`, JSON.stringify(updatedPredictions));
+      localStorage.setItem(`prode_predictions_${user.uid || user.email || user.username}`, JSON.stringify(updatedPredictions));
 
       if (db) {
-        await saveUserPrediction(user.email || user.username, matchId, Number(pred.homeScore), Number(pred.awayScore));
+        await saveUserPrediction(user.uid || user.email || user.username, matchId, Number(pred.homeScore), Number(pred.awayScore));
         
         // Update score in background
         const newScore = calculateTotalScore(predictions);
-        const userRef = doc(db, "users", user.email || user.username);
+        const userRef = doc(db, "users", user.uid || user.email || user.username);
         await setDoc(userRef, { totalScore: newScore, lastUpdate: new Date() }, { merge: true });
       }
       
@@ -295,19 +372,35 @@ const App: React.FC = () => {
   const handleUpdateUser = async (updatedUser: User) => {
     setUser(updatedUser);
     localStorage.setItem('active_user', JSON.stringify(updatedUser));
-    if (db) {
+    if (db && updatedUser.uid) {
       try {
-        const userRef = doc(db, "users", updatedUser.email || updatedUser.username);
+        const userRef = doc(db, "users", updatedUser.uid);
         await setDoc(userRef, { ...updatedUser }, { merge: true });
       } catch (e) { console.error(e); }
     }
   };
 
+  if (!isAuthReady) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="animate-pulse flex flex-col items-center gap-4">
+          <div className="w-16 h-16 bg-indigo-100 rounded-3xl flex items-center justify-center rotate-3">
+            <svg viewBox="0 0 24 24" className="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+          </div>
+          <p className="text-slate-400 font-black uppercase text-[10px] tracking-[0.3em]">Cargando...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen w-full bg-slate-50 dark:bg-slate-900 pb-20 transition-colors duration-300 overflow-x-hidden">
+    <ErrorBoundary>
+      <div className="min-h-screen w-full bg-slate-50 dark:bg-slate-900 pb-20 transition-colors duration-300 overflow-x-hidden">
       {!user || view === 'auth' ? (
         <main className="min-h-screen flex items-center justify-center max-w-md mx-auto px-4 py-12 animate-fade-in">
-          <AuthForm onAuthSuccess={handleAuthSuccess} initialMode={initialAuthMode} />
+          <AuthForm onAuthSuccess={handleAuthSuccess} />
         </main>
       ) : (
         <>
@@ -614,6 +707,7 @@ const App: React.FC = () => {
         </>
       )}
     </div>
+    </ErrorBoundary>
   );
 };
 
