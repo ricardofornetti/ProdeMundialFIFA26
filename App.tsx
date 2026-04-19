@@ -546,23 +546,7 @@ const App: React.FC = () => {
 
           {view === 'main-menu' ? (
             <main className="max-w-6xl mx-auto px-4 py-8 animate-fade-in w-full">
-              <div className="text-center mb-10 flex flex-col items-center">
-                <div className="relative mb-8 p-6 sm:p-10 bg-white/50 dark:bg-slate-800/30 rounded-[3.5rem] backdrop-blur-sm border border-slate-200 dark:border-white/5 shadow-xl group">
-                  <div className="absolute inset-0 bg-indigo-500/5 blur-[60px] rounded-full"></div>
-                  
-                  <div className="relative z-10 flex flex-col items-center">
-                    <img 
-                      src="./logo_mundial.png" 
-                      alt="FIFA World Cup 2026 Official Logo" 
-                      className="w-48 h-auto sm:w-64 object-contain drop-shadow-[0_10px_25px_rgba(0,0,0,0.1)] animate-float transition-all transition-all duration-700"
-                      referrerPolicy="no-referrer"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/FIFA_World_Cup_2026_logo.svg/800px-FIFA_World_Cup_2026_logo.svg.png";
-                      }}
-                    />
-                  </div>
-                </div>
+              <div className="text-center mb-10 mt-4 flex flex-col items-center">
                 <h2 className="heading-font text-3xl sm:text-5xl font-black text-slate-900 dark:text-white mb-2 uppercase italic tracking-tighter leading-none text-center">
                   COPA MUNDIAL <span className="text-indigo-600 dark:text-indigo-400">FIFA 2026</span>
                 </h2>
