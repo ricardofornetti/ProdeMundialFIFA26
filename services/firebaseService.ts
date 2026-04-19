@@ -11,6 +11,7 @@ import {
   updateDoc,
   limit,
   deleteDoc,
+  deleteField,
   getDocFromServer
 } from "firebase/firestore";
 import { 
@@ -385,6 +386,32 @@ export const getUserCloudGroups = async (userEmail: string): Promise<PrivateGrou
 };
 
 // --- GESTIÓN DE PARTIDOS Y PREDICCIONES ---
+
+export const updateMatchResult = async (matchId: string, homeScore: number, awayScore: number) => {
+  if (!db) return;
+  const path = "matches";
+  try {
+    const matchRef = doc(db, path, matchId);
+    await setDoc(matchRef, {
+      actualHomeScore: homeScore,
+      actualAwayScore: awayScore,
+      updatedAt: new Date()
+    }, { merge: true });
+  } catch (error) {
+    handleFirestoreError(error, OperationType.WRITE, `${path}/${matchId}`);
+  }
+};
+
+export const deleteMatchResult = async (matchId: string) => {
+  if (!db) return;
+  const path = "matches";
+  try {
+    const matchRef = doc(db, path, matchId);
+    await deleteDoc(matchRef);
+  } catch (error) {
+    handleFirestoreError(error, OperationType.DELETE, `${path}/${matchId}`);
+  }
+};
 
 export const saveUserPrediction = async (userId: string, matchId: string, homeScore: number, awayScore: number) => {
   if (!db) return;

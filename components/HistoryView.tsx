@@ -19,23 +19,36 @@ const WORLD_CHAMPIONS = [
 export const HistoryView: React.FC<HistoryViewProps> = ({ onBack }) => {
   return (
     <div className="max-w-3xl mx-auto px-2 sm:px-4 py-6 sm:py-8 animate-fade-in space-y-6 sm:space-y-8">
-      <div className="mb-6 sm:mb-8">
-        <button 
-          onClick={onBack}
-          className="flex items-center gap-3 text-slate-500 hover:text-black dark:text-slate-400 dark:hover:text-white font-black text-xs sm:text-sm uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-5 py-3 rounded-2xl transition-all active:scale-95"
-        >
-          <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-          <span>Volver</span>
-        </button>
-      </div>
+        <div className="mb-6">
+          <button 
+            onClick={onBack}
+            className="flex items-center gap-3 text-slate-500 hover:text-white dark:text-slate-400 dark:hover:text-white font-black text-xs sm:text-sm uppercase tracking-widest bg-slate-100 dark:bg-slate-800 hover:bg-indigo-600 dark:hover:bg-indigo-600 px-5 py-3 rounded-2xl transition-all active:scale-95 shadow-sm hover:shadow-indigo-500/20"
+          >
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            <span>Volver</span>
+          </button>
+        </div>
 
       {/* Ranking Section */}
       <div className="bg-white dark:bg-slate-800 rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl p-4 sm:p-10 border border-slate-100 dark:border-slate-700">
         <div className="text-center mb-6 sm:mb-10">
-          <div className="inline-block p-3 sm:p-4 bg-yellow-500/10 rounded-full mb-3 sm:mb-4">
-            <svg className="w-8 h-8 sm:w-10 sm:h-10 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M18 2H6V4H18V2ZM17 14C17 16.8 14.8 19 12 19C9.2 19 7 16.8 7 14V5H17V14ZM12 22C10.3 22 9 20.7 9 19H15C15 20.7 13.7 22 12 22Z" />
-            </svg>
+          <div className="relative inline-block mb-4">
+            <div className="absolute inset-0 bg-yellow-400/20 blur-2xl rounded-full scale-150 animate-pulse"></div>
+            <img 
+              src="https://www.fifa.com/static-assets/fifa-com/images/fifa-logo.svg" 
+              alt="FIFA Logo" 
+              className="absolute -top-12 left-1/2 -translate-x-1/2 w-12 h-auto opacity-20 pointer-events-none"
+            />
+            <img 
+              src="https://img.freepik.com/free-vector/world-cup-trophy-illustration_1142-29759.jpg?t=st=1713554400~exp=1713558000~hmac=..." 
+              alt="Copa del Mundo" 
+              className="w-24 h-24 sm:w-32 relative z-10 drop-shadow-[0_10px_20px_rgba(255,191,0,0.4)] transition-transform hover:scale-110 duration-500 rounded-full"
+              referrerPolicy="no-referrer"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = "https://upload.wikimedia.org/wikipedia/en/thumb/e/ec/Soccer_World_Cup_trophy.png/250px-Soccer_World_Cup_trophy.png";
+              }}
+            />
           </div>
           <h2 className="heading-font text-xl sm:text-3xl font-black text-slate-900 dark:text-white mb-1 uppercase tracking-tighter italic">RANKING HISTÓRICO</h2>
           <p className="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase tracking-widest">CAMPEONES DE LA COPA DEL MUNDO</p>

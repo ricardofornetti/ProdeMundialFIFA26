@@ -142,15 +142,24 @@ service cloud.firestore {
       allow delete: if isAuthenticated() && (request.auth.uid == resource.data.userId || isAdmin());
     }
 
-    match /matches/{matchId} {
-      allow read, list, get: if true;
+    match /matches {
+      allow read: if true;
       allow write: if isAdmin();
+      match /{allPaths=**} {
+        allow read: if true;
+        allow write: if isAdmin();
+      }
     }
 
-    match /gallery_uploads/{uploadId} {
-      allow read, list, get: if true;
+    match /gallery_uploads {
+      allow read: if true;
       allow create: if isAuthenticated();
       allow delete: if isAdmin();
+      match /{allPaths=**} {
+        allow read: if true;
+        allow create: if isAuthenticated();
+        allow delete: if isAdmin();
+      }
     }
   }
 }

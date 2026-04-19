@@ -1,6 +1,7 @@
 import React from 'react';
 import { Match, Prediction } from '../types';
 import { TEAM_FLAGS } from '../constants';
+import { Lock } from 'lucide-react';
 
 interface MatchCardProps {
   match: Match;
@@ -8,6 +9,7 @@ interface MatchCardProps {
   onPredictionChange: (matchId: string, homeScore: number | '', awayScore: number | '') => void;
   onSavePrediction?: (matchId: string) => void;
   isSaving?: boolean;
+  isLocked?: boolean;
 }
 
 export const MatchCard: React.FC<MatchCardProps> = ({ 
@@ -15,12 +17,20 @@ export const MatchCard: React.FC<MatchCardProps> = ({
   prediction, 
   onPredictionChange, 
   onSavePrediction,
-  isSaving = false
+  isSaving = false,
+  isLocked = false
 }) => {
   const isPredictionComplete = prediction && prediction.homeScore !== '' && prediction.awayScore !== '';
   
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-md p-4 sm:p-6 border border-slate-100 dark:border-slate-700 transition-all duration-300">
+    <div className={`bg-white dark:bg-slate-800 rounded-2xl shadow-md p-4 sm:p-6 border transition-all duration-300 relative overflow-hidden ${isLocked ? 'border-slate-200 dark:border-slate-600 opacity-90' : 'border-slate-100 dark:border-slate-700 shadow-xl'}`}>
+      {isLocked && (
+        <div className="absolute top-0 right-0 bg-slate-100 dark:bg-slate-700 px-4 py-1.5 rounded-bl-2xl border-l border-b border-slate-200 dark:border-slate-600 flex items-center gap-2 z-10 shadow-sm animate-fade-in">
+          <Lock className="w-3 h-3 text-slate-400" />
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">BLOQUEADO</span>
+        </div>
+      )}
+
       <div className="flex justify-between items-center mb-4 sm:mb-6">
         <div className="flex flex-col gap-1">
           <span className="text-[10px] sm:text-sm font-bold tracking-wider uppercase px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 self-start">
@@ -53,23 +63,25 @@ export const MatchCard: React.FC<MatchCardProps> = ({
             <input
               type="number"
               min="0"
+              disabled={isLocked}
               value={prediction?.homeScore ?? ''}
               onChange={(e) => onPredictionChange(match.id, e.target.value === '' ? '' : parseInt(e.target.value), prediction?.awayScore ?? '')}
-              className="w-12 h-12 xs:w-14 xs:h-14 sm:w-20 sm:h-20 text-center text-xl xs:text-2xl sm:text-4xl font-black border-2 border-slate-200 dark:border-slate-600 rounded-2xl focus:border-black dark:focus:border-white focus:ring-4 focus:ring-slate-50 dark:focus:ring-slate-700 focus:outline-none transition-all text-black dark:text-white bg-white dark:bg-slate-700"
+              className={`w-12 h-12 xs:w-14 xs:h-14 sm:w-20 sm:h-20 text-center text-xl xs:text-2xl sm:text-4xl font-black border-2 border-slate-200 dark:border-slate-600 rounded-2xl focus:border-black dark:focus:border-white focus:ring-4 focus:ring-slate-50 dark:focus:ring-slate-700 focus:outline-none transition-all text-black dark:text-white bg-white dark:bg-slate-700 ${isLocked ? 'cursor-not-allowed opacity-50 bg-slate-50' : ''}`}
               placeholder="-"
             />
             <span className="text-2xl sm:text-4xl font-black text-slate-300 dark:text-slate-500">:</span>
             <input
               type="number"
               min="0"
+              disabled={isLocked}
               value={prediction?.awayScore ?? ''}
               onChange={(e) => onPredictionChange(match.id, prediction?.homeScore ?? '', e.target.value === '' ? '' : parseInt(e.target.value))}
-              className="w-12 h-12 xs:w-14 xs:h-14 sm:w-20 sm:h-20 text-center text-xl xs:text-2xl sm:text-4xl font-black border-2 border-slate-200 dark:border-slate-600 rounded-2xl focus:border-black dark:focus:border-white focus:ring-4 focus:ring-slate-50 dark:focus:ring-slate-700 focus:outline-none transition-all text-black dark:text-white bg-white dark:bg-slate-700"
+              className={`w-12 h-12 xs:w-14 xs:h-14 sm:w-20 sm:h-20 text-center text-xl xs:text-2xl sm:text-4xl font-black border-2 border-slate-200 dark:border-slate-600 rounded-2xl focus:border-black dark:focus:border-white focus:ring-4 focus:ring-slate-50 dark:focus:ring-slate-700 focus:outline-none transition-all text-black dark:text-white bg-white dark:bg-slate-700 ${isLocked ? 'cursor-not-allowed opacity-50 bg-slate-50' : ''}`}
               placeholder="-"
             />
           </div>
           
-          {onSavePrediction && (
+          {onSavePrediction && !isLocked && (
             <button
               onClick={() => onSavePrediction(match.id)}
               disabled={!isPredictionComplete || isSaving}
@@ -83,9 +95,9 @@ export const MatchCard: React.FC<MatchCardProps> = ({
             </button>
           )}
           
-          {!onSavePrediction && (
+          {(!onSavePrediction || isLocked) && (
             <p className={`text-[10px] sm:text-sm font-black uppercase mt-1 ${isPredictionComplete ? 'text-green-500' : 'text-slate-400'}`}>
-              {isPredictionComplete ? 'CARGADO' : 'Cargar'}
+              {isLocked ? (isPredictionComplete ? 'ENVIADO' : 'CERRADO') : (isPredictionComplete ? 'CARGADO' : 'Cargar')}
             </p>
           )}
         </div>

@@ -162,7 +162,7 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
       <div className="mb-6 flex items-center justify-between">
         <button 
           onClick={handleBack} 
-          className="flex items-center gap-3 text-slate-500 hover:text-black dark:text-slate-400 dark:hover:text-white font-black text-xs sm:text-sm uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-5 py-3 rounded-2xl transition-all active:scale-95"
+          className="flex items-center gap-3 text-slate-500 hover:text-white dark:text-slate-400 dark:hover:text-white font-black text-xs sm:text-sm uppercase tracking-widest bg-slate-100 dark:bg-slate-800 hover:bg-indigo-600 dark:hover:bg-indigo-600 px-5 py-3 rounded-2xl transition-all active:scale-95 shadow-sm hover:shadow-indigo-500/20"
         >
           <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
           <span>Volver</span>
@@ -193,10 +193,10 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
 
             {groups.length === 0 ? (
               <div className="text-center py-20 bg-slate-50 dark:bg-slate-900/50 rounded-[2rem] border-2 border-dashed border-slate-200 dark:border-slate-700">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Aún no has creado ningún grupo exclusivo</p>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Aún no has creado ningún grupo exclusivo</p>
                 <button 
                   onClick={() => setViewMode('create')}
-                  className="text-black dark:text-white font-black text-xs uppercase underline tracking-widest hover:opacity-70"
+                  className="bg-black dark:bg-white text-white dark:text-black px-10 py-5 rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] shadow-2xl hover:scale-105 active:scale-95 transition-all"
                 >
                   ¡Empieza ahora!
                 </button>

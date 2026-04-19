@@ -4,23 +4,23 @@ import { Match } from './types';
 export const WORLD_CUP_MATCHES: Match[] = [
   // --- JUEVES 11 JUNIO ---
   { id: 'm1', homeTeam: 'México', awayTeam: 'Sudáfrica', homeFlag: 'MX', awayFlag: 'ZA', group: 'Primera Fase • Grupo A', date: '11 Jun 2026', time: '16:00', venue: 'Estadio Ciudad de México, Ciudad de México' },
-  { id: 'm2', homeTeam: 'República de Corea', awayTeam: 'DEN/MKD/CZE/IRL', homeFlag: 'KR', awayFlag: 'FIFA', group: 'Primera Fase • Grupo A', date: '11 Jun 2026', time: '23:00', venue: 'Estadio Guadalajara, Guadalajara' },
+  { id: 'm2', homeTeam: 'República de Corea', awayTeam: 'República Checa', homeFlag: 'KR', awayFlag: 'CZ', group: 'Primera Fase • Grupo A', date: '11 Jun 2026', time: '23:00', venue: 'Estadio Guadalajara, Guadalajara' },
   
   // --- VIERNES 12 JUNIO ---
-  { id: 'm3', homeTeam: 'Canadá', awayTeam: 'ITA/NIR/WAL/BIH', homeFlag: 'CA', awayFlag: 'FIFA', group: 'Primera Fase • Grupo B', date: '12 Jun 2026', time: '16:00', venue: 'Estadio de Toronto, Toronto' },
+  { id: 'm3', homeTeam: 'Canadá', awayTeam: 'Suiza', homeFlag: 'CA', awayFlag: 'CH', group: 'Primera Fase • Grupo B', date: '12 Jun 2026', time: '16:00', venue: 'Estadio de Toronto, Toronto' },
   { id: 'm4', homeTeam: 'EE. UU.', awayTeam: 'Paraguay', homeFlag: 'US', awayFlag: 'PY', group: 'Primera Fase • Grupo D', date: '12 Jun 2026', time: '22:00', venue: 'Estadio Los Angeles, Los Ángeles' },
   
   // --- SÁBADO 13 JUNIO ---
-  { id: 'm5', homeTeam: 'Catar', awayTeam: 'Suiza', homeFlag: 'QA', awayFlag: 'CH', group: 'Primera Fase • Grupo B', date: '13 Jun 2026', time: '16:00', venue: 'Estadio de la Bahía de San Francisco, Área de la Bahía de San Francisco' },
+  { id: 'm5', homeTeam: 'Bosnia y Herzegovina', awayTeam: 'Catar', homeFlag: 'BA', awayFlag: 'QA', group: 'Primera Fase • Grupo B', date: '13 Jun 2026', time: '16:00', venue: 'Estadio de la Bahía de San Francisco, Área de la Bahía de San Francisco' },
   { id: 'm6', homeTeam: 'Brasil', awayTeam: 'Marruecos', homeFlag: 'BR', awayFlag: 'MA', group: 'Primera Fase • Grupo C', date: '13 Jun 2026', time: '19:00', venue: 'Estadio Nueva York/Nueva Jersey, Nueva York' },
   { id: 'm7', homeTeam: 'Haití', awayTeam: 'Escocia', homeFlag: 'HT', awayFlag: 'GB-SCT', group: 'Primera Fase • Grupo C', date: '13 Jun 2026', time: '22:00', venue: 'Estadio Boston, Boston' },
   
   // --- DOMINGO 14 JUNIO ---
-  { id: 'm8', homeTeam: 'Australia', awayTeam: 'TUR/ROU/SVK/KOS', homeFlag: 'AU', awayFlag: 'FIFA', group: 'Primera Fase • Grupo D', date: '14 Jun 2026', time: '01:00', venue: 'Estadio BC Place Vancouver, Vancouver' },
+  { id: 'm8', homeTeam: 'Australia', awayTeam: 'Turquía', homeFlag: 'AU', awayFlag: 'TR', group: 'Primera Fase • Grupo D', date: '14 Jun 2026', time: '01:00', venue: 'Estadio BC Place Vancouver, Vancouver' },
   { id: 'm9', homeTeam: 'Alemania', awayTeam: 'Curazao', homeFlag: 'DE', awayFlag: 'CW', group: 'Primera Fase • Grupo E', date: '14 Jun 2026', time: '14:00', venue: 'Estadio Houston, Houston' },
   { id: 'm10', homeTeam: 'Países Bajos', awayTeam: 'Japón', homeFlag: 'NL', awayFlag: 'JP', group: 'Primera Fase • Grupo F', date: '14 Jun 2026', time: '17:00', venue: 'Estadio Dallas, Dallas' },
   { id: 'm11', homeTeam: 'Costa de Marfil', awayTeam: 'Ecuador', homeFlag: 'CI', awayFlag: 'EC', group: 'Primera Fase • Grupo E', date: '14 Jun 2026', time: '20:00', venue: 'Estadio Filadelfia, Filadelfia' },
-  { id: 'm12', homeTeam: 'UKR/SWE/POL/ALB', awayTeam: 'Túnez', homeFlag: 'FIFA', awayFlag: 'TN', group: 'Primera Fase • Grupo F', date: '14 Jun 2026', time: '23:00', venue: 'Estadio Monterrey, Monterrey' },
+  { id: 'm12', homeTeam: 'Túnez', awayTeam: 'Suecia', homeFlag: 'TN', awayFlag: 'SE', group: 'Primera Fase • Grupo F', date: '14 Jun 2026', time: '23:00', venue: 'Estadio Monterrey, Monterrey' },
   
   // --- LUNES 15 JUNIO ---
   { id: 'm13', homeTeam: 'España', awayTeam: 'Islas de Cabo Verde', homeFlag: 'ES', awayFlag: 'CV', group: 'Primera Fase • Grupo H', date: '15 Jun 2026', time: '13:00', venue: 'Estadio Atlanta, Atlanta' },
@@ -30,20 +30,20 @@ export const WORLD_CUP_MATCHES: Match[] = [
   
   // --- MARTES 16 JUNIO ---
   { id: 'm17', homeTeam: 'Francia', awayTeam: 'Senegal', homeFlag: 'FR', awayFlag: 'SN', group: 'Primera Fase • Grupo I', date: '16 Jun 2026', time: '16:00', venue: 'Estadio Nueva York/Nueva Jersey, Nueva York' },
-  { id: 'm18', homeTeam: 'BOL/SUR/IRQ', awayTeam: 'Noruega', homeFlag: 'FIFA', awayFlag: 'NO', group: 'Primera Fase • Grupo I', date: '16 Jun 2026', time: '19:00', venue: 'Estadio Boston, Boston' },
+  { id: 'm18', homeTeam: 'Irak', awayTeam: 'Noruega', homeFlag: 'IQ', awayFlag: 'NO', group: 'Primera Fase • Grupo I', date: '16 Jun 2026', time: '19:00', venue: 'Estadio Boston, Boston' },
   { id: 'm19', homeTeam: 'Argentina', awayTeam: 'Argelia', homeFlag: 'AR', awayFlag: 'DZ', group: 'Primera Fase • Grupo J', date: '16 Jun 2026', time: '22:00', venue: 'Estadio Kansas City, Kansas City' },
   
   // --- MIÉRCOLES 17 JUNIO ---
   { id: 'm20', homeTeam: 'Austria', awayTeam: 'Jordania', homeFlag: 'AT', awayFlag: 'JO', group: 'Primera Fase • Grupo J', date: '17 Jun 2026', time: '01:00', venue: 'Estadio de la Bahía de San Francisco, Área de la Bahía de San Francisco' },
-  { id: 'm21', homeTeam: 'Portugal', awayTeam: 'NCL/JAM/COD', homeFlag: 'PT', awayFlag: 'FIFA', group: 'Primera Fase • Grupo K', date: '17 Jun 2026', time: '14:00', venue: 'Estadio Houston, Houston' },
+  { id: 'm21', homeTeam: 'Portugal', awayTeam: 'RD Congo', homeFlag: 'PT', awayFlag: 'CD', group: 'Primera Fase • Grupo K', date: '17 Jun 2026', time: '14:00', venue: 'Estadio Houston, Houston' },
   { id: 'm22', homeTeam: 'Inglaterra', awayTeam: 'Croacia', homeFlag: 'GB-ENG', awayFlag: 'HR', group: 'Primera Fase • Grupo L', date: '17 Jun 2026', time: '17:00', venue: 'Estadio Dallas, Dallas' },
   { id: 'm23', homeTeam: 'Ghana', awayTeam: 'Panamá', homeFlag: 'GH', awayFlag: 'PA', group: 'Primera Fase • Grupo L', date: '17 Jun 2026', time: '20:00', venue: 'Estadio de Toronto, Toronto' },
   { id: 'm24', homeTeam: 'Uzbekistán', awayTeam: 'Colombia', homeFlag: 'UZ', awayFlag: 'CO', group: 'Primera Fase • Grupo K', date: '17 Jun 2026', time: '23:00', venue: 'Estadio Ciudad de México, Ciudad de México' },
   
   // --- JUEVES 18 JUNIO ---
-  { id: 'm25', homeTeam: 'DEN/MKD/CZE/IRL', awayTeam: 'Sudáfrica', homeFlag: 'FIFA', awayFlag: 'ZA', group: 'Primera Fase • Grupo A', date: '18 Jun 2026', time: '13:00', venue: 'Estadio Atlanta, Atlanta' },
-  { id: 'm26', homeTeam: 'Suiza', awayTeam: 'ITA/NIR/WAL/BIH', homeFlag: 'CH', awayFlag: 'FIFA', group: 'Primera Fase • Grupo B', date: '18 Jun 2026', time: '16:00', venue: 'Estadio Los Angeles, Los Ángeles' },
-  { id: 'm27', homeTeam: 'Canadá', awayTeam: 'Catar', homeFlag: 'CA', awayFlag: 'QA', group: 'Primera Fase • Grupo B', date: '18 Jun 2026', time: '19:00', venue: 'Estadio BC Place Vancouver, Vancouver' },
+  { id: 'm25', homeTeam: 'República Checa', awayTeam: 'Sudáfrica', homeFlag: 'CZ', awayFlag: 'ZA', group: 'Primera Fase • Grupo A', date: '18 Jun 2026', time: '13:00', venue: 'Estadio Atlanta, Atlanta' },
+  { id: 'm26', homeTeam: 'Catar', awayTeam: 'Suiza', homeFlag: 'QA', awayFlag: 'CH', group: 'Primera Fase • Grupo B', date: '18 Jun 2026', time: '16:00', venue: 'Estadio Los Angeles, Los Ángeles' },
+  { id: 'm27', homeTeam: 'Canadá', awayTeam: 'Bosnia y Herzegovina', homeFlag: 'CA', awayFlag: 'BA', group: 'Primera Fase • Grupo B', date: '18 Jun 2026', time: '19:00', venue: 'Estadio BC Place Vancouver, Vancouver' },
   { id: 'm28', homeTeam: 'México', awayTeam: 'República de Corea', homeFlag: 'MX', awayFlag: 'KR', group: 'Primera Fase • Grupo A', date: '18 Jun 2026', time: '22:00', venue: 'Estadio Guadalajara, Guadalajara' },
   
   // --- VIERNES 19 JUNIO ---
@@ -52,13 +52,13 @@ export const WORLD_CUP_MATCHES: Match[] = [
   { id: 'm31', homeTeam: 'Brasil', awayTeam: 'Haití', homeFlag: 'BR', awayFlag: 'HT', group: 'Primera Fase • Grupo C', date: '19 Jun 2026', time: '22:00', venue: 'Estadio Filadelfia, Filadelfia' },
   
   // --- SÁBADO 20 JUNIO ---
-  { id: 'm32', homeTeam: 'TUR/ROU/SVK/KOS', awayTeam: 'Paraguay', homeFlag: 'FIFA', awayFlag: 'PY', group: 'Primera Fase • Grupo D', date: '20 Jun 2026', time: '01:00', venue: 'Estadio de la Bahía de San Francisco, Área de la Bahía de San Francisco' },
-  { id: 'm33', homeTeam: 'Países Bajos', awayTeam: 'UKR/SWE/POL/ALB', homeFlag: 'NL', awayFlag: 'FIFA', group: 'Primera Fase • Grupo F', date: '20 Jun 2026', time: '14:00', venue: 'Estadio Houston, Houston' },
+  { id: 'm32', homeTeam: 'Turquía', awayTeam: 'Paraguay', homeFlag: 'TR', awayFlag: 'PY', group: 'Primera Fase • Grupo D', date: '20 Jun 2026', time: '01:00', venue: 'Estadio de la Bahía de San Francisco, Área de la Bahía de San Francisco' },
+  { id: 'm33', homeTeam: 'Países Bajos', awayTeam: 'Túnez', homeFlag: 'NL', awayFlag: 'TN', group: 'Primera Fase • Grupo F', date: '20 Jun 2026', time: '14:00', venue: 'Estadio Houston, Houston' },
   { id: 'm34', homeTeam: 'Alemania', awayTeam: 'Costa de Marfil', homeFlag: 'DE', awayFlag: 'CI', group: 'Primera Fase • Grupo E', date: '20 Jun 2026', time: '17:00', venue: 'Estadio de Toronto, Toronto' },
   { id: 'm35', homeTeam: 'Ecuador', awayTeam: 'Curazao', homeFlag: 'EC', awayFlag: 'CW', group: 'Primera Fase • Grupo E', date: '20 Jun 2026', time: '21:00', venue: 'Estadio Kansas City, Kansas City' },
   
   // --- DOMINGO 21 JUNIO ---
-  { id: 'm36', homeTeam: 'Túnez', awayTeam: 'Japón', homeFlag: 'TN', awayFlag: 'JP', group: 'Primera Fase • Grupo F', date: '21 Jun 2026', time: '01:00', venue: 'Estadio Monterrey, Monterrey' },
+  { id: 'm36', homeTeam: 'Suecia', awayTeam: 'Japón', homeFlag: 'SE', awayFlag: 'JP', group: 'Primera Fase • Grupo F', date: '21 Jun 2026', time: '01:00', venue: 'Estadio Monterrey, Monterrey' },
   { id: 'm37', homeTeam: 'España', awayTeam: 'Arabia Saudí', homeFlag: 'ES', awayFlag: 'SA', group: 'Primera Fase • Grupo H', date: '21 Jun 2026', time: '13:00', venue: 'Estadio Atlanta, Atlanta' },
   { id: 'm38', homeTeam: 'Bélgica', awayTeam: 'RI de Irán', homeFlag: 'BE', awayFlag: 'IR', group: 'Primera Fase • Grupo G', date: '21 Jun 2026', time: '16:00', venue: 'Estadio Los Angeles, Los Ángeles' },
   { id: 'm39', homeTeam: 'Uruguay', awayTeam: 'Islas de Cabo Verde', homeFlag: 'UY', awayFlag: 'CV', group: 'Primera Fase • Grupo H', date: '21 Jun 2026', time: '19:00', venue: 'Estadio Miami, Miami' },
@@ -66,7 +66,7 @@ export const WORLD_CUP_MATCHES: Match[] = [
   
   // --- LUNES 22 JUNIO ---
   { id: 'm41', homeTeam: 'Argentina', awayTeam: 'Austria', homeFlag: 'AR', awayFlag: 'AT', group: 'Primera Fase • Grupo J', date: '22 Jun 2026', time: '14:00', venue: 'Estadio Dallas, Dallas' },
-  { id: 'm42', homeTeam: 'Francia', awayTeam: 'BOL/SUR/IRQ', homeFlag: 'FR', awayFlag: 'FIFA', group: 'Primera Fase • Grupo I', date: '22 Jun 2026', time: '18:00', venue: 'Estadio Filadelfia, Filadelfia' },
+  { id: 'm42', homeTeam: 'Francia', awayTeam: 'Irak', homeFlag: 'FR', awayFlag: 'IQ', group: 'Primera Fase • Grupo I', date: '22 Jun 2026', time: '18:00', venue: 'Estadio Filadelfia, Filadelfia' },
   { id: 'm43', homeTeam: 'Noruega', awayTeam: 'Senegal', homeFlag: 'NO', awayFlag: 'SN', group: 'Primera Fase • Grupo I', date: '22 Jun 2026', time: '21:00', venue: 'Estadio Nueva York/Nueva Jersey, Nueva York' },
   
   // --- MARTES 23 JUNIO ---
@@ -74,27 +74,27 @@ export const WORLD_CUP_MATCHES: Match[] = [
   { id: 'm45', homeTeam: 'Portugal', awayTeam: 'Uzbekistán', homeFlag: 'PT', awayFlag: 'UZ', group: 'Primera Fase • Grupo K', date: '23 Jun 2026', time: '14:00', venue: 'Estadio Houston, Houston' },
   { id: 'm46', homeTeam: 'Inglaterra', awayTeam: 'Ghana', homeFlag: 'GB-ENG', awayFlag: 'GH', group: 'Primera Fase • Grupo L', date: '23 Jun 2026', time: '17:00', venue: 'Estadio Boston, Boston' },
   { id: 'm47', homeTeam: 'Panamá', awayTeam: 'Croacia', homeFlag: 'PA', awayFlag: 'HR', group: 'Primera Fase • Grupo L', date: '23 Jun 2026', time: '20:00', venue: 'Estadio de Toronto, Toronto' },
-  { id: 'm48', homeTeam: 'Colombia', awayTeam: 'NCL/JAM/COD', homeFlag: 'CO', awayFlag: 'FIFA', group: 'Primera Fase • Grupo K', date: '23 Jun 2026', time: '23:00', venue: 'Estadio Guadalajara, Guadalajara' },
+  { id: 'm48', homeTeam: 'Colombia', awayTeam: 'RD Congo', homeFlag: 'CO', awayFlag: 'CD', group: 'Primera Fase • Grupo K', date: '23 Jun 2026', time: '23:00', venue: 'Estadio Guadalajara, Guadalajara' },
   
   // --- MIÉRCOLES 24 JUNIO ---
-  { id: 'm49', homeTeam: 'Suiza', awayTeam: 'Canadá', homeFlag: 'CH', awayFlag: 'CA', group: 'Primera Fase • Grupo B', date: '24 Jun 2026', time: '16:00', venue: 'Estadio BC Place Vancouver, Vancouver' },
-  { id: 'm50', homeTeam: 'ITA/NIR/WAL/BIH', awayTeam: 'Catar', homeFlag: 'FIFA', awayFlag: 'QA', group: 'Primera Fase • Grupo B', date: '24 Jun 2026', time: '16:00', venue: 'Estadio de Seattle, Seattle' },
+  { id: 'm49', homeTeam: 'Catar', awayTeam: 'Canadá', homeFlag: 'QA', awayFlag: 'CA', group: 'Primera Fase • Grupo B', date: '24 Jun 2026', time: '16:00', venue: 'Estadio BC Place Vancouver, Vancouver' },
+  { id: 'm50', homeTeam: 'Suiza', awayTeam: 'Bosnia y Herzegovina', homeFlag: 'CH', awayFlag: 'BA', group: 'Primera Fase • Grupo B', date: '24 Jun 2026', time: '16:00', venue: 'Estadio de Seattle, Seattle' },
   { id: 'm51', homeTeam: 'Escocia', awayTeam: 'Brasil', homeFlag: 'GB-SCT', awayFlag: 'BR', group: 'Primera Fase • Grupo C', date: '24 Jun 2026', time: '19:00', venue: 'Estadio Miami, Miami' },
   { id: 'm52', homeTeam: 'Marruecos', awayTeam: 'Haití', homeFlag: 'MA', awayFlag: 'HT', group: 'Primera Fase • Grupo C', date: '24 Jun 2026', time: '19:00', venue: 'Estadio Atlanta, Atlanta' },
-  { id: 'm53', homeTeam: 'DEN/MKD/CZE/IRL', awayTeam: 'México', homeFlag: 'FIFA', awayFlag: 'MX', group: 'Primera Fase • Grupo A', date: '24 Jun 2026', time: '22:00', venue: 'Estadio Ciudad de México, Ciudad de México' },
+  { id: 'm53', homeTeam: 'República Checa', awayTeam: 'México', homeFlag: 'CZ', awayFlag: 'MX', group: 'Primera Fase • Grupo A', date: '24 Jun 2026', time: '22:00', venue: 'Estadio Ciudad de México, Ciudad de México' },
   { id: 'm54', homeTeam: 'Sudáfrica', awayTeam: 'República de Corea', homeFlag: 'ZA', awayFlag: 'KR', group: 'Primera Fase • Grupo A', date: '24 Jun 2026', time: '22:00', venue: 'Estadio Monterrey, Monterrey' },
   
   // --- JUEVES 25 JUNIO ---
   { id: 'm55', homeTeam: 'Curazao', awayTeam: 'Costa de Marfil', homeFlag: 'CW', awayFlag: 'CI', group: 'Primera Fase • Grupo E', date: '25 Jun 2026', time: '17:00', venue: 'Estadio Filadelfia, Filadelfia' },
   { id: 'm56', homeTeam: 'Ecuador', awayTeam: 'Alemania', homeFlag: 'EC', awayFlag: 'DE', group: 'Primera Fase • Grupo E', date: '25 Jun 2026', time: '17:00', venue: 'Estadio Nueva York/Nueva Jersey, Nueva York' },
-  { id: 'm57', homeTeam: 'Japón', awayTeam: 'UKR/SWE/POL/ALB', homeFlag: 'JP', awayFlag: 'FIFA', group: 'Primera Fase • Grupo F', date: '25 Jun 2026', time: '20:00', venue: 'Estadio Dallas, Dallas' },
-  { id: 'm58', homeTeam: 'Túnez', awayTeam: 'Países Bajos', homeFlag: 'TN', awayFlag: 'NL', group: 'Primera Fase • Grupo F', date: '25 Jun 2026', time: '20:00', venue: 'Estadio Kansas City, Kansas City' },
-  { id: 'm59', homeTeam: 'TUR/ROU/SVK/KOS', awayTeam: 'EE. UU.', homeFlag: 'FIFA', awayFlag: 'US', group: 'Primera Fase • Grupo D', date: '25 Jun 2026', time: '23:00', venue: 'Estadio Los Angeles, Los Ángeles' },
+  { id: 'm57', homeTeam: 'Japón', awayTeam: 'Túnez', homeFlag: 'JP', awayFlag: 'TN', group: 'Primera Fase • Grupo F', date: '25 Jun 2026', time: '20:00', venue: 'Estadio Dallas, Dallas' },
+  { id: 'm58', homeTeam: 'Suecia', awayTeam: 'Países Bajos', homeFlag: 'SE', awayFlag: 'NL', group: 'Primera Fase • Grupo F', date: '25 Jun 2026', time: '20:00', venue: 'Estadio Kansas City, Kansas City' },
+  { id: 'm59', homeTeam: 'Turquía', awayTeam: 'EE. UU.', homeFlag: 'TR', awayFlag: 'US', group: 'Primera Fase • Grupo D', date: '25 Jun 2026', time: '23:00', venue: 'Estadio Los Angeles, Los Ángeles' },
   { id: 'm60', homeTeam: 'Paraguay', awayTeam: 'Australia', homeFlag: 'PY', awayFlag: 'AU', group: 'Primera Fase • Grupo D', date: '25 Jun 2026', time: '23:00', venue: 'Estadio de la Bahía de San Francisco, Área de la Bahía de San Francisco' },
   
   // --- VIERNES 26 JUNIO ---
   { id: 'm61', homeTeam: 'Noruega', awayTeam: 'Francia', homeFlag: 'NO', awayFlag: 'FR', group: 'Primera Fase • Grupo I', date: '26 Jun 2026', time: '16:00', venue: 'Estadio Boston, Boston' },
-  { id: 'm62', homeTeam: 'Senegal', awayTeam: 'BOL/SUR/IRQ', homeFlag: 'SN', awayFlag: 'FIFA', group: 'Primera Fase • Grupo I', date: '26 Jun 2026', time: '16:00', venue: 'Estadio de Toronto, Toronto' },
+  { id: 'm62', homeTeam: 'Senegal', awayTeam: 'Irak', homeFlag: 'SN', awayFlag: 'IQ', group: 'Primera Fase • Grupo I', date: '26 Jun 2026', time: '16:00', venue: 'Estadio de Toronto, Toronto' },
   { id: 'm63', homeTeam: 'Islas de Cabo Verde', awayTeam: 'Arabia Saudí', homeFlag: 'CV', awayFlag: 'SA', group: 'Primera Fase • Grupo H', date: '26 Jun 2026', time: '21:00', venue: 'Estadio Houston, Houston' },
   { id: 'm64', homeTeam: 'Uruguay', awayTeam: 'España', homeFlag: 'UY', awayFlag: 'ES', group: 'Primera Fase • Grupo H', date: '26 Jun 2026', time: '21:00', venue: 'Estadio Guadalajara, Guadalajara' },
   
@@ -104,7 +104,7 @@ export const WORLD_CUP_MATCHES: Match[] = [
   { id: 'm67', homeTeam: 'Panamá', awayTeam: 'Inglaterra', homeFlag: 'PA', awayFlag: 'GB-ENG', group: 'Primera Fase • Grupo L', date: '27 Jun 2026', time: '18:00', venue: 'Estadio Nueva York/Nueva Jersey, Nueva York' },
   { id: 'm68', homeTeam: 'Croacia', awayTeam: 'Ghana', homeFlag: 'HR', awayFlag: 'GH', group: 'Primera Fase • Grupo L', date: '27 Jun 2026', time: '18:00', venue: 'Estadio Filadelfia, Filadelfia' },
   { id: 'm69', homeTeam: 'Colombia', awayTeam: 'Portugal', homeFlag: 'CO', awayFlag: 'PT', group: 'Primera Fase • Grupo K', date: '27 Jun 2026', time: '20:30', venue: 'Estadio Miami, Miami' },
-  { id: 'm70', homeTeam: 'NCL/JAM/COD', awayTeam: 'Uzbekistán', homeFlag: 'FIFA', awayFlag: 'UZ', group: 'Primera Fase • Grupo K', date: '27 Jun 2026', time: '20:30', venue: 'Estadio Atlanta, Atlanta' },
+  { id: 'm70', homeTeam: 'RD Congo', awayTeam: 'Uzbekistán', homeFlag: 'CD', awayFlag: 'UZ', group: 'Primera Fase • Grupo K', date: '27 Jun 2026', time: '20:30', venue: 'Estadio Atlanta, Atlanta' },
   { id: 'm71', homeTeam: 'Argelia', awayTeam: 'Austria', homeFlag: 'DZ', awayFlag: 'AT', group: 'Primera Fase • Grupo J', date: '27 Jun 2026', time: '23:00', venue: 'Estadio Kansas City, Kansas City' },
   { id: 'm72', homeTeam: 'Jordania', awayTeam: 'Argentina', homeFlag: 'JO', awayFlag: 'AR', group: 'Primera Fase • Grupo J', date: '27 Jun 2026', time: '23:00', venue: 'Estadio Dallas, Dallas' },
   
@@ -152,17 +152,17 @@ export const WORLD_CUP_MATCHES: Match[] = [
 ];
 
 export const WORLD_CUP_GROUPS = [
-  { name: 'Grupo A', teams: ['México', 'Sudáfrica', 'República de Corea', 'DEN/MKD/CZE/IRL'], flags: ['MX', 'ZA', 'KR', 'FIFA'] },
-  { name: 'Grupo B', teams: ['Canadá', 'Catar', 'Suiza', 'ITA/NIR/WAL/BIH'], flags: ['CA', 'QA', 'CH', 'FIFA'] },
+  { name: 'Grupo A', teams: ['México', 'Sudáfrica', 'República de Corea', 'República Checa'], flags: ['MX', 'ZA', 'KR', 'CZ'] },
+  { name: 'Grupo B', teams: ['Canadá', 'Bosnia y Herzegovina', 'Catar', 'Suiza'], flags: ['CA', 'BA', 'QA', 'CH'] },
   { name: 'Grupo C', teams: ['Brasil', 'Marruecos', 'Haití', 'Escocia'], flags: ['BR', 'MA', 'HT', 'GB-SCT'] },
-  { name: 'Grupo D', teams: ['EE. UU.', 'Paraguay', 'Australia', 'TUR/ROU/SVK/KOS'], flags: ['US', 'PY', 'AU', 'FIFA'] },
+  { name: 'Grupo D', teams: ['EE. UU.', 'Paraguay', 'Australia', 'Turquía'], flags: ['US', 'PY', 'AU', 'TR'] },
   { name: 'Grupo E', teams: ['Alemania', 'Curazao', 'Costa de Marfil', 'Ecuador'], flags: ['DE', 'CW', 'CI', 'EC'] },
-  { name: 'Grupo F', teams: ['Países Bajos', 'Japón', 'Túnez', 'UKR/SWE/POL/ALB'], flags: ['NL', 'JP', 'TN', 'FIFA'] },
+  { name: 'Grupo F', teams: ['Países Bajos', 'Japón', 'Suecia', 'Túnez'], flags: ['NL', 'JP', 'SE', 'TN'] },
   { name: 'Grupo G', teams: ['Bélgica', 'Egipto', 'RI de Irán', 'Nueva Zelanda'], flags: ['BE', 'EG', 'IR', 'NZ'] },
   { name: 'Grupo H', teams: ['España', 'Islas de Cabo Verde', 'Arabia Saudí', 'Uruguay'], flags: ['ES', 'CV', 'SA', 'UY'] },
-  { name: 'Grupo I', teams: ['BOL/SUR/IRQ', 'Francia', 'Senegal', 'Noruega'], flags: ['FIFA', 'FR', 'SN', 'NO'] },
+  { name: 'Grupo I', teams: ['Francia', 'Senegal', 'Irak', 'Noruega'], flags: ['FR', 'SN', 'IQ', 'NO'] },
   { name: 'Grupo J', teams: ['Argentina', 'Argelia', 'Austria', 'Jordania'], flags: ['AR', 'DZ', 'AT', 'JO'] },
-  { name: 'Grupo K', teams: ['NCL/JAM/COD', 'Portugal', 'Uzbekistán', 'Colombia'], flags: ['FIFA', 'PT', 'UZ', 'CO'] },
+  { name: 'Grupo K', teams: ['Portugal', 'RD Congo', 'Uzbekistán', 'Colombia'], flags: ['PT', 'CD', 'UZ', 'CO'] },
   { name: 'Grupo L', teams: ['Inglaterra', 'Croacia', 'Ghana', 'Panamá'], flags: ['GB-ENG', 'HR', 'GH', 'PA'] },
 ];
 
@@ -202,7 +202,7 @@ export const TEAM_FLAGS: Record<string, string> = {
   'GB-ENG': 'https://flagcdn.com/gb-eng.svg',
   HR: 'https://flagcdn.com/hr.svg',
   EG: 'https://flagcdn.com/eg.svg',
-  DK: 'https://flagcdn.com/dk.svg',
+  CZ: 'https://flagcdn.com/cz.svg',
   CH: 'https://flagcdn.com/ch.svg',
   GH: 'https://flagcdn.com/gh.svg',
   QA: 'https://flagcdn.com/qa.svg',
@@ -224,6 +224,11 @@ export const TEAM_FLAGS: Record<string, string> = {
   PL: 'https://flagcdn.com/pl.svg',
   SE: 'https://flagcdn.com/se.svg',
   PA: 'https://flagcdn.com/pa.svg',
+  TR: 'https://flagcdn.com/tr.svg',
+  UA: 'https://flagcdn.com/ua.svg',
+  IQ: 'https://flagcdn.com/iq.svg',
+  CD: 'https://flagcdn.com/cd.svg',
+  BA: 'https://flagcdn.com/ba.svg',
   HU: 'https://flagcdn.com/hu.svg',
   FIFA: 'https://upload.wikimedia.org/wikipedia/commons/4/43/FIFA_World_Cup_2026_logo.svg'
 };
@@ -256,7 +261,7 @@ export const TEAM_NAMES: Record<string, string> = {
   'GB-ENG': 'Inglaterra',
   HR: 'Croacia',
   EG: 'Egipto',
-  DK: 'Dinamarca',
+  CZ: 'República Checa',
   CH: 'Suiza',
   GH: 'Ghana',
   QA: 'Catar',
@@ -278,6 +283,11 @@ export const TEAM_NAMES: Record<string, string> = {
   PL: 'Polonia',
   SE: 'Suecia',
   PA: 'Panamá',
+  TR: 'Turquía',
+  UA: 'Ucrania',
+  IQ: 'Irak',
+  CD: 'RD Congo',
+  BA: 'Bosnia y Herzegovina',
   HU: 'Hungría',
   FIFA: 'POR DEFINIR'
 };

@@ -1,17 +1,20 @@
 
 import React, { useState, useEffect, Component } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { CheckCircle, Shield, Settings } from 'lucide-react';
 import { User, Prediction, View, Match } from './types';
 import { AuthForm } from './components/AuthForm';
 import { MatchCard } from './components/MatchCard';
 import { GroupsSummary } from './components/GroupsSummary';
 import { Leaderboard } from './components/Leaderboard';
 import { AccountView } from './components/AccountView';
-import { GroupEditor } from './components/GroupEditor';
+import { AdminPanel } from './components/AdminPanel';
 import { FullCalendar } from './components/FullCalendar';
 import { HistoryView } from './components/HistoryView';
 import { PrivateGroupsView } from './components/PrivateGroupsView';
 import { WORLD_CUP_MATCHES, WORLD_CUP_GROUPS, KNOCKOUT_PHASES } from './constants';
 import { testConnection, saveUserPrediction, getUserPredictions, getRealMatches, onAuthChange } from './services/firebaseService';
+import { isMatchLocked } from './services/matchService';
 import { db } from './firebase';
 import { doc, setDoc } from "firebase/firestore";
 
@@ -153,10 +156,12 @@ const App: React.FC = () => {
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [customGroups, setCustomGroups] = useState(WORLD_CUP_GROUPS);
   const [realMatches, setRealMatches] = useState<Match[]>(WORLD_CUP_MATCHES);
+  const [customLogo, setCustomLogo] = useState<string | null>(null);
   const [expandedZones, setExpandedZones] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [savingMatchId, setSavingMatchId] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('¡Predicciones guardadas!');
 
   const toggleZone = (zoneName: string) => {
     setExpandedZones(prev => 
@@ -201,17 +206,22 @@ const App: React.FC = () => {
       document.documentElement.classList.remove('dark');
     }
 
-    const savedGroups = localStorage.getItem('custom_world_cup_groups');
-    if (savedGroups) {
-      const parsedGroups = JSON.parse(savedGroups);
-      setCustomGroups(parsedGroups);
-      updateMatchesFromGroups(parsedGroups);
-    }
-
     const activeUser = localStorage.getItem('active_user');
     if (activeUser) {
       try {
         const parsedUser = JSON.parse(activeUser);
+        
+        // Mantener rol de admin si el email coincide
+        const ADMIN_EMAILS = [
+          'fornettiricardo@gmail.com', 
+          'FORNETTIRICARDO@GMAIL.COM',
+          'ricardofornetti@hotmail.com.ar',
+          'RICARDOFORNETTI@HOTMAIL.COM.AR'
+        ];
+        if (ADMIN_EMAILS.includes(parsedUser.email)) {
+          parsedUser.role = 'admin';
+        }
+
         setUser(parsedUser);
         setView('main-menu');
         
@@ -231,33 +241,28 @@ const App: React.FC = () => {
     }
 
     const fetchMatches = async () => {
-      const cloudMatches = await getRealMatches();
-      if (cloudMatches && cloudMatches.length > 0) {
+      try {
+        const cloudMatches = await getRealMatches();
         const merged = WORLD_CUP_MATCHES.map(m => {
-          const cloud = cloudMatches.find(cm => cm.id === m.id);
+          const cloud = (cloudMatches || []).find(cm => cm.id === m.id);
           return cloud ? { ...m, ...cloud } : m;
         });
         setRealMatches(merged as Match[]);
+      } catch (e) {
+        console.error('Error fetching matches:', e);
       }
     };
+
+    // Cargar logo guardado si existe
+    const savedLogo = localStorage.getItem('app_logo_custom');
+    if (savedLogo) {
+      setCustomLogo(savedLogo);
+    }
+
     fetchMatches();
 
     return () => unsubscribe();
   }, []);
-
-  const updateMatchesFromGroups = (groups: typeof WORLD_CUP_GROUPS) => {
-    const newMatches = WORLD_CUP_MATCHES.map(match => {
-      return match;
-    });
-    setRealMatches(newMatches as Match[]);
-  };
-
-  const handleSaveCustomGroups = (updatedGroups: typeof WORLD_CUP_GROUPS) => {
-    setCustomGroups(updatedGroups);
-    localStorage.setItem('custom_world_cup_groups', JSON.stringify(updatedGroups));
-    updateMatchesFromGroups(updatedGroups);
-    setView('groups');
-  };
 
   const calculateTotalScore = (currentPredictions: Prediction[]) => {
     return currentPredictions.reduce((total, pred) => {
@@ -280,6 +285,17 @@ const App: React.FC = () => {
   };
 
   const handleAuthSuccess = async (authUser: User) => {
+    // Definir administradores por email
+    const ADMIN_EMAILS = [
+      'fornettiricardo@gmail.com', 
+      'FORNETTIRICARDO@GMAIL.COM',
+      'ricardofornetti@hotmail.com.ar',
+      'RICARDOFORNETTI@HOTMAIL.COM.AR'
+    ];
+    if (ADMIN_EMAILS.includes(authUser.email)) {
+      authUser.role = 'admin';
+    }
+    
     localStorage.setItem('active_user', JSON.stringify(authUser));
     setUser(authUser);
     setView('main-menu');
@@ -309,9 +325,20 @@ const App: React.FC = () => {
     if (!user) return;
     setIsSaving(true);
     try {
+      // Filter out matches that are already locked
+      const unlockedPredictions = predictions.filter(pred => {
+        const match = realMatches.find(m => m.id === pred.matchId);
+        return match && !isMatchLocked(match);
+      });
+
+      if (unlockedPredictions.length === 0) {
+        setIsSaving(false);
+        return;
+      }
+
       localStorage.setItem(`prode_predictions_${user.uid || user.email || user.username}`, JSON.stringify(predictions));
       if (db && user.uid) {
-        await Promise.all(predictions.map(pred => {
+        await Promise.all(unlockedPredictions.map(pred => {
           if (pred.homeScore !== '' && pred.awayScore !== '') {
             return saveUserPrediction(user.uid!, pred.matchId, Number(pred.homeScore), Number(pred.awayScore));
           }
@@ -321,6 +348,7 @@ const App: React.FC = () => {
         const userRef = doc(db, "users", user.uid);
         await setDoc(userRef, { totalScore: newScore, lastUpdate: new Date() }, { merge: true });
       }
+      setSaveMessage('¡Todas tus predicciones han sido guardadas!');
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (e) {
@@ -332,6 +360,9 @@ const App: React.FC = () => {
 
   const handleSaveSinglePrediction = async (matchId: string) => {
     if (!user) return;
+    const match = realMatches.find(m => m.id === matchId);
+    if (!match || isMatchLocked(match)) return;
+
     const pred = predictions.find(p => p.matchId === matchId);
     if (!pred || pred.homeScore === '' || pred.awayScore === '') return;
 
@@ -351,6 +382,7 @@ const App: React.FC = () => {
       }
       
       // Visual feedback
+      setSaveMessage('¡Predicción guardada correctamente!');
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 2000);
     } catch (e) {
@@ -378,6 +410,24 @@ const App: React.FC = () => {
         await setDoc(userRef, { ...updatedUser }, { merge: true });
       } catch (e) { console.error(e); }
     }
+  };
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert('La imagen es muy pesada. Por favor sube una de menos de 2MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result as string;
+      setCustomLogo(dataUrl);
+      localStorage.setItem('app_logo_custom', dataUrl);
+    };
+    reader.readAsDataURL(file);
   };
 
   if (!isAuthReady) {
@@ -441,11 +491,21 @@ const App: React.FC = () => {
                       </button>
                       <button 
                         onClick={() => { setView('account'); setIsMenuOpen(false); }}
-                        className="w-full px-6 py-4 text-left text-[10px] font-black text-white/90 hover:bg-white/10 uppercase tracking-widest flex items-center gap-3"
+                        className="w-full px-6 py-4 text-left text-[10px] font-black text-white/90 hover:bg-white/10 uppercase tracking-widest border-b border-white/5 flex items-center gap-3"
                       >
                         <NavIcon type="user" />
                         Cuenta
                       </button>
+                      
+                      {user?.role === 'admin' && (
+                        <button 
+                          onClick={() => { setView('admin'); setIsMenuOpen(false); }}
+                          className="w-full px-6 py-4 text-left text-[10px] font-black text-amber-400 hover:bg-white/10 uppercase tracking-widest flex items-center gap-3 bg-white/5"
+                        >
+                          <Shield className="w-4 h-4" />
+                          Admin
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
@@ -454,7 +514,7 @@ const App: React.FC = () => {
                   className={`flex flex-col items-center justify-center h-full w-full transition-all border-r border-white/10 font-black text-[9px] sm:text-xs uppercase tracking-tight ${view === 'main-menu' ? 'text-white bg-white/20' : 'text-white/90 hover:bg-white/10'}`}
                 >
                   <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center font-black text-[10px] sm:text-[14px] mb-1 ${view === 'main-menu' ? 'bg-white text-indigo-600 shadow-inner' : 'bg-white/20 text-white'}`}>26</div>
-                  <span>PRODE</span>
+                  <span>INICIO</span>
                 </button>
                 <button 
                   onClick={() => { setView('leaderboard'); setIsMenuOpen(false); }} 
@@ -486,9 +546,31 @@ const App: React.FC = () => {
 
           {view === 'main-menu' ? (
             <main className="max-w-6xl mx-auto px-4 py-8 animate-fade-in w-full">
-              <div className="text-center mb-8">
-                <h2 className="heading-font text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mb-2 uppercase italic tracking-tighter">BIENVENIDO</h2>
-                <p className="text-slate-400 font-bold uppercase text-[9px] tracking-[0.3em]">{user?.username} • {userScore} PTS</p>
+              <div className="text-center mb-10 flex flex-col items-center">
+                <div className="relative mb-8 p-6 sm:p-10 bg-white/50 dark:bg-slate-800/30 rounded-[3.5rem] backdrop-blur-sm border border-slate-200 dark:border-white/5 shadow-xl group">
+                  <div className="absolute inset-0 bg-indigo-500/5 blur-[60px] rounded-full"></div>
+                  
+                  <div className="relative z-10 flex flex-col items-center">
+                    <img 
+                      src="./logo_mundial.png" 
+                      alt="FIFA World Cup 2026 Official Logo" 
+                      className="w-48 h-auto sm:w-64 object-contain drop-shadow-[0_10px_25px_rgba(0,0,0,0.1)] animate-float transition-all transition-all duration-700"
+                      referrerPolicy="no-referrer"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/FIFA_World_Cup_2026_logo.svg/800px-FIFA_World_Cup_2026_logo.svg.png";
+                      }}
+                    />
+                  </div>
+                </div>
+                <h2 className="heading-font text-3xl sm:text-5xl font-black text-slate-900 dark:text-white mb-2 uppercase italic tracking-tighter leading-none text-center">
+                  COPA MUNDIAL <span className="text-indigo-600 dark:text-indigo-400">FIFA 2026</span>
+                </h2>
+                <div className="flex items-center gap-3">
+                  <div className="h-px w-8 bg-slate-200 dark:bg-slate-700"></div>
+                  <p className="text-slate-400 font-black uppercase text-[10px] tracking-[0.4em]">{user?.username} • {userScore} PTS</p>
+                  <div className="h-px w-8 bg-slate-200 dark:bg-slate-700"></div>
+                </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <button onClick={() => setView('groups')} className="group bg-white dark:bg-slate-800 p-6 rounded-[2rem] shadow-lg border-2 border-transparent hover:border-indigo-600 transition-all text-left flex flex-col justify-between h-44 sm:h-52">
@@ -515,6 +597,19 @@ const App: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-black uppercase text-[8px] tracking-widest mt-auto">Ver Todo →</div>
                 </button>
+
+                {user?.role === 'admin' && (
+                  <button onClick={() => setView('admin')} className="group bg-amber-50 dark:bg-amber-900/10 p-6 rounded-[2rem] shadow-lg border-2 border-amber-500/20 hover:border-amber-500 transition-all text-left flex flex-col justify-between h-44 sm:h-52">
+                    <div>
+                      <div className="w-10 h-10 bg-amber-500 text-white rounded-xl flex items-center justify-center mb-3 shadow-md">
+                        <Shield className="h-5 w-5" />
+                      </div>
+                      <h3 className="heading-font text-lg font-black text-slate-900 dark:text-white uppercase">Panel Admin</h3>
+                      <p className="text-amber-600/60 dark:text-amber-400/60 font-bold text-[8px] uppercase tracking-widest">Resultados Oficiales</p>
+                    </div>
+                    <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-black uppercase text-[8px] tracking-widest mt-auto">Administrar →</div>
+                  </button>
+                )}
               </div>
             </main>
           ) : view === 'world-zones' ? (
@@ -522,7 +617,7 @@ const App: React.FC = () => {
               <div className="mb-8 flex items-center justify-between gap-4">
                 <button 
                   onClick={() => setView('main-menu')} 
-                  className="flex items-center gap-3 text-slate-500 hover:text-black dark:text-slate-400 font-black text-xs sm:text-sm uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-5 py-3 rounded-2xl transition-all active:scale-95"
+                  className="flex items-center gap-3 text-slate-500 hover:text-white dark:text-slate-400 dark:hover:text-white font-black text-xs sm:text-sm uppercase tracking-widest bg-slate-100 dark:bg-slate-800 hover:bg-indigo-600 dark:hover:bg-indigo-600 px-5 py-3 rounded-2xl transition-all active:scale-95 shadow-sm hover:shadow-indigo-500/20"
                 >
                   <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                   <span>Volver</span>
@@ -587,6 +682,7 @@ const App: React.FC = () => {
                                   onPredictionChange={handlePredictionChange}
                                   onSavePrediction={handleSaveSinglePrediction}
                                   isSaving={savingMatchId === match.id}
+                                  isLocked={isMatchLocked(match)}
                                 />
                               ))}
                             </div>
@@ -637,6 +733,7 @@ const App: React.FC = () => {
                                     onPredictionChange={handlePredictionChange}
                                     onSavePrediction={handleSaveSinglePrediction}
                                     isSaving={savingMatchId === match.id}
+                                    isLocked={isMatchLocked(match)}
                                   />
                                 ))
                               ) : (
@@ -659,7 +756,6 @@ const App: React.FC = () => {
                 >
                   {isSaving ? 'Sincronizando...' : 'Guardar Resultados'}
                 </button>
-                {saveSuccess && <p className="text-green-500 font-black text-[10px] uppercase tracking-widest animate-fade-in">¡Tus predicciones han sido guardadas!</p>}
               </div>
             </main>
           ) : view === 'groups' ? (
@@ -668,13 +764,6 @@ const App: React.FC = () => {
               matches={realMatches}
               onContinue={() => setView('main-menu')} 
               onBack={() => setView('main-menu')} 
-              onCustomEdit={() => setView('predictions')} 
-            />
-          ) : view === 'predictions' ? (
-            <GroupEditor 
-              currentGroups={customGroups} 
-              onSave={handleSaveCustomGroups} 
-              onBack={() => setView('groups')} 
             />
           ) : view === 'leaderboard' ? (
             <Leaderboard user={user} userScore={userScore} onBack={() => setView('main-menu')} />
@@ -690,12 +779,25 @@ const App: React.FC = () => {
             />
           ) : view === 'private-groups' ? (
             <PrivateGroupsView user={user} onBack={() => setView('account')} />
+          ) : view === 'admin' && user?.role === 'admin' ? (
+             <AdminPanel 
+               matches={realMatches} 
+               onBack={() => setView('main-menu')} 
+               onRefresh={async () => {
+                 const data = await getRealMatches();
+                 const fullMatches = WORLD_CUP_MATCHES.map(m => {
+                   const real = (data || []).find(rd => rd.id === m.id);
+                   return real ? { ...m, ...real } : m;
+                 });
+                 setRealMatches(fullMatches as Match[]);
+               }}
+             />
           ) : view === 'calendar' ? (
             <main className="max-w-4xl mx-auto px-4 py-8 animate-fade-in w-full">
                <div className="mb-6">
                 <button 
                   onClick={() => setView('main-menu')} 
-                  className="flex items-center gap-3 text-slate-500 hover:text-black dark:text-slate-400 dark:hover:text-white font-black text-xs sm:text-sm uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-5 py-3 rounded-2xl transition-all active:scale-95"
+                  className="flex items-center gap-3 text-slate-500 hover:text-white dark:text-slate-400 dark:hover:text-white font-black text-xs sm:text-sm uppercase tracking-widest bg-slate-100 dark:bg-slate-800 hover:bg-indigo-600 dark:hover:bg-indigo-600 px-5 py-3 rounded-2xl transition-all active:scale-95 shadow-sm hover:shadow-indigo-500/20"
                 >
                   <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                   <span>Volver</span>
@@ -706,6 +808,26 @@ const App: React.FC = () => {
           ) : null}
         </>
       )}
+
+      {/* FLOAT NOTIFICATION / TOAST */}
+      <AnimatePresence>
+        {saveSuccess && (
+          <motion.div 
+            initial={{ opacity: 0, y: 50, scale: 0.9, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, scale: 1, x: '-50%' }}
+            exit={{ opacity: 0, y: 30, scale: 0.9, x: '-50%' }}
+            className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] bg-black dark:bg-white text-white dark:text-black px-6 py-4 rounded-2xl shadow-2xl border border-white/10 dark:border-black/10 flex items-center gap-4 min-w-[280px]"
+          >
+            <div className="bg-green-500/20 p-2 rounded-xl">
+              <CheckCircle className="w-6 h-6 text-green-500" />
+            </div>
+            <div className="flex flex-col">
+              <p className="font-black text-[10px] uppercase tracking-widest opacity-60 leading-none mb-1">Confirmación</p>
+              <p className="font-bold text-sm tracking-tight">{saveMessage}</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
     </ErrorBoundary>
   );

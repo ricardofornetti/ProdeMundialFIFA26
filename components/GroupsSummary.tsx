@@ -20,10 +20,9 @@ interface GroupsSummaryProps {
   matches: Match[];
   onContinue: () => void;
   onBack?: () => void;
-  onCustomEdit: () => void;
 }
 
-export const GroupsSummary: React.FC<GroupsSummaryProps> = ({ groups, matches, onContinue, onBack, onCustomEdit }) => {
+export const GroupsSummary: React.FC<GroupsSummaryProps> = ({ groups, matches, onContinue, onBack }) => {
   
   const calculateGroupStandings = (groupName: string, teams: string[], flags: string[]): TeamStats[] => {
     // Inicializar estadísticas para cada equipo del grupo
@@ -95,7 +94,7 @@ export const GroupsSummary: React.FC<GroupsSummaryProps> = ({ groups, matches, o
           {onBack && (
             <button 
               onClick={onBack}
-              className="flex items-center gap-3 text-slate-500 hover:text-black dark:text-slate-400 dark:hover:text-white font-black text-xs sm:text-sm uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-5 py-3 rounded-2xl transition-all active:scale-95 mb-6"
+              className="flex items-center gap-3 text-slate-500 hover:text-white dark:text-slate-400 dark:hover:text-white font-black text-xs sm:text-sm uppercase tracking-widest bg-slate-100 dark:bg-slate-800 hover:bg-indigo-600 dark:hover:bg-indigo-600 px-5 py-3 rounded-2xl transition-all active:scale-95 shadow-sm hover:shadow-indigo-500/20 mb-6"
             >
               <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
               <span>Volver</span>
@@ -104,14 +103,6 @@ export const GroupsSummary: React.FC<GroupsSummaryProps> = ({ groups, matches, o
           <h2 className="heading-font text-4xl font-black text-slate-900 dark:text-white mb-1 uppercase tracking-tighter italic">Clasificación</h2>
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Tablas de posiciones actualizadas en tiempo real</p>
         </div>
-        
-        <button 
-          onClick={onCustomEdit}
-          className="bg-indigo-600 text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-indigo-700 transition-all flex items-center gap-2"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-          Personalizar Grupos
-        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-16">
