@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import logoMundial from './logo_mundial.png';
 import { User, AuthMode } from '../types';
 import { signInWithGoogle, loginUser, resetPassword, completeRegistration, registerUser } from '../services/firebaseService';
 
@@ -443,7 +444,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
         <div className="relative inline-block">
           <div className="w-28 h-28 sm:w-40 sm:h-40 bg-white rounded-[2.5rem] flex items-center justify-center mx-auto mb-6 shadow-xl overflow-hidden border-2 border-slate-50">
             <img 
-              src="./logo_mundial.png" 
+              src={customLogo || logoMundial} 
               alt="App Logo" 
               className="w-full h-full object-contain p-4" 
               referrerPolicy="no-referrer"
