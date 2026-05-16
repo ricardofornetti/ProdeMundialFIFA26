@@ -116,6 +116,15 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    // Validación de dominio de correo (Solo Google/Gmail)
+    if (!email.toLowerCase().endsWith('@gmail.com')) {
+      const msg = 'Solo se permiten correos de Google (@gmail.com).';
+      alert(msg);
+      setError(msg);
+      return;
+    }
+
     setIsLoading(true);
     try {
       const user = await loginUser(email, password);
@@ -135,6 +144,15 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    
+    // Validación de dominio de correo (Solo Google/Gmail)
+    if (!email.toLowerCase().endsWith('@gmail.com')) {
+      const msg = 'Solo se permiten correos de Google (@gmail.com).';
+      alert(msg);
+      setError(msg);
+      return;
+    }
+
     setIsLoading(true);
     try {
       const newUser = {
@@ -332,10 +350,10 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
       <div className="max-w-[340px] xs:max-w-md w-full mx-auto bg-white p-8 sm:p-12 rounded-[2.5rem] sm:rounded-[3.5rem] shadow-2xl border border-slate-100 animate-fade-in relative overflow-hidden">
         <div className="text-center mb-10">
           <h2 className="heading-font text-3xl text-slate-900 font-black mb-2 uppercase tracking-tighter text-center">
-            {isRegistering ? 'REGISTRO TEST' : 'LOGIN TEST'}
+            {isRegistering ? 'REGISTRO DIRECTO' : 'LOGIN CON EMAIL'}
           </h2>
           <p className="text-slate-400 font-black uppercase text-[10px] tracking-widest text-center mt-2 px-4">
-            {isRegistering ? 'Crea una cuenta ficticia para pruebas' : 'Ingresa con una cuenta de prueba'}
+            {isRegistering ? 'Crea tu cuenta de jugador' : 'Ingresa con tu correo @gmail.com'}
           </p>
         </div>
 
@@ -404,7 +422,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
             disabled={isLoading}
             className="w-full py-4 sm:py-5 bg-indigo-600 text-white font-black rounded-2xl shadow-xl hover:bg-indigo-700 hover:shadow-2xl transition-all uppercase tracking-widest text-xs sm:text-sm active:scale-[0.98] disabled:opacity-50"
           >
-            {isLoading ? 'PROCESANDO...' : (isRegistering ? 'CREAR CUENTA' : 'INGRESAR (TEST)')}
+            {isLoading ? 'PROCESANDO...' : (isRegistering ? 'REGISTRARME' : 'INGRESAR')}
           </button>
           
           <div className="flex flex-col gap-4 items-center">
@@ -413,13 +431,13 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
               onClick={() => setMode(isRegistering ? 'test-mode' : 'test-register')} 
               className="text-[10px] font-black text-indigo-500 uppercase tracking-widest hover:text-indigo-700"
             >
-              {isRegistering ? '¿Ya tienes cuenta test? Login' : '¿No tienes cuenta? Registrarse'}
+              {isRegistering ? '¿Ya tienes cuenta? Login' : '¿No tienes cuenta? Regístrate aquí'}
             </button>
             
             <button 
               type="button" 
               onClick={() => setMode('login')} 
-              className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-white hover:bg-indigo-600 px-4 py-2 rounded-xl transition-all"
+              className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-indigo-600 px-4 py-2 bg-slate-50 rounded-xl transition-all"
             >
               Volver a Google Login
             </button>
@@ -493,14 +511,17 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
           <span>{isLoading ? 'PROCESANDO...' : 'REGISTRARSE'}</span>
         </button>
 
-        {/* MODO TEST ACCESIBLE PARA EL CLIENTE */}
+        {/* OPCIÓN DE EMAIL (GMAIL) SI NO QUIEREN USAR POPUP */}
         <div className="pt-4 flex flex-col items-center border-t border-slate-50 mt-4">
           <button 
             type="button" 
             onClick={() => setMode('test-mode')}
-            className="text-[8px] font-black text-slate-300 hover:text-indigo-400 uppercase tracking-[0.2em] transition-colors"
+            className="text-[9px] font-black text-slate-400 hover:text-indigo-600 uppercase tracking-widest transition-colors flex items-center justify-center gap-2 px-6 py-2 bg-slate-50 rounded-xl"
           >
-            • Habilitar Modo Test (Email) •
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            <span>INGRESAR CON CORREO GMAIL</span>
           </button>
         </div>
       </div>

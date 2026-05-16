@@ -1,49 +1,100 @@
 import express from "express";
 import { createServer as createViteServer } from "vite";
-import fs from "fs";
 import path from "path";
 import bodyParser from "body-parser";
+import { GoogleGenAI } from "@google/genai";
 
 const app = express();
 const PORT = 3000;
-const DATA_FILE = path.join(process.cwd(), "gallery_persistence.json");
 
-// Aumentar el límite para permitir base64 grandes
-app.use(bodyParser.json({ limit: '50mb' }));
-app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+app.use(bodyParser.json({ limit: "10mb" }));
+app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
 
-// Inicializar archivo de persistencia si no existe
-if (!fs.existsSync(DATA_FILE)) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify({}));
-}
+// --- SECURE SEVER-SIDE GEMINI API ENDPOINTS ---
 
-// API: Obtener imágenes guardadas
-app.get("/api/gallery", (req, res) => {
+// End point 1: Chatbot Goleador IA
+app.post("/api/chat", async (req, res) => {
   try {
-    const data = fs.readFileSync(DATA_FILE, "utf-8");
-    res.json(JSON.parse(data));
-  } catch (error) {
-    res.status(500).json({ error: "Error al leer los datos de la galería" });
+    const { message } = req.body;
+    if (!message || typeof message !== "string" || message.trim() === "") {
+      res.status(400).json({ error: "Mensaje inválido" });
+      return;
+    }
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      console.error("Critical Security config error: GEMINI_API_KEY is not defined.");
+      res.status(500).json({ error: "Error de configuración de IA en el servidor." });
+      return;
+    }
+
+    const ai = new GoogleGenAI({ apiKey });
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: [
+        {
+          role: "user",
+          parts: [
+            {
+              text: `Instrucción de sistema: Eres el Asistente Oficial del Prode Mundial 2026. 
+              Ayuda a los usuarios con dudas del prode (Reglas: 3 pts por acertar ganador/empate, +1 pt extra por marcador exacto). 
+              Conoces el fixture (México abre el 11 de junio). Eres entusiasta, futbolero y usas modismos argentinos. 
+              No inventes resultados futuros, habla de predicciones. 
+              Mensaje del usuario: ${message}`
+            }
+          ]
+        }
+      ]
+    });
+
+    res.json({ text: response.text || "Perdón, me quedé fuera de juego un segundo. ¿Podés repetir?" });
+  } catch (error: any) {
+    console.error("Error en Chatbot Server:", error);
+    res.status(500).json({ error: "Error al interactuar con el analizador de IA." });
   }
 });
 
-// API: Guardar una imagen
-app.post("/api/gallery", (req, res) => {
+// End point 2: Sports Predictions Analysis
+app.post("/api/sports-analysis", async (req, res) => {
   try {
-    const { year, index, url } = req.body;
-    const data = JSON.parse(fs.readFileSync(DATA_FILE, "utf-8"));
+    const { username, score, analysisData } = req.body;
+    if (!username || typeof score !== "number" || !Array.isArray(analysisData)) {
+      res.status(400).json({ error: "Datos de entrada inválidos para el análisis deportivo" });
+      return;
+    }
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      console.error("Critical Security config error: GEMINI_API_KEY is not defined.");
+      res.status(500).json({ error: "Error de configuración de IA en el servidor." });
+      return;
+    }
+
+    const ai = new GoogleGenAI({ apiKey });
+    const prompt = `Actúa como un analista deportivo experto y apasionado. 
+    El usuario "${username}" ha obtenido ${score} puntos en el Prode del Mundial 2026.
+    Aquí tienes el detalle de sus predicciones vs resultados reales:
+    ${JSON.stringify(analysisData)}
     
-    if (!data[year]) data[year] = {};
-    data[year][index] = url;
-    
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-    res.json({ success: true });
-  } catch (error) {
-    res.status(500).json({ error: "Error al guardar la imagen" });
+    Proporciona un análisis breve (máximo 3 párrafos) que:
+    1. Evalúe su puntería basándose en los puntos.
+    2. Mencione algún partido específico donde acertó o falló por mucho.
+    3. Le dé un consejo "técnico" para las próximas fechas.
+    Usa un lenguaje muy futbolero, dinámico y motivador.`;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: prompt,
+    });
+
+    res.json({ text: response.text || "¡Buen intento! Sigue analizando los equipos, el Mundial recién empieza y tienes madera de campeón. ¡A seguir prediciendo!" });
+  } catch (error: any) {
+    console.error("Error en Sports Analysis Server:", error);
+    res.status(500).json({ error: "Error al procesar el análisis deportivo en el servidor." });
   }
 });
 
-// Vite middleware para desarrollo
+// Vite middleware para desarrollo / estáticos para producción
 if (process.env.NODE_ENV !== "production") {
   const vite = await createViteServer({
     server: { middlewareMode: true },

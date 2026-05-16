@@ -82,25 +82,12 @@
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
       }
-    },
-    "GalleryUpload": {
-      "title": "GalleryUpload",
-      "description": "Mascot image uploaded by community",
-      "type": "object",
-      "properties": {
-        "year": { "type": "number" },
-        "host": { "type": "string" },
-        "url": { "type": "string" },
-        "caption": { "type": "string" },
-        "createdAt": { "type": "string", "format": "date-time" }
-      }
     }
   },
   "firestore": {
     "users": { "schema": "User", "description": "User profiles" },
     "groups": { "schema": "PrivateGroup", "description": "Private competition groups" },
     "predictions": { "schema": "Prediction", "description": "Match predictions" },
-    "matches": { "schema": "Match", "description": "Official match data" },
-    "gallery_uploads": { "schema": "GalleryUpload", "description": "Community mascot images" }
+    "matches": { "schema": "Match", "description": "Official match data" }
   }
 }

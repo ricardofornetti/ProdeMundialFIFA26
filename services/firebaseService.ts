@@ -454,47 +454,7 @@ export const getRealMatches = async (): Promise<Partial<Match>[]> => {
   }
 };
 
-// --- GESTIÓN DE GALERÍA ---
-
-export const getGalleryCloudData = async (): Promise<any[]> => {
-  if (!db) return [];
-  const path = "gallery_uploads";
-  try {
-    const q = query(collection(db, path), orderBy("createdAt", "desc"));
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  } catch (error) {
-    handleFirestoreError(error, OperationType.LIST, path);
-  }
-};
-
-export const deleteGalleryCloudImage = async (docId: string) => {
-  if (!db || !docId) return;
-  const path = "gallery_uploads";
-  try {
-    const photoRef = doc(db, path, docId);
-    await deleteDoc(photoRef);
-  } catch (error) {
-    handleFirestoreError(error, OperationType.DELETE, path);
-  }
-};
-
-export const addGalleryCloudImage = async (year: number, host: string, url: string, caption: string) => {
-  if (!db) return;
-  const path = "gallery_uploads";
-  try {
-    const docRef = doc(collection(db, path));
-    await setDoc(docRef, {
-      year,
-      host,
-      url,
-      caption: caption || "Aporte de la comunidad",
-      createdAt: new Date()
-    });
-  } catch (error) {
-    handleFirestoreError(error, OperationType.WRITE, path);
-  }
-};
+// --- GESTIÓN DE RANKINGS ---
 
 export const getGlobalRanking = async () => {
   if (!db) return [];

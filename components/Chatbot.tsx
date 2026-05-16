@@ -1,6 +1,5 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { GoogleGenAI } from "@google/genai";
 
 interface Message {
   role: 'user' | 'model';
@@ -29,25 +28,23 @@ export const Chatbot: React.FC = () => {
 
     const userMessage: Message = { role: 'user', text: input };
     setMessages(prev => [...prev, userMessage]);
+    const messageToSend = input;
     setInput('');
     setIsTyping(true);
 
-    // Create a new GoogleGenAI instance right before making an API call to ensure it always uses the most up-to-date API key.
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
     try {
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: [
-          { role: 'user', parts: [{ text: `Instrucción de sistema: Eres el Asistente Oficial del Prode Mundial 2026. 
-            Ayuda a los usuarios con dudas del prode (Reglas: 3 pts por acertar ganador/empate, +1 pt extra por marcador exacto). 
-            Conoces el fixture (México abre el 11 de junio). Eres entusiasta, futbolero y usas modismos argentinos. 
-            No inventes resultados futuros, habla de predicciones. 
-            Mensaje del usuario: ${input}` }] }
-        ],
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: messageToSend }),
       });
-
-      const aiText = response.text || 'Perdón, me quedé fuera de juego un segundo. ¿Podés repetir?';
+      if (!res.ok) {
+        throw new Error("HTTP error " + res.status);
+      }
+      const data = await res.json();
+      const aiText = data.text || 'Perdón, me quedé fuera de juego un segundo. ¿Podés repetir?';
       setMessages(prev => [...prev, { role: 'model', text: aiText }]);
     } catch (error) {
       console.error("Error en Chatbot:", error);

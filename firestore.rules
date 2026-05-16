@@ -3,60 +3,11 @@ service cloud.firestore {
   match /databases/{database}/documents {
     
     // ===============================================================
-    // Assumed Data Model
+    // GLOBAL Safety Net: Default-deny all reads and writes
     // ===============================================================
-    //
-    // Collection: users
-    // Document ID: email or username
-    // Fields:
-    //   - username: string (required)
-    //   - email: string (required, format: email)
-    //   - photoUrl: string
-    //   - isVerified: bool
-    //   - totalScore: number
-    //   - lastLogin: timestamp
-    //   - lastUpdate: timestamp
-    //   - updatedAt: timestamp
-    //
-    // Collection: groups
-    // Document ID: groupId
-    // Fields:
-    //   - id: string
-    //   - name: string
-    //   - adminEmail: string
-    //   - members: list of objects
-    //   - memberEmails: list of strings
-    //   - createdAt: timestamp
-    //   - updatedAt: timestamp
-    //
-    // Collection: predictions
-    // Document ID: userId_matchId
-    // Fields:
-    //   - userId: string
-    //   - matchId: string
-    //   - homeScore: number
-    //   - awayScore: number
-    //   - updatedAt: timestamp
-    //
-    // Collection: matches
-    // Document ID: matchId
-    // Fields:
-    //   - id: string
-    //   - homeTeam: string
-    //   - awayTeam: string
-    //   - actualHomeScore: number
-    //   - actualAwayScore: number
-    //
-    // Collection: gallery_uploads
-    // Document ID: auto-generated
-    // Fields:
-    //   - year: number
-    //   - host: string
-    //   - url: string
-    //   - caption: string
-    //   - createdAt: timestamp
-    //
-    // ===============================================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
 
     // ===============================================================
     // Helper Functions
@@ -70,96 +21,125 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
+    // Zero-cost admin lookup utilizing Google verified OAuth emails.
+    // Restricts privilege checks strictly to the allowed list, with zero database read costs.
     function isAdmin() {
-      return isAuthenticated() && 
-        (
-          (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin') || 
-          (request.auth.token.email == "fornettiricardo@gmail.com") ||
-          (request.auth.token.email == "FORNETTIRICARDO@GMAIL.COM") ||
-          (request.auth.token.email == "ricardofornetti@hotmail.com.ar") ||
-          (request.auth.token.email == "RICARDOFORNETTI@HOTMAIL.COM.AR")
-        );
+      return isAuthenticated() && (
+        request.auth.token.email in [
+          "fornettiricardo@gmail.com", 
+          "FORNETTIRICARDO@GMAIL.COM", 
+          "ricardofornetti@hotmail.com.ar", 
+          "RICARDOFORNETTI@HOTMAIL.COM.AR"
+        ]
+      );
     }
 
+    // Sanitize resource and document path variables to prevent spoofing or resource-poisoning.
+    function isValidId(id) {
+      return id is string && id.size() <= 100 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Strict schema blueprint enforcement on User metadata writes.
     function isValidUser(data) {
       return data.keys().hasAll(['username', 'email', 'role']) &&
              data.username is string && data.username.size() > 0 && data.username.size() < 100 &&
-             data.email is string && data.email.size() > 5 &&
+             data.email is string && data.email.size() > 5 && data.email.size() < 150 &&
              data.role in ['admin', 'user'] &&
-             (!('uid' in data) || data.uid == request.auth.uid);
+             (!('uid' in data) || data.uid == request.auth.uid) &&
+             // Force role to user unless their email belongs to the designated admin list.
+             (data.role == 'user' || request.auth.token.email in [
+               "fornettiricardo@gmail.com", 
+               "FORNETTIRICARDO@GMAIL.COM", 
+               "ricardofornetti@hotmail.com.ar", 
+               "RICARDOFORNETTI@HOTMAIL.COM.AR"
+             ]);
     }
 
+    // Strict schema and size constraint validation on soccer score prediction cards.
     function isValidPrediction(data) {
       return data.keys().hasAll(['userId', 'matchId', 'homeScore', 'awayScore']) &&
-             data.userId is string &&
-             data.matchId is string &&
-             data.homeScore is number && data.homeScore >= 0 &&
-             data.awayScore is number && data.awayScore >= 0 &&
-             data.userId == request.auth.uid;
+             data.userId is string && data.userId == request.auth.uid &&
+             data.matchId is string && data.matchId.size() <= 100 &&
+             data.homeScore is number && data.homeScore >= 0 && data.homeScore <= 99 &&
+             data.awayScore is number && data.awayScore >= 0 && data.awayScore <= 99;
     }
 
+    // Strict schema and list-size validations for Private Competition Groups.
     function isValidGroup(data) {
       return data.keys().hasAll(['id', 'name', 'adminEmail', 'members', 'memberEmails']) &&
+             data.id is string && data.id.size() <= 100 &&
              data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
-             data.memberEmails is list &&
+             data.memberEmails is list && data.memberEmails.size() <= 200 &&
              data.adminEmail == request.auth.token.email;
     }
 
     // ===============================================================
-    // Rules
+    // Collection matches & access rules
     // ===============================================================
 
     match /test/connection {
       allow read: if true;
     }
 
+    // Usernames mapping: strictly verifiable write operations.
     match /usernames/{username} {
       allow read: if true;
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated() && resource.data.uid == request.auth.uid;
+      allow create: if isAuthenticated() && 
+                    isValidId(username) &&
+                    request.resource.data.uid == request.auth.uid && 
+                    request.resource.data.keys().hasAll(['email', 'uid']) &&
+                    request.resource.data.email is string &&
+                    request.resource.data.uid is string;
+      allow update: if isAuthenticated() && 
+                    isValidId(username) && 
+                    resource.data.uid == request.auth.uid &&
+                    request.resource.data.uid == request.auth.uid &&
+                    request.resource.data.keys().hasAll(['email', 'uid']) &&
+                    request.resource.data.email is string &&
+                    request.resource.data.uid is string;
       allow delete: if isAdmin();
     }
 
+    // User profiles collection.
     match /users/{userId} {
-      allow get: if true; // Allow anyone to check if a user exists by UID
-      allow list: if isAdmin();
-      allow create: if isOwner(userId) && isValidUser(request.resource.data);
-      allow update: if isOwner(userId) && isValidUser(request.resource.data);
+      allow get: if isAuthenticated();
+      allow list: if isAuthenticated();
+      allow create: if isOwner(userId) && isValidId(userId) && isValidUser(request.resource.data);
+      allow update: if isOwner(userId) && 
+                       isValidId(userId) && 
+                       isValidUser(request.resource.data) &&
+                       // Prevent self-assigned role escalations.
+                       (request.resource.data.role == resource.data.role || isAdmin());
       allow delete: if isAdmin();
     }
 
+    // Private groups.
     match /groups/{groupId} {
       allow read: if isAuthenticated() && (request.auth.token.email in resource.data.memberEmails || isAdmin());
-      allow create: if isAuthenticated() && isValidGroup(request.resource.data);
-      allow update: if isAuthenticated() && (request.auth.token.email == resource.data.adminEmail || isAdmin()) && isValidGroup(request.resource.data);
+      allow create: if isAuthenticated() && isValidId(groupId) && isValidGroup(request.resource.data);
+      allow update: if isAuthenticated() && 
+                    isValidId(groupId) && 
+                    (request.auth.token.email == resource.data.adminEmail || isAdmin()) && 
+                    isValidGroup(request.resource.data);
       allow delete: if isAuthenticated() && (request.auth.token.email == resource.data.adminEmail || isAdmin());
     }
 
+    // User match predictions. Safe read restrictions prevent score-stealing/cheating.
     match /predictions/{predictionId} {
-      allow read: if isAuthenticated();
-      allow create, update: if isAuthenticated() && request.auth.uid == request.resource.data.userId && isValidPrediction(request.resource.data);
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && isValidId(predictionId) && request.auth.uid == request.resource.data.userId && isValidPrediction(request.resource.data);
+      allow update: if isAuthenticated() && 
+                    isValidId(predictionId) && 
+                    request.auth.uid == resource.data.userId &&
+                    request.auth.uid == request.resource.data.userId && 
+                    isValidPrediction(request.resource.data);
       allow delete: if isAuthenticated() && (request.auth.uid == resource.data.userId || isAdmin());
     }
 
-    match /matches {
+    // Official Match Schedule data.
+    match /matches/{matchId} {
       allow read: if true;
       allow write: if isAdmin();
-      match /{allPaths=**} {
-        allow read: if true;
-        allow write: if isAdmin();
-      }
-    }
-
-    match /gallery_uploads {
-      allow read: if true;
-      allow create: if isAuthenticated();
-      allow delete: if isAdmin();
-      match /{allPaths=**} {
-        allow read: if true;
-        allow create: if isAuthenticated();
-        allow delete: if isAdmin();
-      }
     }
   }
 }
