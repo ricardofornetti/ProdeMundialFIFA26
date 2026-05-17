@@ -22,7 +22,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ onBack }) => {
         <div className="mb-6">
           <button 
             onClick={onBack}
-            className="flex items-center gap-3 text-slate-500 hover:text-white dark:text-slate-400 dark:hover:text-white font-black text-xs sm:text-sm uppercase tracking-widest bg-slate-100 dark:bg-slate-800 hover:bg-indigo-600 dark:hover:bg-indigo-600 px-5 py-3 rounded-2xl transition-all active:scale-95 shadow-sm hover:shadow-indigo-500/20"
+            className="flex items-center gap-3 text-white font-black text-xs sm:text-sm uppercase tracking-widest bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 px-5 py-3 rounded-2xl transition-all active:scale-95 shadow-lg shadow-indigo-600/10 hover:shadow-indigo-500/30"
           >
             <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
             <span>Volver</span>
@@ -32,23 +32,24 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ onBack }) => {
       {/* Ranking Section */}
       <div className="bg-white dark:bg-slate-800 rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl p-4 sm:p-10 border border-slate-100 dark:border-slate-700">
         <div className="text-center mb-6 sm:mb-10">
-          <div className="relative inline-block mb-4">
-            <div className="absolute inset-0 bg-yellow-400/20 blur-2xl rounded-full scale-150 animate-pulse"></div>
-            <img 
-              src="https://www.fifa.com/static-assets/fifa-com/images/fifa-logo.svg" 
-              alt="FIFA Logo" 
-              className="absolute -top-12 left-1/2 -translate-x-1/2 w-12 h-auto opacity-20 pointer-events-none"
-            />
-            <img 
-              src="https://img.freepik.com/free-vector/world-cup-trophy-illustration_1142-29759.jpg?t=st=1713554400~exp=1713558000~hmac=..." 
-              alt="Copa del Mundo" 
-              className="w-24 h-24 sm:w-32 relative z-10 drop-shadow-[0_10px_20px_rgba(255,191,0,0.4)] transition-transform hover:scale-110 duration-500 rounded-full"
-              referrerPolicy="no-referrer"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = "https://upload.wikimedia.org/wikipedia/en/thumb/e/ec/Soccer_World_Cup_trophy.png/250px-Soccer_World_Cup_trophy.png";
-              }}
-            />
+          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-amber-500/10 dark:bg-amber-400/10 text-amber-500 dark:text-amber-400 rounded-3xl mb-4 border border-amber-500/20 shadow-lg shadow-amber-500/5 transition-transform hover:scale-110 duration-300">
+            <svg 
+              className="w-8 h-8 sm:w-10 sm:h-10" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2.5" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            >
+              <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+              <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+              <path d="M4 22h16" />
+              <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+              <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+              <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+              <path d="m11.5 5.5.5 1.1 1.2.2-.9.9.2 1.2-1-.5-1 .5.2-1.2-.9-.9 1.2-.2z" fill="currentColor" />
+            </svg>
           </div>
           <h2 className="heading-font text-xl sm:text-3xl font-black text-slate-900 dark:text-white mb-1 uppercase tracking-tighter italic">RANKING HISTÓRICO</h2>
           <p className="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase tracking-widest">CAMPEONES DE LA COPA DEL MUNDO</p>

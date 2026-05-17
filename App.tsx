@@ -17,7 +17,7 @@ import { WORLD_CUP_MATCHES, WORLD_CUP_GROUPS, KNOCKOUT_PHASES } from './constant
 import { testConnection, saveUserPrediction, getUserPredictions, getRealMatches, onAuthChange } from './services/firebaseService';
 import { isMatchLocked } from './services/matchService';
 import { db } from './firebase';
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 
 // --- ERROR BOUNDARY ---
 class ErrorBoundary extends (Component as any) {
@@ -182,15 +182,90 @@ const App: React.FC = () => {
     // Listen to Firebase Auth changes
     const unsubscribe = onAuthChange((firebaseUser) => {
       if (firebaseUser) {
-        // User is logged in, but we might already have the full profile in state or localStorage
+        // First, fast render using cached credentials
         const savedUser = localStorage.getItem('active_user');
+        let initialUser = null;
         if (savedUser) {
-          const parsed = JSON.parse(savedUser);
-          if (parsed.uid === firebaseUser.uid) {
-            setUser(parsed);
-            if (view === 'auth') setView('main-menu');
+          try {
+            const parsed = JSON.parse(savedUser);
+            if (parsed.uid === firebaseUser.uid) {
+              initialUser = parsed;
+              setUser(parsed);
+              if (view === 'auth') setView('main-menu');
+              
+              const savedPreds = localStorage.getItem(`prode_predictions_${parsed.uid || parsed.email || parsed.username}`);
+              if (savedPreds) {
+                setPredictions(JSON.parse(savedPreds));
+              }
+            }
+          } catch (e) {
+            console.error("Error setting initial cached user profile:", e);
           }
         }
+
+        // Asynchronously sync latest user profile and predictions list from Firestore
+        const syncUserAndPredictions = async () => {
+          try {
+            let cloudUser: User | null = null;
+            if (db) {
+              const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
+              if (userDoc.exists()) {
+                cloudUser = { ...userDoc.data(), uid: firebaseUser.uid } as User;
+              }
+            }
+
+            const finalUser = cloudUser || initialUser || {
+              uid: firebaseUser.uid,
+              email: firebaseUser.email || '',
+              username: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Usuario',
+              photoUrl: firebaseUser.photoURL || '',
+              isVerified: true,
+              totalScore: 0,
+              role: 'user',
+              settings: {
+                notifyResults: true,
+                notifyMatchStart: true,
+                theme: 'light'
+              }
+            };
+
+            const ADMIN_EMAILS = [
+              'fornettiricardo@gmail.com', 
+              'FORNETTIRICARDO@GMAIL.COM',
+              'ricardofornetti@hotmail.com.ar',
+              'RICARDOFORNETTI@HOTMAIL.COM.AR'
+            ];
+            if (ADMIN_EMAILS.includes(finalUser.email)) {
+              finalUser.role = 'admin';
+            }
+
+            setUser(finalUser);
+            localStorage.setItem('active_user', JSON.stringify(finalUser));
+            if (view === 'auth') setView('main-menu');
+
+            // Fetch predictions
+            const cloudPreds = await getUserPredictions(firebaseUser.uid);
+            if (cloudPreds && cloudPreds.length > 0) {
+              const formattedPreds = cloudPreds.map((p: any) => ({
+                matchId: p.matchId,
+                homeScore: p.homeScore,
+                awayScore: p.awayScore
+              }));
+              setPredictions(formattedPreds);
+              localStorage.setItem(`prode_predictions_${firebaseUser.uid}`, JSON.stringify(formattedPreds));
+            } else if (!savedUser) {
+              // Try loading historical item key
+              const oldSavedPreds = localStorage.getItem(`prode_predictions_${finalUser.uid || finalUser.email || finalUser.username}`);
+              if (oldSavedPreds) {
+                setPredictions(JSON.parse(oldSavedPreds));
+              }
+            }
+          } catch (error) {
+            console.error("Error in post-login Firestore background sync:", error);
+          }
+        };
+
+        syncUserAndPredictions();
       } else {
         // User is logged out
         setUser(null);
@@ -264,6 +339,53 @@ const App: React.FC = () => {
 
     return () => unsubscribe();
   }, []);
+
+  // Cargar/actualizar los partidos reales cuando se cambia de vista (para asegurar que los resultados estén actualizados)
+  useEffect(() => {
+    if (!user) return;
+    
+    const fetchMatches = async () => {
+      try {
+        const cloudMatches = await getRealMatches();
+        const merged = WORLD_CUP_MATCHES.map(m => {
+          const cloud = (cloudMatches || []).find(cm => cm.id === m.id);
+          return cloud ? { ...m, ...cloud } : m;
+        });
+        setRealMatches(merged as Match[]);
+      } catch (e) {
+        console.error('Error fetching matches on view change:', e);
+      }
+    };
+
+    fetchMatches();
+  }, [view, user?.uid]);
+
+  // Sincronizar automáticamente el puntaje total en Firestore cuando cambien las predicciones o los partidos reales (con resultados cargados)
+  useEffect(() => {
+    if (!user || !user.uid || !db || predictions.length === 0 || realMatches.length === 0) return;
+
+    const currentCalculatedScore = calculateTotalScore(predictions);
+    
+    // Solo actualizar si el puntaje calculado difiere de lo que tenemos guardado en el documento del usuario
+    if (user.totalScore !== currentCalculatedScore) {
+      const updateScoreInDb = async () => {
+        try {
+          const userRef = doc(db, "users", user.uid!);
+          await setDoc(userRef, { totalScore: currentCalculatedScore, lastUpdate: new Date() }, { merge: true });
+          
+          // Actualizar el estado local y localStorage
+          const updatedUser = { ...user, totalScore: currentCalculatedScore };
+          setUser(updatedUser);
+          localStorage.setItem('active_user', JSON.stringify(updatedUser));
+          console.log(`Puntaje de usuario sincronizado automáticamente en Firestore a: ${currentCalculatedScore} PTS`);
+        } catch (e) {
+          console.error("Error al sincronizar el puntaje con Firestore:", e);
+        }
+      };
+      
+      updateScoreInDb();
+    }
+  }, [predictions, realMatches, user?.uid]);
 
   const calculateTotalScore = (currentPredictions: Prediction[]) => {
     return currentPredictions.reduce((total, pred) => {
@@ -630,7 +752,7 @@ const App: React.FC = () => {
               <div className="mb-8 flex items-center justify-between gap-4">
                 <button 
                   onClick={() => setView('main-menu')} 
-                  className="flex items-center gap-3 text-slate-500 hover:text-white dark:text-slate-400 dark:hover:text-white font-black text-xs sm:text-sm uppercase tracking-widest bg-slate-100 dark:bg-slate-800 hover:bg-indigo-600 dark:hover:bg-indigo-600 px-5 py-3 rounded-2xl transition-all active:scale-95 shadow-sm hover:shadow-indigo-500/20"
+                  className="flex items-center gap-3 text-white font-black text-xs sm:text-sm uppercase tracking-widest bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 px-5 py-3 rounded-2xl transition-all active:scale-95 shadow-lg shadow-indigo-600/10 hover:shadow-indigo-500/30"
                 >
                   <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                   <span>Volver</span>
@@ -810,7 +932,7 @@ const App: React.FC = () => {
                <div className="mb-6">
                 <button 
                   onClick={() => setView('main-menu')} 
-                  className="flex items-center gap-3 text-slate-500 hover:text-white dark:text-slate-400 dark:hover:text-white font-black text-xs sm:text-sm uppercase tracking-widest bg-slate-100 dark:bg-slate-800 hover:bg-indigo-600 dark:hover:bg-indigo-600 px-5 py-3 rounded-2xl transition-all active:scale-95 shadow-sm hover:shadow-indigo-500/20"
+                  className="flex items-center gap-3 text-white font-black text-xs sm:text-sm uppercase tracking-widest bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 px-5 py-3 rounded-2xl transition-all active:scale-95 shadow-lg shadow-indigo-600/10 hover:shadow-indigo-500/30"
                 >
                   <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                   <span>Volver</span>

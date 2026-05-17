@@ -468,3 +468,81 @@ export const getGlobalRanking = async () => {
   }
 };
 
+export const recalculateAllScores = async () => {
+  if (!db) return { success: false, message: "Base de datos no disponible", updatedCount: 0 };
+  try {
+    // 1. Obtener partidos reales cargados
+    const matchesSnap = await getDocs(collection(db, "matches"));
+    const realMatchesMap = new Map<string, any>();
+    matchesSnap.forEach(doc => {
+      realMatchesMap.set(doc.id, { id: doc.id, ...doc.data() });
+    });
+
+    // 2. Obtener todas las predicciones
+    const predictionsSnap = await getDocs(collection(db, "predictions"));
+    const userPredictions = new Map<string, any[]>();
+    predictionsSnap.forEach(doc => {
+      const pred = doc.data();
+      if (pred.userId) {
+        if (!userPredictions.has(pred.userId)) {
+          userPredictions.set(pred.userId, []);
+        }
+        userPredictions.get(pred.userId)!.push(pred);
+      }
+    });
+
+    // 3. Obtener todos los usuarios
+    const usersSnap = await getDocs(collection(db, "users"));
+    
+    let updatedCount = 0;
+
+    // 4. Recalcular el puntaje de cada usuario
+    for (const userDoc of usersSnap.docs) {
+      const userData = userDoc.data();
+      const userId = userDoc.id;
+      const predictions = userPredictions.get(userId) || [];
+      
+      let score = 0;
+      for (const pred of predictions) {
+        const match = realMatchesMap.get(pred.matchId);
+        if (!match || match.actualHomeScore === undefined || match.actualAwayScore === undefined) continue;
+        
+        const pHome = Number(pred.homeScore);
+        const pAway = Number(pred.awayScore);
+        const rHome = Number(match.actualHomeScore);
+        const rAway = Number(match.actualAwayScore);
+        
+        if (isNaN(pHome) || isNaN(pAway)) continue;
+        
+        const pResult = pHome > pAway ? 'home' : pHome < pAway ? 'away' : 'draw';
+        const rResult = rHome > rAway ? 'home' : rHome < rAway ? 'away' : 'draw';
+        
+        let matchPoints = 0;
+        if (pResult === rResult) {
+          matchPoints += 3; // Acierto de resultado (ganador o empate)
+          if (pHome === rHome && pAway === rAway) {
+            matchPoints += 1; // Acierto de resultado exacto (+1 punto adicional, total 4)
+          }
+        }
+        score += matchPoints;
+      }
+
+      // Evitar escrituras innecesarias si el puntaje no varió
+      if (userData.totalScore !== score) {
+        const userRef = doc(db, "users", userId);
+        await setDoc(userRef, { 
+          totalScore: score, 
+          lastRecalculation: new Date() 
+        }, { merge: true });
+        updatedCount++;
+      }
+    }
+
+    return { success: true, updatedCount };
+  } catch (error) {
+    console.error("Error al recalcular puntajes globales:", error);
+    handleFirestoreError(error, OperationType.WRITE, "recalculate-all-scores");
+    throw error;
+  }
+};
+

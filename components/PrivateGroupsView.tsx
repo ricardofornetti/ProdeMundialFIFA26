@@ -162,7 +162,7 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
       <div className="mb-6 flex items-center justify-between">
         <button 
           onClick={handleBack} 
-          className="flex items-center gap-3 text-slate-500 hover:text-white dark:text-slate-400 dark:hover:text-white font-black text-xs sm:text-sm uppercase tracking-widest bg-slate-100 dark:bg-slate-800 hover:bg-indigo-600 dark:hover:bg-indigo-600 px-5 py-3 rounded-2xl transition-all active:scale-95 shadow-sm hover:shadow-indigo-500/20"
+          className="flex items-center gap-3 text-white font-black text-xs sm:text-sm uppercase tracking-widest bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 px-5 py-3 rounded-2xl transition-all active:scale-95 shadow-lg shadow-indigo-600/10 hover:shadow-indigo-500/30"
         >
           <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
           <span>Volver</span>
@@ -394,7 +394,7 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
 
                 <button 
                   onClick={() => setViewMode('list')}
-                  className="w-full py-4 bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-black dark:text-slate-400 dark:hover:text-white font-black text-xs sm:text-sm uppercase tracking-widest rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-3"
+                  className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-indigo-600 dark:hover:bg-indigo-700 font-black text-xs sm:text-sm uppercase tracking-widest rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-3 shadow-lg shadow-indigo-600/10 hover:shadow-indigo-500/30"
                 >
                   <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                   <span>Volver</span>
@@ -445,7 +445,7 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
             <div className="mt-10 flex flex-col gap-4">
               <button 
                 onClick={() => setViewMode('detail')}
-                className="w-full py-4 bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-black dark:text-slate-400 dark:hover:text-white font-black text-xs sm:text-sm uppercase tracking-widest rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-3"
+                className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-indigo-600 dark:hover:bg-indigo-700 font-black text-xs sm:text-sm uppercase tracking-widest rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-3 shadow-lg shadow-indigo-600/10 hover:shadow-indigo-500/30"
               >
                 <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                 <span>Volver</span>

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Match } from '../types';
 import { TEAM_FLAGS } from '../constants';
-import { updateMatchResult, deleteMatchResult } from '../services/firebaseService';
-import { ChevronLeft, Save, AlertTriangle, CheckCircle, Trash2 } from 'lucide-react';
+import { updateMatchResult, deleteMatchResult, recalculateAllScores } from '../services/firebaseService';
+import { ChevronLeft, Save, AlertTriangle, CheckCircle, Trash2, RefreshCw } from 'lucide-react';
 
 interface AdminPanelProps {
   matches: Match[];
@@ -16,6 +16,27 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ matches, onBack, onRefre
   const [successId, setSuccessId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [recalculating, setRecalculating] = useState(false);
+  const [recalcStatus, setRecalcStatus] = useState<string | null>(null);
+
+  const handleManualRecalculate = async () => {
+    setRecalculating(true);
+    setRecalcStatus(null);
+    try {
+      const res = await recalculateAllScores();
+      if (res.success) {
+        setRecalcStatus(`¡Éxito! Se actualizaron los ranking de ${res.updatedCount} usuarios.`);
+        setTimeout(() => setRecalcStatus(null), 5000);
+      } else {
+        setRecalcStatus(`Error: ${res.message}`);
+      }
+    } catch (e: any) {
+      console.error(e);
+      setRecalcStatus("Error al recalcular puntajes.");
+    } finally {
+      setRecalculating(false);
+    }
+  };
 
   const handleScoreChange = (matchId: string, type: 'home' | 'away', value: string) => {
     const numValue = value === '' ? '' : parseInt(value);
@@ -52,6 +73,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ matches, onBack, onRefre
     setLoadingMatchId(matchId);
     try {
       await updateMatchResult(matchId, Number(scores.home), Number(scores.away));
+      
+      // Auto-recalculate ranks and points for all users
+      await recalculateAllScores();
+      
       setSuccessId(matchId);
       setTimeout(() => setSuccessId(null), 3000);
       onRefresh(); // Re-fetch matches in parent
@@ -67,6 +92,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ matches, onBack, onRefre
     setIsDeleting(matchId);
     try {
       await deleteMatchResult(matchId);
+      
+      // Auto-recalculate ranks and points for all users
+      await recalculateAllScores();
       
       // Limpiar completamente el estado local de edición para este partido
       setEditingScores(prev => {
@@ -95,9 +123,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ matches, onBack, onRefre
         <div>
           <button 
             onClick={onBack}
-            className="flex items-center gap-2 text-slate-500 hover:text-white dark:text-slate-400 dark:hover:text-white font-bold text-sm mb-4 transition-all hover:bg-indigo-600 px-4 py-2 rounded-xl active:scale-95"
+            className="flex items-center gap-3 text-white font-black text-xs sm:text-sm uppercase tracking-widest bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 px-5 py-3 rounded-2xl transition-all active:scale-95 shadow-lg shadow-indigo-600/10 hover:shadow-indigo-500/30 mb-4"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
             <span>Volver al Menú</span>
           </button>
           <h2 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tight italic">Panel Admin</h2>
@@ -111,6 +139,33 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ matches, onBack, onRefre
             <p className="text-[10px] text-amber-700 dark:text-amber-300 font-medium">Cargar un resultado bloqueará las predicciones y actualizará los puntos de todos los usuarios.</p>
           </div>
         </div>
+      </div>
+
+      {/* Panel de Sincronización Manual */}
+      <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 sm:p-5 border border-slate-200/60 dark:border-slate-700/60 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm">
+        <div className="flex-1">
+          <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">Sincronización y Recálculo de Ranking</h3>
+          <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">
+            Si notas que el ranking no se actualizó automáticamente, puedes forzar un recálculo global en tiempo real de todos los puntajes basados en los partidos oficiales guardados.
+          </p>
+          {recalcStatus && (
+            <div className={`mt-3 text-[11px] font-bold p-2.5 rounded-lg border ${
+              recalcStatus.includes('Error') 
+                ? 'bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800/30' 
+                : 'bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400 border-green-200 dark:border-green-800/30'
+            }`}>
+              {recalcStatus}
+            </div>
+          )}
+        </div>
+        <button 
+          onClick={handleManualRecalculate}
+          disabled={recalculating}
+          className="w-full md:w-auto flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-white dark:text-black dark:hover:bg-slate-100 px-5 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all active:scale-95 disabled:opacity-50"
+        >
+          <RefreshCw className={`w-4 h-4 ${recalculating ? 'animate-spin' : ''}`} />
+          <span>{recalculating ? 'Recalculando...' : 'Recalcular Ranking'}</span>
+        </button>
       </div>
 
       <div className="space-y-4">
