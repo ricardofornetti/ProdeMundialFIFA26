@@ -172,8 +172,6 @@ const App: React.FC = () => {
     );
   };
 
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
   const [isAuthReady, setIsAuthReady] = useState(false);
 
   useEffect(() => {
@@ -579,61 +577,9 @@ const App: React.FC = () => {
         <>
           <header className="sticky top-0 z-40 bg-indigo-600 border-b border-white/10 shadow-2xl w-full">
             <div className="w-full">
-              <div className="grid grid-cols-5 gap-0 w-full max-w-full mx-auto h-24">
-                <div className="relative h-full w-full">
-                  <button 
-                    onClick={() => setIsMenuOpen(!isMenuOpen)} 
-                    className={`flex flex-col items-center justify-center h-full w-full transition-all border-r border-white/10 font-black text-[9px] sm:text-xs uppercase tracking-tight ${isMenuOpen ? 'text-white bg-white/20' : 'text-white/90 hover:bg-white/10'}`}
-                  >
-                    <NavIcon type="menu" />
-                    <span>MENU</span>
-                  </button>
-                  
-                  {isMenuOpen && (
-                    <div className="absolute top-full left-0 w-48 bg-indigo-600 border border-white/10 shadow-2xl rounded-b-2xl overflow-hidden animate-slide-down z-50">
-                      <button 
-                        onClick={() => { setView('main-menu'); setIsMenuOpen(false); }}
-                        className="w-full px-6 py-4 text-left text-[10px] font-black text-white/90 hover:bg-white/10 uppercase tracking-widest border-b border-white/5 flex items-center gap-3"
-                      >
-                        <div className="w-4 h-4 rounded bg-white/20 flex items-center justify-center text-[8px]">26</div>
-                        Prode
-                      </button>
-                      <button 
-                        onClick={() => { setView('leaderboard'); setIsMenuOpen(false); }}
-                        className="w-full px-6 py-4 text-left text-[10px] font-black text-white/90 hover:bg-white/10 uppercase tracking-widest border-b border-white/5 flex items-center gap-3"
-                      >
-                        <NavIcon type="rank" />
-                        Ranking
-                      </button>
-                      <button 
-                        onClick={() => { setView('history'); setIsMenuOpen(false); }}
-                        className="w-full px-6 py-4 text-left text-[10px] font-black text-white/90 hover:bg-white/10 uppercase tracking-widest border-b border-white/5 flex items-center gap-3"
-                      >
-                        <NavIcon type="history" />
-                        Historia
-                      </button>
-                      <button 
-                        onClick={() => { setView('account'); setIsMenuOpen(false); }}
-                        className="w-full px-6 py-4 text-left text-[10px] font-black text-white/90 hover:bg-white/10 uppercase tracking-widest border-b border-white/5 flex items-center gap-3"
-                      >
-                        <NavIcon type="user" />
-                        Cuenta
-                      </button>
-                      
-                      {user?.role === 'admin' && (
-                        <button 
-                          onClick={() => { setView('admin'); setIsMenuOpen(false); }}
-                          className="w-full px-6 py-4 text-left text-[10px] font-black text-amber-400 hover:bg-white/10 uppercase tracking-widest flex items-center gap-3 bg-white/5"
-                        >
-                          <Shield className="w-4 h-4" />
-                          Admin
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </div>
+              <div className="grid grid-cols-4 gap-0 w-full max-w-full mx-auto h-24">
                 <button 
-                  onClick={() => { setView('main-menu'); setIsMenuOpen(false); }} 
+                  onClick={() => { setView('main-menu'); }} 
                   className={`flex flex-col items-center justify-center h-full w-full transition-all border-r border-white/10 font-black text-[9px] sm:text-xs uppercase tracking-tight ${view === 'main-menu' ? 'text-white bg-white/20' : 'text-white/90 hover:bg-white/10'}`}
                 >
                   <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center overflow-hidden mb-1 ${view === 'main-menu' ? 'bg-white shadow-inner' : 'bg-white/20'}`}>
@@ -652,7 +598,7 @@ const App: React.FC = () => {
                   <span>INICIO</span>
                 </button>
                 <button 
-                  onClick={() => { setView('leaderboard'); setIsMenuOpen(false); }} 
+                  onClick={() => { setView('leaderboard'); }} 
                   className={`flex flex-col items-center justify-center h-full w-full transition-all border-r border-white/10 font-black text-[9px] sm:text-xs uppercase tracking-tight ${view === 'leaderboard' ? 'text-white bg-white/20' : 'text-white/90 hover:bg-white/10'}`}
                 >
                   <NavIcon type="rank" />
@@ -660,7 +606,7 @@ const App: React.FC = () => {
                   <span className="xs:hidden">TOP</span>
                 </button>
                 <button 
-                  onClick={() => { setView('history'); setIsMenuOpen(false); }} 
+                  onClick={() => { setView('history'); }} 
                   className={`flex flex-col items-center justify-center h-full w-full transition-all border-r border-white/10 font-black text-[9px] sm:text-xs uppercase tracking-tight ${view === 'history' ? 'text-white bg-white/20' : 'text-white/90 hover:bg-white/10'}`}
                 >
                   <NavIcon type="history" />
@@ -668,7 +614,7 @@ const App: React.FC = () => {
                   <span className="xs:hidden">HITO</span>
                 </button>
                 <button 
-                  onClick={() => { setView('account'); setIsMenuOpen(false); }} 
+                  onClick={() => { setView('account'); }} 
                   className={`flex flex-col items-center justify-center h-full w-full transition-all font-black text-[9px] sm:text-xs uppercase tracking-tight ${view === 'account' ? 'text-white bg-white/20' : 'text-white/90 hover:bg-white/10'}`}
                 >
                   <NavIcon type="user" />
@@ -707,7 +653,7 @@ const App: React.FC = () => {
                   <div className="h-px w-8 bg-slate-200 dark:bg-slate-700"></div>
                 </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <button onClick={() => setView('groups')} className="group bg-white dark:bg-slate-800 p-6 rounded-[2rem] shadow-lg border-2 border-transparent hover:border-indigo-600 transition-all text-left flex flex-col justify-between h-44 sm:h-52">
                   <div>
                     <div className="w-10 h-10 bg-indigo-600 text-white rounded-xl flex items-center justify-center mb-3 shadow-md"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg></div>
@@ -732,9 +678,17 @@ const App: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-black uppercase text-[8px] tracking-widest mt-auto">Ver Todo →</div>
                 </button>
+                <button onClick={() => setView('private-groups')} className="group bg-white dark:bg-slate-800 p-6 rounded-[2rem] shadow-lg border-2 border-transparent hover:border-indigo-600 transition-all text-left flex flex-col justify-between h-44 sm:h-52">
+                  <div>
+                    <div className="w-10 h-10 bg-indigo-600 text-white rounded-xl flex items-center justify-center mb-3 shadow-md"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg></div>
+                    <h3 className="heading-font text-lg font-black text-slate-900 dark:text-white uppercase">Crear Grupos</h3>
+                    <p className="text-slate-400 font-bold text-[8px] uppercase tracking-widest">Grupos Privados</p>
+                  </div>
+                  <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-black uppercase text-[8px] tracking-widest mt-auto">Ingresar →</div>
+                </button>
 
                 {user?.role === 'admin' && (
-                  <button onClick={() => setView('admin')} className="group bg-amber-50 dark:bg-amber-900/10 p-6 rounded-[2rem] shadow-lg border-2 border-amber-500/20 hover:border-amber-500 transition-all text-left flex flex-col justify-between h-44 sm:h-52">
+                  <button onClick={() => setView('admin')} className="group bg-amber-50 dark:bg-amber-900/10 p-6 rounded-[2rem] shadow-lg border-2 border-amber-500/20 hover:border-amber-500 transition-all text-left flex flex-col justify-between h-44 sm:h-52 lg:grid-row-end">
                     <div>
                       <div className="w-10 h-10 bg-amber-500 text-white rounded-xl flex items-center justify-center mb-3 shadow-md">
                         <Shield className="h-5 w-5" />
@@ -913,7 +867,7 @@ const App: React.FC = () => {
               onGoToPrivateGroups={() => setView('private-groups')}
             />
           ) : view === 'private-groups' ? (
-            <PrivateGroupsView user={user} onBack={() => setView('account')} />
+            <PrivateGroupsView user={user} onBack={() => setView('main-menu')} />
           ) : view === 'admin' && user?.role === 'admin' ? (
              <AdminPanel 
                matches={realMatches} 
