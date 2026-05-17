@@ -9,7 +9,9 @@ interface AuthFormProps {
 }
 
 export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
-  const [mode, setMode] = useState<AuthMode | 'setup-profile' | 'test-mode' | 'test-register'>('login');
+  const [mode, setMode] = useState<AuthMode | 'setup-profile' | 'test-mode' | 'test-register'>(
+    localStorage.getItem('pending_join_group') ? 'register' : 'login'
+  );
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -18,12 +20,30 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [customLogo, setCustomLogo] = useState<string | null>(null);
   const [resetSent, setResetSent] = useState(false);
+  const [invitedGroupName, setInvitedGroupName] = useState<string | null>(null);
 
   useEffect(() => {
     const savedLogo = localStorage.getItem('app_logo_custom');
     if (savedLogo) {
       setCustomLogo(savedLogo);
     }
+
+    const checkInvitation = async () => {
+      const pendingGroupId = localStorage.getItem('pending_join_group');
+      if (pendingGroupId) {
+        try {
+          // Lazy load helper to avoid pre-initialization dependencies blockages
+          const { getCloudGroup } = await import('../services/firebaseService');
+          const group = await getCloudGroup(pendingGroupId);
+          if (group) {
+            setInvitedGroupName(group.name);
+          }
+        } catch (e) {
+          console.error("Error al obtener detalles de la invitación del grupo:", e);
+        }
+      }
+    };
+    checkInvitation();
   }, []);
 
   const handleAppLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {

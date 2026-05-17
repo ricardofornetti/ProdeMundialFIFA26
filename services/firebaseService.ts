@@ -357,6 +357,67 @@ export const getUserAccount = async (identifier: string): Promise<any | null> =>
 
 // --- GESTIÓN DE GRUPOS PRIVADOS ---
 
+export const getCloudGroup = async (groupId: string): Promise<PrivateGroup | null> => {
+  if (!db) return null;
+  const path = "groups";
+  try {
+    const groupRef = doc(db, path, groupId);
+    const groupSnap = await getDoc(groupRef);
+    if (groupSnap.exists()) {
+      return groupSnap.data() as PrivateGroup;
+    }
+    return null;
+  } catch (error) {
+    handleFirestoreError(error, OperationType.GET, `${path}/${groupId}`);
+    return null;
+  }
+};
+
+export const joinCloudGroup = async (groupId: string, user: User): Promise<PrivateGroup | null> => {
+  if (!db) return null;
+  const path = "groups";
+  try {
+    const groupRef = doc(db, path, groupId);
+    const groupSnap = await getDoc(groupRef);
+    if (!groupSnap.exists()) {
+      throw new Error("El grupo no existe.");
+    }
+    
+    const group = groupSnap.data() as PrivateGroup;
+    
+    // Check if user is already a member
+    const isAlreadyMember = group.members.some(m => m.email === user.email);
+    if (isAlreadyMember) {
+      return group; 
+    }
+    
+    const newMember = {
+      username: user.username,
+      photoUrl: user.photoUrl,
+      score: user.totalScore || 0,
+      email: user.email
+    };
+    
+    const updatedMembers = [...group.members, newMember];
+    const memberEmails = updatedMembers.map(m => m.email).filter(Boolean);
+    
+    await setDoc(groupRef, {
+      ...group,
+      members: updatedMembers,
+      memberEmails,
+      updatedAt: new Date().toISOString()
+    }, { merge: true });
+    
+    return {
+      ...group,
+      members: updatedMembers
+    };
+  } catch (error) {
+    handleFirestoreError(error, OperationType.WRITE, `${path}/${groupId}`);
+    return null;
+  }
+};
+
 export const saveCloudGroup = async (group: PrivateGroup) => {
   if (!db) return;
   const path = "groups";
@@ -382,6 +443,17 @@ export const getUserCloudGroups = async (userEmail: string): Promise<PrivateGrou
     return querySnapshot.docs.map(doc => doc.data() as PrivateGroup);
   } catch (error) {
     handleFirestoreError(error, OperationType.LIST, path);
+  }
+};
+
+export const deleteCloudGroup = async (groupId: string) => {
+  if (!db) return;
+  const path = "groups";
+  try {
+    const groupRef = doc(db, path, groupId);
+    await deleteDoc(groupRef);
+  } catch (error) {
+    handleFirestoreError(error, OperationType.DELETE, `${path}/${groupId}`);
   }
 };
 

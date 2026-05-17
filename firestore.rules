@@ -69,8 +69,7 @@ service cloud.firestore {
       return data.keys().hasAll(['id', 'name', 'adminEmail', 'members', 'memberEmails']) &&
              data.id is string && data.id.size() <= 100 &&
              data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
-             data.memberEmails is list && data.memberEmails.size() <= 200 &&
-             data.adminEmail == request.auth.token.email;
+             data.memberEmails is list && data.memberEmails.size() <= 200;
     }
 
     // ===============================================================
@@ -113,12 +112,25 @@ service cloud.firestore {
 
     // Private groups.
     match /groups/{groupId} {
-      allow read: if isAuthenticated() && (request.auth.token.email in resource.data.memberEmails || isAdmin());
-      allow create: if isAuthenticated() && isValidId(groupId) && isValidGroup(request.resource.data);
+      allow get: if isAuthenticated();
+      allow list: if isAuthenticated() && (request.auth.token.email in resource.data.memberEmails || isAdmin());
+      allow create: if isAuthenticated() && isValidId(groupId) && isValidGroup(request.resource.data) && request.resource.data.adminEmail == request.auth.token.email;
       allow update: if isAuthenticated() && 
                     isValidId(groupId) && 
-                    (request.auth.token.email == resource.data.adminEmail || isAdmin()) && 
-                    isValidGroup(request.resource.data);
+                    (
+                      // Option A: Admin modifications
+                      ((request.auth.token.email == resource.data.adminEmail || isAdmin()) && isValidGroup(request.resource.data)) ||
+                      // Option B: Self joining a group via shareable link
+                      (
+                        request.resource.data.id == resource.data.id &&
+                        request.resource.data.name == resource.data.name &&
+                        request.resource.data.adminEmail == resource.data.adminEmail &&
+                        request.resource.data.memberEmails.hasAll(resource.data.memberEmails) &&
+                        request.resource.data.memberEmails.size() == resource.data.memberEmails.size() + 1 &&
+                        request.auth.token.email in request.resource.data.memberEmails &&
+                        isValidGroup(request.resource.data)
+                      )
+                    );
       allow delete: if isAuthenticated() && (request.auth.token.email == resource.data.adminEmail || isAdmin());
     }
 
