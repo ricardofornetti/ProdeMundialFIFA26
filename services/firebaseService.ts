@@ -355,6 +355,18 @@ export const getUserAccount = async (identifier: string): Promise<any | null> =>
   }
 };
 
+export const getAllUsers = async (): Promise<User[]> => {
+  if (!db) return [];
+  const path = "users";
+  try {
+    const querySnapshot = await getDocs(collection(db, path));
+    return querySnapshot.docs.map(doc => doc.data() as User);
+  } catch (error) {
+    handleFirestoreError(error, OperationType.LIST, path);
+    return [];
+  }
+};
+
 // --- GESTIÓN DE GRUPOS PRIVADOS ---
 
 export const getCloudGroup = async (groupId: string): Promise<PrivateGroup | null> => {
