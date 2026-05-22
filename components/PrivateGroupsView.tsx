@@ -9,6 +9,14 @@ interface PrivateGroupsViewProps {
   onBack: () => void;
 }
 
+const getShareUrl = (groupId: string): string => {
+  const origin = window.location.origin;
+  if (origin.includes('aistudio.google.com') || origin.includes('google.com') || !origin.includes('ydglbzr3qz7odwvisz2dek-83270254799')) {
+    return `https://ais-pre-ydglbzr3qz7odwvisz2dek-83270254799.us-east1.run.app/?joinGroup=${groupId}`;
+  }
+  return `${origin}${window.location.pathname}?joinGroup=${groupId}`;
+};
+
 export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBack }) => {
   const [viewMode, setViewMode] = useState<'list' | 'create' | 'detail' | 'ranking' | 'edit'>('list');
   const [groups, setGroups] = useState<PrivateGroup[]>([]);
@@ -246,7 +254,7 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
       }
 
       // Generate join URL
-      const shareUrl = `${window.location.origin}${window.location.pathname}?joinGroup=${selectedGroup.id}`;
+      const shareUrl = getShareUrl(selectedGroup.id);
       const customMessage = `¡Hola ${targetUser.username}! Te invito a unirte a mi grupo privado *${selectedGroup.name}* en el Prode de la Copa Mundial 2026! 🏆⚽️ Ingresa al enlace para unirte directamente: ${shareUrl}`;
       const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(customMessage)}`;
       
@@ -564,7 +572,7 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
                   {/* Botón 2: Invitar amigos */}
                   <button 
                     onClick={() => {
-                      const shareUrl = `${window.location.origin}${window.location.pathname}?joinGroup=${selectedGroup.id}`;
+                      const shareUrl = getShareUrl(selectedGroup.id);
                       const customMessage = `¡Súmate a mi grupo privado *${selectedGroup.name}* en el Prode de la Copa Mundial 2026! 🏆⚽️ Ingresa al enlace para unirte directamente: ${shareUrl}`;
                       const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(customMessage)}`;
                       
