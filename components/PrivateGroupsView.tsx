@@ -30,6 +30,7 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
   const [isFetchingUsers, setIsFetchingUsers] = useState(false);
   const [inviteSearchQuery, setInviteSearchQuery] = useState('');
   const [isProcessingDirectInvite, setIsProcessingDirectInvite] = useState<{[key: string]: boolean}>({});
+  const [localInvitedEmails, setLocalInvitedEmails] = useState<string[]>([]);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -238,29 +239,22 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
       return;
     }
 
-    setIsProcessingDirectInvite(prev => ({ ...prev, [targetUser.email || '']: true }));
     try {
-      const newMember: GroupMember = {
-        username: targetUser.username,
-        photoUrl: targetUser.photoUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${targetUser.email}`,
-        score: targetUser.totalScore || 0,
-        email: targetUser.email
-      };
+      // Mark as locally invited
+      if (targetUser.email && !localInvitedEmails.includes(targetUser.email)) {
+        setLocalInvitedEmails(prev => [...prev, targetUser.email!]);
+      }
 
-      const updatedMembers = [...selectedGroup.members, newMember];
-      const updatedGroup: PrivateGroup = {
-        ...selectedGroup,
-        members: updatedMembers
-      };
-
-      await saveCloudGroup(updatedGroup);
-      setGroups(prev => prev.map(g => g.id === updatedGroup.id ? updatedGroup : g));
-      setSelectedGroup(updatedGroup);
+      // Generate join URL
+      const shareUrl = `${window.location.origin}${window.location.pathname}?joinGroup=${selectedGroup.id}`;
+      const customMessage = `¡Hola ${targetUser.username}! Te invito a unirte a mi grupo privado *${selectedGroup.name}* en el Prode de la Copa Mundial 2026! 🏆⚽️ Ingresa al enlace para unirte directamente: ${shareUrl}`;
+      const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(customMessage)}`;
+      
+      // Open WhatsApp
+      window.open(whatsappUrl, '_blank');
     } catch (err) {
-      console.error("Error inviting user directly:", err);
-      alert("Hubo un error al invitar al usuario.");
-    } finally {
-      setIsProcessingDirectInvite(prev => ({ ...prev, [targetUser.email || '']: false }));
+      console.error("Error creating invite link:", err);
+      alert("Hubo un error al generar la invitación por WhatsApp.");
     }
   };
 
@@ -784,7 +778,7 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
               ) : (
                 filteredUsers.map((u) => {
                   const isAlreadyMember = selectedGroup?.members.some(m => m.email === u.email);
-                  const isProcessing = isProcessingDirectInvite[u.email || ''];
+                  const isLocalInvited = u.email ? localInvitedEmails.includes(u.email) : false;
 
                   return (
                     <div 
@@ -806,21 +800,18 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
                           <span className="bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-900 px-2.5 py-1 rounded-lg font-black text-[8px] uppercase tracking-wider">
                             Miembro
                           </span>
+                        ) : isLocalInvited ? (
+                          <span className="bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-900 px-2.5 py-1 rounded-lg font-black text-[8px] uppercase tracking-wider">
+                            Enlace Enviado
+                          </span>
                         ) : (
                           <button
                             type="button"
                             onClick={() => handleInviteUserDirectly(u)}
-                            disabled={isProcessing}
-                            className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[9px] uppercase tracking-wider rounded-lg shadow-sm hover:scale-[1.03] active:scale-95 transition-all flex items-center gap-1 disabled:opacity-50 focus:outline-none"
+                            className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[9px] uppercase tracking-wider rounded-lg shadow-sm hover:scale-[1.03] active:scale-95 transition-all flex items-center gap-1 focus:outline-none"
                           >
-                            {isProcessing ? (
-                              <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                            ) : (
-                              <>
-                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4"/></svg>
-                                <span>Invitar</span>
-                              </>
-                            )}
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4"/></svg>
+                            <span>Invitar</span>
                           </button>
                         )}
                       </div>

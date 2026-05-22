@@ -14,7 +14,7 @@ import { FullCalendar } from './components/FullCalendar';
 import { HistoryView } from './components/HistoryView';
 import { PrivateGroupsView } from './components/PrivateGroupsView';
 import { WORLD_CUP_MATCHES, WORLD_CUP_GROUPS, KNOCKOUT_PHASES } from './constants';
-import { testConnection, saveUserPrediction, getUserPredictions, getRealMatches, onAuthChange } from './services/firebaseService';
+import { testConnection, saveUserPrediction, getUserPredictions, getRealMatches, onAuthChange, joinCloudGroup } from './services/firebaseService';
 import { isMatchLocked } from './services/matchService';
 import { db } from './firebase';
 import { doc, setDoc, getDoc } from "firebase/firestore";
@@ -337,6 +337,48 @@ const App: React.FC = () => {
 
     return () => unsubscribe();
   }, []);
+
+  // Handle joinGroup link parameter and join action
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const joinGroupId = params.get('joinGroup');
+    if (joinGroupId) {
+      localStorage.setItem('pending_join_group', joinGroupId);
+      // Clean query parameter from URL to keep it pristine
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!user || !user.uid || !isAuthReady) return;
+
+    const pendingGroupId = localStorage.getItem('pending_join_group');
+    if (pendingGroupId) {
+      const joinGroupAsync = async () => {
+        try {
+          const joinedGroup = await joinCloudGroup(pendingGroupId, user);
+          if (joinedGroup) {
+            alert(`¡Te has unido con éxito al grupo privado "${joinedGroup.name}"!`);
+            setView('private-groups');
+          } else {
+            alert("No se pudo unir al grupo. Verifica el enlace o intenta de nuevo.");
+          }
+        } catch (err) {
+          console.error("Error joining pending group:", err);
+          alert("Error al unirse al grupo privado.");
+        } finally {
+          localStorage.removeItem('pending_join_group');
+        }
+      };
+
+      // Slight delay to ensure the database and auth sync completed fully
+      const timer = setTimeout(() => {
+        joinGroupAsync();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [user, isAuthReady]);
 
   // Cargar/actualizar los partidos reales cuando se cambia de vista (para asegurar que los resultados estén actualizados)
   useEffect(() => {
