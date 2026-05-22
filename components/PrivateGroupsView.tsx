@@ -10,11 +10,7 @@ interface PrivateGroupsViewProps {
 }
 
 const getShareUrl = (groupId: string): string => {
-  const origin = window.location.origin;
-  if (origin.includes('aistudio.google.com') || origin.includes('google.com') || !origin.includes('ydglbzr3qz7odwvisz2dek-83270254799')) {
-    return `https://ais-pre-ydglbzr3qz7odwvisz2dek-83270254799.us-east1.run.app/?joinGroup=${groupId}`;
-  }
-  return `${origin}${window.location.pathname}?joinGroup=${groupId}`;
+  return `https://ais-pre-ydglbzr3qz7odwvisz2dek-83270254799.us-east1.run.app/?joinGroup=${groupId}`;
 };
 
 export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBack }) => {
