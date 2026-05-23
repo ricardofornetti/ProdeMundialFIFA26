@@ -10,7 +10,8 @@ interface PrivateGroupsViewProps {
 }
 
 const getShareUrl = (groupId: string): string => {
-  return `https://ais-pre-ydglbzr3qz7odwvisz2dek-83270254799.us-east1.run.app/?joinGroup=${groupId}`;
+  const origin = typeof window !== 'undefined' && window.location ? window.location.origin : 'https://ais-pre-ydglbzr3qz7odwvisz2dek-83270254799.us-east1.run.app';
+  return `${origin}/?joinGroup=${groupId}`;
 };
 
 export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBack }) => {
@@ -45,8 +46,40 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
     const fetchGroups = async () => {
       setIsLoading(true);
       try {
-        const cloudGroups = await getUserCloudGroups(user.email);
-        setGroups(cloudGroups);
+        const [cloudGroups, usersList] = await Promise.all([
+          getUserCloudGroups(user.email) as Promise<PrivateGroup[]>,
+          getAllUsers()
+        ]);
+        
+        // Map user email to user profile for fast lookup
+        const userMap = new Map<string, User>();
+        (usersList || []).forEach(u => {
+          if (u.email) {
+            userMap.set(u.email.toLowerCase(), u);
+          }
+        });
+
+        // Update each member with the latest dynamic data from users table
+        const synchronizedGroups = (cloudGroups || []).map(group => {
+          const updatedMembers = group.members.map(member => {
+            const matchedUser = member.email ? userMap.get(member.email.toLowerCase()) : null;
+            if (matchedUser) {
+              return {
+                ...member,
+                score: matchedUser.totalScore !== undefined ? matchedUser.totalScore : 0,
+                username: matchedUser.username || member.username,
+                photoUrl: matchedUser.photoUrl || member.photoUrl
+              };
+            }
+            return member;
+          });
+          return {
+            ...group,
+            members: updatedMembers
+          };
+        });
+
+        setGroups(synchronizedGroups);
       } catch (err) {
         console.error("Error fetching cloud groups:", err);
         // Fallback a local storage por si acaso el usuario no tiene conexión pero sí datos previos
@@ -288,8 +321,12 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
     }
   };
 
-  const sortedMembers = selectedGroup 
-    ? [...selectedGroup.members].sort((a, b) => b.score - a.score)
+  const currentGroup = selectedGroup 
+    ? (groups.find(g => g.id === selectedGroup.id) || selectedGroup)
+    : null;
+
+  const sortedMembers = currentGroup 
+    ? [...currentGroup.members].sort((a, b) => b.score - a.score)
     : [];
 
   const filteredUsers = allUsers.filter(u => {
@@ -476,19 +513,19 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
               </div>
             </div>
           </div>
-        ) : viewMode === 'detail' && selectedGroup ? (
+        ) : viewMode === 'detail' && currentGroup ? (
           <div className="animate-fade-in">
             <div className="flex flex-col items-center mb-8">
               <div className="w-24 h-24 rounded-[2rem] overflow-hidden border-4 border-black dark:border-white shadow-xl bg-slate-100 mb-4">
-                {selectedGroup.groupPhotoUrl ? (
-                   <img src={selectedGroup.groupPhotoUrl} className="w-full h-full object-cover" alt="" />
+                {currentGroup.groupPhotoUrl ? (
+                   <img src={currentGroup.groupPhotoUrl} className="w-full h-full object-cover" alt="" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-4xl font-black text-slate-300">
-                    {selectedGroup.name.charAt(0).toUpperCase()}
+                    {currentGroup.name.charAt(0).toUpperCase()}
                   </div>
                 )}
               </div>
-              <h2 className="heading-font text-3xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">{selectedGroup.name}</h2>
+              <h2 className="heading-font text-3xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">{currentGroup.name}</h2>
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Detalles de la liga privada</p>
             </div>
 
@@ -497,14 +534,14 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
                 <div className="flex items-center justify-between border-b-2 border-slate-100 dark:border-slate-700 pb-3 mb-4">
                   <h3 className="font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">INTEGRANTES</h3>
                   <span className="bg-slate-100 dark:bg-slate-900 px-3 py-1 rounded-full font-black text-[9px] text-slate-800 dark:text-white uppercase">
-                    {selectedGroup.members.length} TOTAL
+                    {currentGroup.members.length} TOTAL
                   </span>
                 </div>
                 
                 <div className="grid grid-cols-1 gap-2">
-                  {selectedGroup.members.map((member, i) => {
-                    const isCreatorOrAdmin = selectedGroup.adminEmail === user.email || user.role === 'admin';
-                    const isGroupAdmin = member.email === selectedGroup.adminEmail;
+                  {currentGroup.members.map((member, i) => {
+                    const isCreatorOrAdmin = currentGroup.adminEmail === user.email || user.role === 'admin';
+                    const isGroupAdmin = member.email === currentGroup.adminEmail;
 
                     return (
                       <div 
@@ -547,29 +584,12 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
               </div>
 
               <div className="pt-4 space-y-4">
-                <div className="grid grid-cols-4 gap-2.5 sm:gap-4 my-4">
-                  {/* Botón 1: Invitar más miembros directamente */}
-                  <button 
-                    onClick={() => setIsInviteModalOpen(true)}
-                    type="button"
-                    title="Invitar más miembros directamente"
-                    className="aspect-square flex flex-col items-center justify-center p-2 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-slate-50 hover:bg-slate-100 dark:bg-slate-900/40 dark:hover:bg-slate-800 transition-all hover:scale-[1.03] active:scale-95 text-center shadow-md select-none group focus:outline-none"
-                  >
-                    <div className="p-1 sm:p-2 bg-indigo-50 dark:bg-indigo-950/40 rounded-xl text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform">
-                      <svg className="w-5 h-5 sm:w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-4 4 4 4 0 014-4zM3 20a6 6 0 0112 0v1H3z" />
-                      </svg>
-                    </div>
-                    <span className="block font-black text-[7px] sm:text-[9px] uppercase tracking-wider text-slate-800 dark:text-slate-200 mt-1.5 leading-tight">
-                      Invitar<br/>Directo
-                    </span>
-                  </button>
-
+                <div className="grid grid-cols-3 gap-2.5 sm:gap-4 my-4">
                   {/* Botón 2: Invitar amigos */}
                   <button 
                     onClick={() => {
-                      const shareUrl = getShareUrl(selectedGroup.id);
-                      const customMessage = `¡Súmate a mi grupo privado *${selectedGroup.name}* en el Prode de la Copa Mundial 2026! 🏆⚽️ Ingresa al enlace para unirte directamente: ${shareUrl}`;
+                      const shareUrl = getShareUrl(currentGroup.id);
+                      const customMessage = `¡Súmate a mi grupo privado *${currentGroup.name}* en el Prode de la Copa Mundial 2026! 🏆⚽️ Ingresa al enlace para unirte directamente: ${shareUrl}`;
                       const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(customMessage)}`;
                       
                       navigator.clipboard.writeText(shareUrl).then(() => {
@@ -614,7 +634,7 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
 
                   {/* Botón 4: Eliminar o abandonar grupo */}
                   {(() => {
-                    const isCreatorOrAdmin = selectedGroup.adminEmail === user.email || user.role === 'admin';
+                    const isCreatorOrAdmin = currentGroup.adminEmail === user.email || user.role === 'admin';
                     if (isCreatorOrAdmin) {
                       return (
                         <button 
@@ -681,12 +701,12 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
               </div>
             </div>
           </div>
-        ) : viewMode === 'ranking' && selectedGroup ? (
+        ) : viewMode === 'ranking' && currentGroup ? (
           <div className="animate-fade-in">
             <div className="text-center mb-8">
               <h3 className="text-yellow-500 font-black text-[10px] uppercase tracking-[0.3em] mb-2">TABLA DE POSICIONES</h3>
-              <h2 className="heading-font text-3xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">{selectedGroup.name}</h2>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Ranking exclusivo de integrantes</p>
+              <h2 className="heading-font text-3xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">{currentGroup.name}</h2>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">El camino a la cima... exclusivo de integrantes</p>
             </div>
 
             <div className="space-y-4">
@@ -710,7 +730,7 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
                     </div>
                     <div className="flex flex-col">
                       <span className="text-xs sm:text-sm font-black uppercase tracking-tight truncate max-w-[120px]">{member.username}</span>
-                      {member.email === selectedGroup.adminEmail && <span className="text-[7px] font-black uppercase tracking-widest opacity-50">Administrador</span>}
+                      {member.email === currentGroup.adminEmail && <span className="text-[7px] font-black uppercase tracking-widest opacity-50">Administrador</span>}
                     </div>
                   </div>
                   <div className="text-right">
@@ -781,7 +801,7 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
                 </div>
               ) : (
                 filteredUsers.map((u) => {
-                  const isAlreadyMember = selectedGroup?.members.some(m => m.email === u.email);
+                  const isAlreadyMember = currentGroup?.members.some(m => m.email === u.email);
                   const isLocalInvited = u.email ? localInvitedEmails.includes(u.email) : false;
 
                   return (

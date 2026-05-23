@@ -51,7 +51,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ onBack }) => {
               <path d="m11.5 5.5.5 1.1 1.2.2-.9.9.2 1.2-1-.5-1 .5.2-1.2-.9-.9 1.2-.2z" fill="currentColor" />
             </svg>
           </div>
-          <h2 className="heading-font text-xl sm:text-3xl font-black text-slate-900 dark:text-white mb-1 uppercase tracking-tighter italic">RANKING HISTÓRICO</h2>
+          <h2 className="heading-font text-xl sm:text-3xl font-black text-slate-900 dark:text-white mb-1 uppercase tracking-tighter italic">los campeones del mundo</h2>
           <p className="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase tracking-widest">CAMPEONES DE LA COPA DEL MUNDO</p>
         </div>
 

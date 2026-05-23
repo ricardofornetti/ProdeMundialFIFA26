@@ -159,8 +159,14 @@ export const AccountView: React.FC<AccountViewProps> = ({ user, onLogout, onUpda
   };
 
   const handleShare = () => {
-    const currentUrl = new URL(window.location.href);
-    const text = `⚽ ¡Sumate al Prode del Mundial 2026 conmigo! Ingresá acá para jugar: ${currentUrl.toString()}`;
+    let appUrl = 'https://ais-pre-ydglbzr3qz7odwvisz2dek-83270254799.us-east1.run.app/';
+    if (typeof window !== 'undefined' && window.location) {
+      const origin = window.location.origin;
+      if (!origin.includes('aistudio.google.com') && !origin.includes('google.com') && origin.includes('ydglbzr3qz7odwvisz2dek-83270254799')) {
+        appUrl = `${origin}/`;
+      }
+    }
+    const text = `⚽ ¡Sumate al Prode del Mundial 2026 conmigo! Ingresá acá para jugar: ${appUrl}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 

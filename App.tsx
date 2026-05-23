@@ -180,6 +180,30 @@ const App: React.FC = () => {
     // Listen to Firebase Auth changes
     const unsubscribe = onAuthChange((firebaseUser) => {
       if (firebaseUser) {
+        // Enforce Gmail / Admin Email restriction on all authed users
+        const userEmail = firebaseUser.email || '';
+        const ADMIN_EMAILS = [
+          'fornettiricardo@gmail.com', 
+          'FORNETTIRICARDO@GMAIL.COM',
+          'ricardofornetti@hotmail.com.ar',
+          'RICARDOFORNETTI@HOTMAIL.COM.AR'
+        ];
+        const isEmailAllowed = userEmail.toLowerCase().endsWith('@gmail.com') || ADMIN_EMAILS.some(e => e.toLowerCase() === userEmail.toLowerCase());
+
+        if (!isEmailAllowed) {
+          console.warn(`Auth blocked/rejected for non-gmail: ${userEmail}`);
+          import('./firebase').then(({ auth: firebaseAuth }) => {
+            if (firebaseAuth) {
+              firebaseAuth.signOut();
+            }
+          });
+          localStorage.removeItem('active_user');
+          setUser(null);
+          setView('auth');
+          setIsAuthReady(true);
+          return;
+        }
+
         // First, fast render using cached credentials
         const savedUser = localStorage.getItem('active_user');
         let initialUser = null;
@@ -209,6 +233,54 @@ const App: React.FC = () => {
               const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
               if (userDoc.exists()) {
                 cloudUser = { ...userDoc.data(), uid: firebaseUser.uid } as User;
+              } else {
+                // Si el usuario se loguea pero no existe en Firestore (ej: bypass por Google Sign-In),
+                // le creamos su perfil por defecto con los datos de Auth para que quede registrado en la base de datos.
+                const ADMIN_EMAILS = [
+                  'fornettiricardo@gmail.com', 
+                  'FORNETTIRICARDO@GMAIL.COM',
+                  'ricardofornetti@hotmail.com.ar',
+                  'RICARDOFORNETTI@HOTMAIL.COM.AR'
+                ];
+                const isUserAdmin = ADMIN_EMAILS.includes(firebaseUser.email || '');
+
+                const fallbackUsername = firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Usuario';
+                let finalUsername = fallbackUsername.trim();
+                if (!finalUsername) {
+                  finalUsername = `Usuario_${firebaseUser.uid.substring(0, 5)}`;
+                }
+
+                const newUserDoc: User = {
+                  uid: firebaseUser.uid,
+                  email: firebaseUser.email || '',
+                  username: finalUsername,
+                  photoUrl: firebaseUser.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${firebaseUser.uid}`,
+                  isVerified: true,
+                  totalScore: 0,
+                  role: isUserAdmin ? 'admin' : 'user',
+                  settings: {
+                    notifyResults: true,
+                    notifyMatchStart: true,
+                    theme: 'light'
+                  }
+                };
+
+                try {
+                  await setDoc(doc(db, "users", firebaseUser.uid), {
+                    ...newUserDoc,
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                  });
+                  // Guardar el mapeo del nombre de usuario en minúsculas
+                  await setDoc(doc(db, "usernames", finalUsername.toLowerCase()), {
+                    email: firebaseUser.email || '',
+                    uid: firebaseUser.uid
+                  });
+                  cloudUser = newUserDoc;
+                  console.log("Perfil de Firestore autogenerado con éxito para el usuario logueado:", newUserDoc);
+                } catch (writeErr) {
+                  console.error("Error al autogenerar perfil de Firestore para el usuario:", writeErr);
+                }
               }
             }
 

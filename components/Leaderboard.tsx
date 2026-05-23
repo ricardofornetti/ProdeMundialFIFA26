@@ -86,7 +86,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ user, userScore, onBac
                 <path d="M12.5 3l.7 1.7 1.8.3-1.3 1.3.3 1.8-1.5-1-1.5 1 .3-1.8-1.3-1.3 1.8-.3z" fill="currentColor" stroke="none" />
               </svg>
             </div>
-            <h2 className="heading-font text-3xl font-black text-slate-900 dark:text-white mb-1 uppercase tracking-tighter">RANKING</h2>
+            <h2 className="heading-font text-3xl font-black text-slate-900 dark:text-white mb-1 uppercase tracking-tighter">EL CAMINO A LA CIMA...</h2>
             <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Global - Todos los jugadores</p>
           </div>
 

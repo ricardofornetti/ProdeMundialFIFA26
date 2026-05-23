@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import logoMundial from './logo_mundial.png';
 import { User, AuthMode } from '../types';
 import { signInWithGoogle, loginUser, resetPassword, completeRegistration, registerUser } from '../services/firebaseService';
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebase';
 
 interface AuthFormProps {
   onAuthSuccess: (user: User) => void;
@@ -75,6 +77,25 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
     try {
       const result = await signInWithGoogle();
       if (result) {
+        // Enforce Gmail / Admin Email restriction on Google Sign-In
+        const userEmail = result.user.email || '';
+        const ADMIN_EMAILS = [
+          'fornettiricardo@gmail.com', 
+          'FORNETTIRICARDO@GMAIL.COM',
+          'ricardofornetti@hotmail.com.ar',
+          'RICARDOFORNETTI@HOTMAIL.COM.AR'
+        ];
+        const isEmailAllowed = userEmail.toLowerCase().endsWith('@gmail.com') || ADMIN_EMAILS.some(e => e.toLowerCase() === userEmail.toLowerCase());
+
+        if (!isEmailAllowed) {
+          if (auth) {
+            await signOut(auth);
+          }
+          setError('Solo se permiten cuentas de Google con dirección @gmail.com.');
+          setIsLoading(false);
+          return;
+        }
+
         if (result.isNew) {
           setTempUser(result.user);
           setUsername(result.user.username);
@@ -102,6 +123,26 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
     e.preventDefault();
     if (!tempUser) return;
     setError('');
+
+    const userEmail = tempUser.email || '';
+    const ADMIN_EMAILS = [
+      'fornettiricardo@gmail.com', 
+      'FORNETTIRICARDO@GMAIL.COM',
+      'ricardofornetti@hotmail.com.ar',
+      'RICARDOFORNETTI@HOTMAIL.COM.AR'
+    ];
+    const isEmailAllowed = userEmail.toLowerCase().endsWith('@gmail.com') || ADMIN_EMAILS.some(e => e.toLowerCase() === userEmail.toLowerCase());
+
+    if (!isEmailAllowed) {
+      if (auth) {
+        await signOut(auth);
+      }
+      setError('Solo se permiten cuentas de Google con dirección @gmail.com.');
+      setMode('login');
+      setTempUser(null);
+      return;
+    }
+
     setIsLoading(true);
     try {
       const updatedUser = {
