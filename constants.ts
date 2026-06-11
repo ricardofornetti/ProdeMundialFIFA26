@@ -7,11 +7,11 @@ export const WORLD_CUP_MATCHES: Match[] = [
   { id: 'm2', homeTeam: 'República de Corea', awayTeam: 'República Checa', homeFlag: 'KR', awayFlag: 'CZ', group: 'Primera Fase • Grupo A', date: '11 Jun 2026', time: '23:00', venue: 'Estadio Guadalajara, Guadalajara' },
   
   // --- VIERNES 12 JUNIO ---
-  { id: 'm3', homeTeam: 'Canadá', awayTeam: 'Suiza', homeFlag: 'CA', awayFlag: 'CH', group: 'Primera Fase • Grupo B', date: '12 Jun 2026', time: '16:00', venue: 'Estadio de Toronto, Toronto' },
+  { id: 'm3', homeTeam: 'Canadá', awayTeam: 'Bosnia y Herzegovina', homeFlag: 'CA', awayFlag: 'BA', group: 'Primera Fase • Grupo B', date: '12 Jun 2026', time: '16:00', venue: 'Estadio de Toronto, Toronto' },
   { id: 'm4', homeTeam: 'EE. UU.', awayTeam: 'Paraguay', homeFlag: 'US', awayFlag: 'PY', group: 'Primera Fase • Grupo D', date: '12 Jun 2026', time: '22:00', venue: 'Estadio Los Angeles, Los Ángeles' },
   
   // --- SÁBADO 13 JUNIO ---
-  { id: 'm5', homeTeam: 'Bosnia y Herzegovina', awayTeam: 'Catar', homeFlag: 'BA', awayFlag: 'QA', group: 'Primera Fase • Grupo B', date: '13 Jun 2026', time: '16:00', venue: 'Estadio de la Bahía de San Francisco, Área de la Bahía de San Francisco' },
+  { id: 'm5', homeTeam: 'Catar', awayTeam: 'Suiza', homeFlag: 'QA', awayFlag: 'CH', group: 'Primera Fase • Grupo B', date: '13 Jun 2026', time: '16:00', venue: 'Estadio de la Bahía de San Francisco, Área de la Bahía de San Francisco' },
   { id: 'm6', homeTeam: 'Brasil', awayTeam: 'Marruecos', homeFlag: 'BR', awayFlag: 'MA', group: 'Primera Fase • Grupo C', date: '13 Jun 2026', time: '19:00', venue: 'Estadio Nueva York/Nueva Jersey, Nueva York' },
   { id: 'm7', homeTeam: 'Haití', awayTeam: 'Escocia', homeFlag: 'HT', awayFlag: 'GB-SCT', group: 'Primera Fase • Grupo C', date: '13 Jun 2026', time: '22:00', venue: 'Estadio Boston, Boston' },
   
@@ -42,8 +42,8 @@ export const WORLD_CUP_MATCHES: Match[] = [
   
   // --- JUEVES 18 JUNIO ---
   { id: 'm25', homeTeam: 'República Checa', awayTeam: 'Sudáfrica', homeFlag: 'CZ', awayFlag: 'ZA', group: 'Primera Fase • Grupo A', date: '18 Jun 2026', time: '13:00', venue: 'Estadio Atlanta, Atlanta' },
-  { id: 'm26', homeTeam: 'Catar', awayTeam: 'Suiza', homeFlag: 'QA', awayFlag: 'CH', group: 'Primera Fase • Grupo B', date: '18 Jun 2026', time: '16:00', venue: 'Estadio Los Angeles, Los Ángeles' },
-  { id: 'm27', homeTeam: 'Canadá', awayTeam: 'Bosnia y Herzegovina', homeFlag: 'CA', awayFlag: 'BA', group: 'Primera Fase • Grupo B', date: '18 Jun 2026', time: '19:00', venue: 'Estadio BC Place Vancouver, Vancouver' },
+  { id: 'm26', homeTeam: 'Bosnia y Herzegovina', awayTeam: 'Catar', homeFlag: 'BA', awayFlag: 'QA', group: 'Primera Fase • Grupo B', date: '18 Jun 2026', time: '16:00', venue: 'Estadio Los Angeles, Los Ángeles' },
+  { id: 'm27', homeTeam: 'Canadá', awayTeam: 'Suiza', homeFlag: 'CA', awayFlag: 'CH', group: 'Primera Fase • Grupo B', date: '18 Jun 2026', time: '19:00', venue: 'Estadio BC Place Vancouver, Vancouver' },
   { id: 'm28', homeTeam: 'México', awayTeam: 'República de Corea', homeFlag: 'MX', awayFlag: 'KR', group: 'Primera Fase • Grupo A', date: '18 Jun 2026', time: '22:00', venue: 'Estadio Guadalajara, Guadalajara' },
   
   // --- VIERNES 19 JUNIO ---

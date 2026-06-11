@@ -106,6 +106,22 @@ export const AccountView: React.FC<AccountViewProps> = ({ user, onLogout, onUpda
     showAlert("Preferencia actualizada", "success");
   };
 
+  const handleSimulateResults = () => {
+    if (settings.notifyResults) {
+      showAlert("⚽ SIMULACIÓN: ¡Partido finalizado! Argentina 2 - 1 Brasil. Tu prode sumó +3 pts.", "success");
+    } else {
+      showAlert("⚠️ ALERTA: Habilita 'Resultados de Partidos' para recibir avisos.", "info");
+    }
+  };
+
+  const handleSimulateMatchStart = () => {
+    if (settings.notifyMatchStart) {
+      showAlert("⏰ SIMULACIÓN: ¡Partido por comenzar! Faltan 15 min para el debut de Argentina vs Brasil.", "info");
+    } else {
+      showAlert("⚠️ ALERTA: Habilita 'Inicio de Partidos' para recibir avisos.", "info");
+    }
+  };
+
   const handleThemeSelection = (theme: 'light' | 'dark') => {
     const newSettings: NonNullable<User['settings']> = { ...settings, theme };
     setSettings(newSettings);
@@ -173,6 +189,7 @@ export const AccountView: React.FC<AccountViewProps> = ({ user, onLogout, onUpda
   if (activeSubView === 'rules') {
     return (
       <main className="max-w-2xl mx-auto px-4 py-4 animate-fade-in relative">
+        {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
         <div className="mb-6">
           <button 
             onClick={() => setActiveSubView(null)} 
@@ -207,6 +224,7 @@ export const AccountView: React.FC<AccountViewProps> = ({ user, onLogout, onUpda
   if (activeSubView === 'menu') {
     return (
       <main className="max-w-2xl mx-auto px-4 py-4 animate-fade-in relative">
+        {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
         <div className="mb-6">
           <button 
             onClick={() => setActiveSubView(null)} 
@@ -241,6 +259,30 @@ export const AccountView: React.FC<AccountViewProps> = ({ user, onLogout, onUpda
                     <span className="text-[10px] font-bold text-slate-400 uppercase">Avisos 15 min antes del pitazo inicial</span>
                   </div>
                   <ToggleSwitch enabled={settings.notifyMatchStart} onChange={() => handleToggle('notifyMatchStart')} />
+                </div>
+              </div>
+
+              {/* Simulador de Notificaciones */}
+              <div className="mt-6 p-6 border-2 border-dashed border-sky-500/30 rounded-[2rem] bg-sky-500/5">
+                <h4 className="font-black text-[10px] text-sky-500 uppercase tracking-widest mb-2 flex items-center gap-2">🕹️ SIMULADOR DE PRUEBAS</h4>
+                <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4 leading-normal">
+                  Dado que las notificaciones externas reales requieren servicios Cloud de distribución, puedes simular aquí cómo se comportan en tiempo real según tus preferencias actuales:
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <button 
+                    onClick={handleSimulateResults}
+                    className="bg-sky-500 text-white hover:bg-sky-600 transition-all px-4 py-3 rounded-2xl font-black text-[9px] uppercase tracking-wider active:scale-95 text-center shadow-lg shadow-sky-500/10 focus:outline-none"
+                    type="button"
+                  >
+                    ⚽ Simular Fin de Partido
+                  </button>
+                  <button 
+                    onClick={handleSimulateMatchStart}
+                    className="bg-sky-500 text-white hover:bg-sky-600 transition-all px-4 py-3 rounded-2xl font-black text-[9px] uppercase tracking-wider active:scale-95 text-center shadow-lg shadow-sky-500/10 focus:outline-none"
+                    type="button"
+                  >
+                    ⏰ Simular Inicio Partido
+                  </button>
                 </div>
               </div>
             </section>
