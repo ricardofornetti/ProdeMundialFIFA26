@@ -109,6 +109,25 @@ export const AccountView: React.FC<AccountViewProps> = ({ user, onLogout, onUpda
   const handleSimulateResults = () => {
     if (settings.notifyResults) {
       showAlert("⚽ SIMULACIÓN: ¡Partido finalizado! Argentina 2 - 1 Brasil. Tu prode sumó +3 pts.", "success");
+      
+      // Intentar enviar una notificación nativa del sistema/navegador si está soportado
+      if (typeof window !== 'undefined' && 'Notification' in window) {
+        if (Notification.permission === 'granted') {
+          new Notification("⚽ PRODE MUNDIAL 2026", {
+            body: "¡Partido finalizado! Argentina 2 - 1 Brasil. Tu prode sumó +3 pts.",
+            icon: "https://flagcdn.com/w80/ar.png"
+          });
+        } else if (Notification.permission !== 'denied') {
+          Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+              new Notification("⚽ PRODE MUNDIAL 2026", {
+                body: "¡Partido finalizado! Argentina 2 - 1 Brasil. Tu prode sumó +3 pts.",
+                icon: "https://flagcdn.com/w80/ar.png"
+              });
+            }
+          });
+        }
+      }
     } else {
       showAlert("⚠️ ALERTA: Habilita 'Resultados de Partidos' para recibir avisos.", "info");
     }
@@ -117,6 +136,25 @@ export const AccountView: React.FC<AccountViewProps> = ({ user, onLogout, onUpda
   const handleSimulateMatchStart = () => {
     if (settings.notifyMatchStart) {
       showAlert("⏰ SIMULACIÓN: ¡Partido por comenzar! Faltan 15 min para el debut de Argentina vs Brasil.", "info");
+      
+      // Intentar enviar una notificación nativa del sistema/navegador si está soportado
+      if (typeof window !== 'undefined' && 'Notification' in window) {
+        if (Notification.permission === 'granted') {
+          new Notification("⏰ PRODE MUNDIAL 2026", {
+            body: "¡Partido por comenzar! Faltan 15 min para el debut de Argentina vs Brasil.",
+            icon: "https://flagcdn.com/w80/ar.png"
+          });
+        } else if (Notification.permission !== 'denied') {
+          Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+              new Notification("⏰ PRODE MUNDIAL 2026", {
+                body: "¡Partido por comenzar! Faltan 15 min para el debut de Argentina vs Brasil.",
+                icon: "https://flagcdn.com/w80/ar.png"
+              });
+            }
+          });
+        }
+      }
     } else {
       showAlert("⚠️ ALERTA: Habilita 'Inicio de Partidos' para recibir avisos.", "info");
     }

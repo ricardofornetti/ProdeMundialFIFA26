@@ -636,6 +636,24 @@ const App: React.FC = () => {
 
   const userScore = calculateTotalScore(predictions);
 
+  const totalPredictionsSaved = predictions.filter(p => p.homeScore !== '' && p.awayScore !== '').length;
+
+  const correctExactCount = predictions.filter(pred => {
+    const m = realMatches.find(x => x.id === pred.matchId);
+    if (!m || m.actualHomeScore === undefined || m.actualAwayScore === undefined) return false;
+    return Number(pred.homeScore) === Number(m.actualHomeScore) && Number(pred.awayScore) === Number(m.actualAwayScore);
+  }).length;
+
+  const correctWinnerCount = predictions.filter(pred => {
+    const m = realMatches.find(x => x.id === pred.matchId);
+    if (!m || m.actualHomeScore === undefined || m.actualAwayScore === undefined) return false;
+    const pSign = Math.sign(Number(pred.homeScore) - Number(pred.awayScore));
+    const rSign = Math.sign(Number(m.actualHomeScore) - Number(m.actualAwayScore));
+    return pSign === rSign && !(Number(pred.homeScore) === Number(m.actualHomeScore) && Number(pred.awayScore) === Number(m.actualAwayScore));
+  }).length;
+
+  const matchesWithResultsCount = realMatches.filter(m => m.actualHomeScore !== undefined && m.actualAwayScore !== undefined).length;
+
   const handleUpdateUser = async (updatedUser: User) => {
     setUser(updatedUser);
     localStorage.setItem('active_user', JSON.stringify(updatedUser));
@@ -767,6 +785,7 @@ const App: React.FC = () => {
                   <div className="h-px w-8 bg-slate-200 dark:bg-slate-700"></div>
                 </div>
               </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <button onClick={() => setView('groups')} className="group bg-white dark:bg-slate-800 p-6 rounded-[2rem] shadow-lg border-2 border-transparent hover:border-indigo-600 transition-all text-left flex flex-col justify-between h-44 sm:h-52">
                   <div>
@@ -1006,7 +1025,7 @@ const App: React.FC = () => {
                   <span>Volver</span>
                 </button>
               </div>
-               <FullCalendar matches={realMatches} />
+               <FullCalendar matches={realMatches} predictions={predictions} userId={user?.uid} />
             </main>
           ) : null}
         </>
