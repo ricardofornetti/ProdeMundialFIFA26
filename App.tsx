@@ -700,21 +700,22 @@ const App: React.FC = () => {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen w-full bg-slate-50 dark:bg-slate-900 pb-20 transition-colors duration-300 overflow-x-hidden">
+      <div className="min-h-screen w-full bg-slate-50 dark:bg-slate-900 pb-28 lg:pb-12 transition-colors duration-300 overflow-x-hidden">
       {!user || view === 'auth' ? (
         <main className="min-h-screen flex items-center justify-center max-w-md mx-auto px-4 py-12 animate-fade-in">
           <AuthForm onAuthSuccess={handleAuthSuccess} />
         </main>
       ) : (
         <>
-          <header className="sticky top-0 z-40 bg-indigo-600 border-b border-white/10 shadow-2xl w-full">
+          {/* RESPONSIVE: Header sticky para pantallas grandes (desktop) */}
+          <header className="hidden lg:block sticky top-0 z-40 bg-indigo-600 border-b border-white/10 shadow-2xl w-full">
             <div className="w-full">
               <div className="grid grid-cols-4 gap-0 w-full max-w-full mx-auto h-24">
                 <button 
                   onClick={() => { setView('main-menu'); }} 
-                  className={`flex flex-col items-center justify-center h-full w-full transition-all border-r border-white/10 font-black text-[9px] sm:text-xs uppercase tracking-tight ${view === 'main-menu' ? 'text-white bg-white/20' : 'text-white/90 hover:bg-white/10'}`}
+                  className={`flex flex-col items-center justify-center h-full w-full transition-all border-r border-white/10 font-black text-xs uppercase tracking-tight ${view === 'main-menu' ? 'text-white bg-white/20' : 'text-white/90 hover:bg-white/10'}`}
                 >
-                  <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center overflow-hidden mb-1 ${view === 'main-menu' ? 'bg-white shadow-inner' : 'bg-white/20'}`}>
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden mb-1 ${view === 'main-menu' ? 'bg-white shadow-inner' : 'bg-white/20'}`}>
                     <img 
                       src={customLogo || logoMundial} 
                       alt="Logo" 
@@ -723,7 +724,7 @@ const App: React.FC = () => {
                         const target = e.target as HTMLImageElement;
                         target.style.display = 'none';
                         const parent = target.parentElement;
-                        if (parent) parent.innerHTML = '<span class="text-[10px] sm:text-[14px]">26</span>';
+                        if (parent) parent.innerHTML = '<span class="text-[14px]">26</span>';
                       }}
                     />
                   </div>
@@ -731,31 +732,74 @@ const App: React.FC = () => {
                 </button>
                 <button 
                   onClick={() => { setView('leaderboard'); }} 
-                  className={`flex flex-col items-center justify-center h-full w-full transition-all border-r border-white/10 font-black text-[9px] sm:text-xs uppercase tracking-tight ${view === 'leaderboard' ? 'text-white bg-white/20' : 'text-white/90 hover:bg-white/10'}`}
+                  className={`flex flex-col items-center justify-center h-full w-full transition-all border-r border-white/10 font-black text-xs uppercase tracking-tight ${view === 'leaderboard' ? 'text-white bg-white/20' : 'text-white/90 hover:bg-white/10'}`}
                 >
                   <NavIcon type="rank" />
-                  <span className="hidden xs:inline">RANKING</span>
-                  <span className="xs:hidden">TOP</span>
+                  <span>RANKING</span>
                 </button>
                 <button 
                   onClick={() => { setView('history'); }} 
-                  className={`flex flex-col items-center justify-center h-full w-full transition-all border-r border-white/10 font-black text-[9px] sm:text-xs uppercase tracking-tight ${view === 'history' ? 'text-white bg-white/20' : 'text-white/90 hover:bg-white/10'}`}
+                  className={`flex flex-col items-center justify-center h-full w-full transition-all border-r border-white/10 font-black text-xs uppercase tracking-tight ${view === 'history' ? 'text-white bg-white/20' : 'text-white/90 hover:bg-white/10'}`}
                 >
                   <NavIcon type="history" />
-                  <span className="hidden xs:inline">HISTORIA</span>
-                  <span className="xs:hidden">HITO</span>
+                  <span>HISTORIA</span>
                 </button>
                 <button 
                   onClick={() => { setView('account'); }} 
-                  className={`flex flex-col items-center justify-center h-full w-full transition-all font-black text-[9px] sm:text-xs uppercase tracking-tight ${view === 'account' ? 'text-white bg-white/20' : 'text-white/90 hover:bg-white/10'}`}
+                  className={`flex flex-col items-center justify-center h-full w-full transition-all font-black text-xs uppercase tracking-tight ${view === 'account' ? 'text-white bg-white/20' : 'text-white/90 hover:bg-white/10'}`}
                 >
                   <NavIcon type="user" />
-                  <span className="hidden xs:inline">CUENTA</span>
-                  <span className="xs:hidden">PERFIL</span>
+                  <span>CUENTA</span>
                 </button>
               </div>
             </div>
           </header>
+
+          {/* RESPONSIVE: Barra de navegación inferior móvil/tablet con soporte de safe area en iOS */}
+          <nav className="block lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-indigo-600 border-t border-white/10 shadow-[0_-10px_25px_rgba(0,0,0,0.15)] pb-[calc(env(safe-area-inset-bottom,0px)+0.6rem)] pt-2 w-full">
+            <div className="grid grid-cols-4 gap-1 w-full max-w-full mx-auto px-2">
+              <button 
+                onClick={() => { setView('main-menu'); }} 
+                className={`flex flex-col items-center justify-center py-1.5 rounded-2xl transition-all font-black text-[9px] uppercase tracking-tighter ${view === 'main-menu' ? 'text-white bg-white/20' : 'text-white/80 hover:bg-white/10'}`}
+              >
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center overflow-hidden mb-0.5 ${view === 'main-menu' ? 'bg-white shadow-inner' : 'bg-white/15'}`}>
+                  <img 
+                    src={customLogo || logoMundial} 
+                    alt="Logo" 
+                    className="w-full h-full object-contain p-0.5"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const parent = target.parentElement;
+                      if (parent) parent.innerHTML = '<span class="text-[9px]">26</span>';
+                    }}
+                  />
+                </div>
+                <span>INICIO</span>
+              </button>
+              <button 
+                onClick={() => { setView('leaderboard'); }} 
+                className={`flex flex-col items-center justify-center py-1.5 rounded-2xl transition-all font-black text-[9px] uppercase tracking-tighter ${view === 'leaderboard' ? 'text-white bg-white/20' : 'text-white/80 hover:bg-white/10'}`}
+              >
+                <div className="mb-0.5"><NavIcon type="rank" /></div>
+                <span>RANKING</span>
+              </button>
+              <button 
+                onClick={() => { setView('history'); }} 
+                className={`flex flex-col items-center justify-center py-1.5 rounded-2xl transition-all font-black text-[9px] uppercase tracking-tighter ${view === 'history' ? 'text-white bg-white/20' : 'text-white/80 hover:bg-white/10'}`}
+              >
+                <div className="mb-0.5"><NavIcon type="history" /></div>
+                <span>HISTORIA</span>
+              </button>
+              <button 
+                onClick={() => { setView('account'); }} 
+                className={`flex flex-col items-center justify-center py-1.5 rounded-2xl transition-all font-black text-[9px] uppercase tracking-tighter ${view === 'account' ? 'text-white bg-white/20' : 'text-white/80 hover:bg-white/10'}`}
+              >
+                <div className="mb-0.5"><NavIcon type="user" /></div>
+                <span>CUENTA</span>
+              </button>
+            </div>
+          </nav>
 
           {view === 'main-menu' ? (
             <main className="max-w-6xl mx-auto px-4 py-8 animate-fade-in w-full">

@@ -255,7 +255,8 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
 
   if (mode === 'forgot-password') {
     return (
-      <div className="max-w-[340px] xs:max-w-md w-full mx-auto bg-white p-8 sm:p-12 rounded-[2.5rem] sm:rounded-[3.5rem] shadow-2xl border border-slate-100 animate-fade-in">
+      /* RESPONSIVE: px-5 en móvil para ganar ancho de inputs y sm:p-12 en escritorio para máxima elegancia */
+      <div className="max-w-[340px] xs:max-w-md w-full mx-auto bg-white px-5 py-8 sm:p-12 rounded-[2.5rem] sm:rounded-[3.5rem] shadow-2xl border border-slate-100 animate-fade-in animate-duration-300">
         <div className="text-center mb-10">
           <h2 className="heading-font text-3xl text-slate-900 font-black mb-2 uppercase tracking-tighter">RECUPERAR</h2>
           <p className="text-slate-400 font-black uppercase text-[10px] tracking-widest">Ingresa tu correo para resetear</p>
@@ -294,7 +295,8 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
 
   if (mode === 'setup-profile') {
     return (
-      <div className="max-w-[340px] xs:max-w-md w-full mx-auto bg-white p-8 sm:p-12 rounded-[2.5rem] sm:rounded-[3.5rem] shadow-2xl border border-slate-100 animate-fade-in relative overflow-hidden">
+      /* RESPONSIVE: px-5 en móvil para ganar espacio en configuración de apodo y foto de perfil */
+      <div className="max-w-[340px] xs:max-w-md w-full mx-auto bg-white px-5 py-8 sm:p-12 rounded-[2.5rem] sm:rounded-[3.5rem] shadow-2xl border border-slate-100 animate-fade-in relative overflow-hidden">
         <div className="text-center mb-10">
           <h2 className="heading-font text-3xl text-slate-900 font-black mb-2 uppercase tracking-tighter">CASI LISTO</h2>
           <p className="text-slate-400 font-black uppercase text-[10px] tracking-widest px-4">Personaliza tu perfil de jugador</p>
@@ -515,7 +517,8 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
   }
 
   return (
-    <div className="max-w-[340px] xs:max-w-md w-full mx-auto bg-white p-8 sm:p-12 rounded-[2.5rem] sm:rounded-[3.5rem] shadow-2xl border border-slate-100 animate-fade-in relative overflow-hidden">
+    /* RESPONSIVE: px-5 y py-8 reducen el margen lateral interno en mobile, dando mayor espacio a inputs y botones de login */
+    <div className="max-w-[340px] xs:max-w-md w-full mx-auto bg-white px-5 py-8 sm:p-12 rounded-[2.5rem] sm:rounded-[3.5rem] shadow-2xl border border-slate-100 animate-fade-in relative overflow-hidden">
       <div className="absolute -top-10 -left-10 w-24 h-24 sm:w-32 sm:h-32 bg-indigo-600/5 rounded-full blur-2xl"></div>
       <div className="absolute -bottom-10 -right-10 w-24 h-24 sm:w-32 sm:h-32 bg-indigo-600/5 rounded-full blur-2xl"></div>
       

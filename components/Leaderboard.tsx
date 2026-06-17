@@ -113,7 +113,8 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ user, userScore, onBac
                       {i + 1}
                     </span>
                     <img src={p.img} alt={p.name} className="w-10 h-10 rounded-full border-2 border-white/10 object-cover" />
-                    <span className="text-xs sm:text-sm font-black uppercase tracking-tight truncate max-w-[120px]">{p.name}</span>
+                    {/* RESPONSIVE: Ancho máximo del nickname fluido según breakpoint para evitar desborde lateral */}
+                    <span className="text-xs sm:text-sm font-black uppercase tracking-tight truncate max-w-[100px] xs:max-w-[150px] sm:max-w-[220px] md:max-w-xs">{p.name}</span>
                   </div>
                   <div className="text-right">
                     <span className="text-lg font-black block leading-none">{p.score}</span>

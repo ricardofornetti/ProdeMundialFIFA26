@@ -162,26 +162,27 @@ export const FullCalendar: React.FC<FullCalendarProps> = ({ matches, predictions
             </div>
           </div>
 
+          {/* RESPONSIVE: En finalizados, resultados, pronóstico y medallón de puntos se apilan de forma limpia en mobile */}
           {isFinished && (
-            <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-between gap-3 flex-wrap">
+            <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700/50 flex flex-col xs:flex-row items-center justify-between gap-3 text-center xs:text-left">
               {hasPred ? (
                 <>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col xs:flex-row items-center gap-2">
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Tu pronóstico:</span>
                     <span className="text-sm font-black text-slate-700 dark:text-slate-300">
                       {pred!.homeScore} – {pred!.awayScore}
                     </span>
                   </div>
-                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider ${
+                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-[10px] xs:text-xs font-black uppercase tracking-wider shrink-0 ${
                     pointsEarned === 4
                       ? 'bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800'
                       : pointsEarned === 3
                       ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800'
                       : 'bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800'
                   }`}>
-                    {pointsEarned === 4 && <span>⭐</span>}
-                    {pointsEarned === 3 && <span>✓</span>}
-                    {pointsEarned === 0 && <span>✗</span>}
+                    {pointsEarned === 4 && <span className="text-xs">⭐</span>}
+                    {pointsEarned === 3 && <span className="text-xs">✓</span>}
+                    {pointsEarned === 0 && <span className="text-xs">✗</span>}
                     <span>
                       {pointsEarned === 4
                         ? '+4 pts (exacto)'
@@ -192,7 +193,7 @@ export const FullCalendar: React.FC<FullCalendarProps> = ({ matches, predictions
                   </div>
                 </>
               ) : (
-                <span className="text-[10px] font-black text-slate-300 dark:text-slate-600 uppercase tracking-widest italic">
+                <span className="text-[10px] font-black text-slate-300 dark:text-slate-600 uppercase tracking-widest italic mx-auto xs:mx-0">
                   Sin pronóstico registrado
                 </span>
               )}
@@ -208,7 +209,8 @@ export const FullCalendar: React.FC<FullCalendarProps> = ({ matches, predictions
                 {match.venue.split(',')[0]}
               </span>
             </div>
-            <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">
+            {/* RESPONSIVE: ocultar detalles no esenciales de la ciudad en mobile para ahorrar espacio vertical */}
+            <span className="hidden xs:block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">
               {match.venue.split(',')[1]?.trim() || ''}
             </span>
           </div>

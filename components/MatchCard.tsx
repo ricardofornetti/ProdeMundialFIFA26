@@ -165,31 +165,33 @@ export const MatchCard: React.FC<MatchCardProps> = ({
           </div>
 
           {isPredictionComplete ? (
-            <div className={`flex items-center justify-between px-4 py-3 rounded-xl gap-3 ${
+            /* RESPONSIVE: Apilado vertical en móviles ultra-estrechos y fila horizontal en xs+ para evitar desbordes */
+            <div className={`flex flex-col xs:flex-row items-center justify-between px-4 py-3 rounded-xl gap-3 ${
               pointsEarned === 4
                 ? 'bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800'
                 : pointsEarned === 3
                 ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800'
                 : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'
             }`}>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col xs:flex-row items-center gap-2 text-center xs:text-left">
                 <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tu pronóstico:</span>
-                <span className={`text-base font-black ${
+                <span className={`text-sm xs:text-base font-black ${
                   pointsEarned! > 0 ? 'text-slate-800 dark:text-slate-200' : 'text-slate-500 dark:text-slate-400 line-through'
                 }`}>
                   {prediction!.homeScore} – {prediction!.awayScore}
                 </span>
               </div>
-              <div className={`flex items-center gap-1.5 text-xs font-black uppercase tracking-wider ${
+
+              <div className={`flex items-center gap-1.5 text-[10px] xs:text-xs font-black uppercase tracking-wider ${
                 pointsEarned === 4
                   ? 'text-yellow-700 dark:text-yellow-400'
                   : pointsEarned === 3
                   ? 'text-green-700 dark:text-green-400'
                   : 'text-red-600 dark:text-red-400'
               }`}>
-                {pointsEarned === 4 && <Star className="w-4 h-4 fill-current" />}
-                {pointsEarned === 3 && <CheckCircle2 className="w-4 h-4" />}
-                {pointsEarned === 0 && <XCircle className="w-4 h-4" />}
+                {pointsEarned === 4 && <Star className="w-4 h-4 fill-current shrink-0" />}
+                {pointsEarned === 3 && <CheckCircle2 className="w-4 h-4 shrink-0" />}
+                {pointsEarned === 0 && <XCircle className="w-4 h-4 shrink-0" />}
                 <span>
                   {pointsEarned === 4 ? '+4 pts ¡Exacto!' : pointsEarned === 3 ? '+3 pts' : '0 pts'}
                 </span>

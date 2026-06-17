@@ -610,20 +610,21 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ matches, onBack, onRefre
 
               return (
                 <div key={match.id || `match-${index}`} className={`bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row items-center gap-6 transition-opacity ${isDeleting === match.id ? 'opacity-50' : ''}`}>
-                  <div className="flex-1 flex items-center justify-between w-full">
-                    <div className="flex items-center gap-3 flex-1 justify-end">
-                      <span className="text-sm font-black uppercase text-slate-700 dark:text-slate-200 text-right">{match.homeTeam}</span>
-                      <img src={TEAM_FLAGS[match.homeFlag]} alt="" className="w-8 h-5 object-cover rounded shadow-sm border border-slate-100" />
+                  {/* RESPONSIVE: Adaptado a flex vertical en móvil ultra-estrecho (320px) para acomodar nombres de equipos y campos de score */}
+                  <div className="flex-1 flex flex-col xs:flex-row items-center justify-between w-full gap-4 xs:gap-0">
+                    <div className="flex items-center gap-2 xs:gap-3 flex-1 justify-center xs:justify-end w-full xs:w-auto">
+                      <span className="text-xs xs:text-sm font-black uppercase text-slate-700 dark:text-slate-200 text-right truncate max-w-[120px] xs:max-w-none">{match.homeTeam}</span>
+                      <img src={TEAM_FLAGS[match.homeFlag]} alt="" className="w-7 h-4 xs:w-8 xs:h-5 object-cover rounded shadow-sm border border-slate-100 shrink-0" />
                     </div>
 
-                    <div className="flex items-center gap-2 mx-4">
+                    <div className="flex items-center gap-1.5 xs:gap-2 mx-2 xs:mx-4 shrink-0">
                       <input 
                         type="number"
                         min="0"
                         placeholder="-"
                         value={currentEditing.home}
                         onChange={(e) => handleScoreChange(match.id, 'home', e.target.value)}
-                        className="w-12 h-12 text-center text-xl font-black border-2 border-slate-200 dark:border-slate-600 rounded-xl focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-none dark:bg-slate-700 dark:text-white"
+                        className="w-10 h-10 xs:w-12 xs:h-12 text-center text-lg xs:text-xl font-black border-2 border-slate-200 dark:border-slate-600 rounded-xl focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-none dark:bg-slate-700 dark:text-white"
                       />
                       <span className="font-black text-slate-300">:</span>
                       <input 
@@ -632,13 +633,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ matches, onBack, onRefre
                         placeholder="-"
                         value={currentEditing.away}
                         onChange={(e) => handleScoreChange(match.id, 'away', e.target.value)}
-                        className="w-12 h-12 text-center text-xl font-black border-2 border-slate-200 dark:border-slate-600 rounded-xl focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-none dark:bg-slate-700 dark:text-white"
+                        className="w-10 h-10 xs:w-12 xs:h-12 text-center text-lg xs:text-xl font-black border-2 border-slate-200 dark:border-slate-600 rounded-xl focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-none dark:bg-slate-700 dark:text-white"
                       />
                     </div>
 
-                    <div className="flex items-center gap-3 flex-1">
-                      <img src={TEAM_FLAGS[match.awayFlag]} alt="" className="w-8 h-5 object-cover rounded shadow-sm border border-slate-100" />
-                      <span className="text-sm font-black uppercase text-slate-700 dark:text-slate-200">{match.awayTeam}</span>
+                    <div className="flex items-center gap-2 xs:gap-3 flex-1 justify-center xs:justify-start w-full xs:w-auto">
+                      <img src={TEAM_FLAGS[match.awayFlag]} alt="" className="w-7 h-4 xs:w-8 xs:h-5 object-cover rounded shadow-sm border border-slate-100 shrink-0" />
+                      <span className="text-xs xs:text-sm font-black uppercase text-slate-700 dark:text-slate-200 truncate max-w-[120px] xs:max-w-none">{match.awayTeam}</span>
                     </div>
                   </div>
 
