@@ -162,6 +162,12 @@ export const FullCalendar: React.FC<FullCalendarProps> = ({ matches, predictions
             </div>
           </div>
 
+          {(match.homeTeam.includes('3°') || match.awayTeam.includes('3°')) && (
+            <div className="mt-4 px-3 py-2 bg-indigo-50/50 dark:bg-slate-700/30 text-indigo-700 dark:text-indigo-300 border border-indigo-100/50 dark:border-slate-700 rounded-xl text-[10px] sm:text-xs font-semibold text-center select-none w-full">
+              ℹ️ Cruce según Anexo C de FIFA (Depende de qué 8 de los 12 mejores terceros clasifiquen)
+            </div>
+          )}
+
           {/* RESPONSIVE: En finalizados, resultados, pronóstico y medallón de puntos se apilan de forma limpia en mobile */}
           {isFinished && (
             <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700/50 flex flex-col xs:flex-row items-center justify-between gap-3 text-center xs:text-left">
