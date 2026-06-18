@@ -94,7 +94,7 @@ export const GroupsSummary: React.FC<GroupsSummaryProps> = ({ groups, matches, o
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 animate-fade-in">
+    <div className="max-w-7xl mx-auto px-4 pt-8 pb-32 sm:pb-8 animate-fade-in">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-12 gap-6 border-b-4 border-black dark:border-white pb-6">
         <div>
           {onBack && (
