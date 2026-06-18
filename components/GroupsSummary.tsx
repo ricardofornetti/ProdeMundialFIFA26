@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { TEAM_FLAGS } from '../constants';
 import { Match } from '../types';
 
@@ -23,6 +23,12 @@ interface GroupsSummaryProps {
 }
 
 export const GroupsSummary: React.FC<GroupsSummaryProps> = ({ groups, matches, onContinue, onBack }) => {
+  const [expandedTeamKey, setExpandedTeamKey] = useState<string | null>(null);
+
+  const toggleExpand = (groupName: string, teamName: string) => {
+    const key = `${groupName}-${teamName}`;
+    setExpandedTeamKey(prev => prev === key ? null : key);
+  };
   
   const calculateGroupStandings = (groupName: string, teams: string[], flags: string[]): TeamStats[] => {
     // Inicializar estadísticas para cada equipo del grupo
@@ -114,45 +120,145 @@ export const GroupsSummary: React.FC<GroupsSummaryProps> = ({ groups, matches, o
                 <h3 className="text-slate-900 dark:text-white font-black uppercase tracking-tight text-xl italic">{group.name}</h3>
               </div>
               
-              <div className="overflow-x-auto">
+              {/* VISTA MOBILE COMPACTA (<640px) */}
+              <div className="sm:hidden divide-y divide-slate-100 dark:divide-slate-700/50">
+                {/* Header perfectamente alineado */}
+                <div className="flex items-center px-4 py-3 bg-slate-50/50 dark:bg-slate-800/30 text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                  <div className="flex-1 min-w-0 pr-2">Equipo</div>
+                  <div className="w-10 text-center shrink-0">PJ</div>
+                  <div className="w-12 text-center shrink-0">DG</div>
+                  <div className="w-12 text-center shrink-0">Pts</div>
+                  <div className="w-6 shrink-0"></div>
+                </div>
+
+                {stats.map((team, tIdx) => {
+                  const isExpanded = expandedTeamKey === `${group.name}-${team.name}`;
+                  const isClassified = tIdx < 2;
+                  return (
+                    <div key={tIdx} className="flex flex-col">
+                      <button 
+                        onClick={() => toggleExpand(group.name, team.name)}
+                        className="w-full flex items-center px-4 py-3 min-h-[56px] text-left hover:bg-slate-50 dark:hover:bg-slate-700/10 transition-colors focus:outline-none"
+                      >
+                        {/* Posición, Bandera y Nombre */}
+                        <div className="flex-1 flex items-center gap-2 min-w-0 pr-2">
+                          <span className={`text-[10px] font-black w-4 shrink-0 text-center ${isClassified ? 'text-green-500' : 'text-slate-300'}`}>
+                            {tIdx + 1}
+                          </span>
+                          <div className="w-6 h-4 overflow-hidden rounded shadow-xs border border-slate-100 dark:border-slate-700 shrink-0">
+                            <img src={TEAM_FLAGS[team.flag] || TEAM_FLAGS['FIFA']} alt={team.name} className="w-full h-full object-cover" />
+                          </div>
+                          <span className={`text-[11px] font-bold uppercase truncate whitespace-nowrap min-w-0 flex-1 ${team.flag === 'FIFA' ? 'text-slate-300 italic' : 'text-slate-800 dark:text-slate-100'}`}>
+                            {team.name}
+                          </span>
+                        </div>
+
+                        {/* PJ */}
+                        <div className="w-10 text-center shrink-0 text-xs font-semibold text-slate-500 dark:text-slate-400 tabular-nums">
+                          {team.pj}
+                        </div>
+
+                        {/* DG */}
+                        <div className={`w-12 text-center shrink-0 text-xs font-semibold tabular-nums ${team.dg > 0 ? 'text-green-600' : team.dg < 0 ? 'text-red-600' : 'text-slate-500 dark:text-slate-400'}`}>
+                          {team.dg > 0 ? `+${team.dg}` : team.dg}
+                        </div>
+
+                        {/* PTS (Destacada) */}
+                        <div className="w-12 text-center shrink-0 text-xs font-black text-slate-900 dark:text-white tabular-nums bg-slate-100 dark:bg-slate-700 px-1 py-1 rounded-md">
+                          {team.pts}
+                        </div>
+
+                        {/* Chevron */}
+                        <div className="w-6 flex justify-end shrink-0 text-slate-400 dark:text-slate-500">
+                          <svg 
+                            className={`w-3.5 h-3.5 transition-transform duration-200 ${isExpanded ? 'rotate-180 text-indigo-500' : ''}`} 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
+                      </button>
+
+                      {/* Panel Expandido con estadísticas secundarias */}
+                      {isExpanded && (
+                        <div className="px-5 pb-4 pt-1 bg-slate-50/50 dark:bg-slate-900/30 border-t border-slate-100/35 dark:border-slate-700/30 animate-fade-in">
+                          <div className="grid grid-cols-3 gap-2 text-center mt-2">
+                            <div className="bg-white dark:bg-slate-800 p-2 rounded-xl border border-slate-100 dark:border-slate-700/50">
+                              <span className="block text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">PG</span>
+                              <span className="text-[11px] font-black text-slate-800 dark:text-slate-200 tabular-nums">{team.g}</span>
+                            </div>
+                            <div className="bg-white dark:bg-slate-800 p-2 rounded-xl border border-slate-100 dark:border-slate-700/50">
+                              <span className="block text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">PE</span>
+                              <span className="text-[11px] font-black text-slate-800 dark:text-slate-200 tabular-nums">{team.e}</span>
+                            </div>
+                            <div className="bg-white dark:bg-slate-800 p-2 rounded-xl border border-slate-100 dark:border-slate-700/50">
+                              <span className="block text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">PP</span>
+                              <span className="text-[11px] font-black text-slate-800 dark:text-slate-200 tabular-nums">{team.p}</span>
+                            </div>
+                            <div className="bg-white dark:bg-slate-800 p-2 rounded-xl border border-slate-100 dark:border-slate-700/50">
+                              <span className="block text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">GF</span>
+                              <span className="text-[11px] font-black text-slate-800 dark:text-slate-200 tabular-nums">{team.gf}</span>
+                            </div>
+                            <div className="bg-white dark:bg-slate-800 p-2 rounded-xl border border-slate-100 dark:border-slate-700/50">
+                              <span className="block text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">GC</span>
+                              <span className="text-[11px] font-black text-slate-800 dark:text-slate-200 tabular-nums">{team.gc}</span>
+                            </div>
+                            <div className="bg-white dark:bg-slate-800 p-2 rounded-xl border border-slate-100 dark:border-slate-700/50">
+                              <span className="block text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1 font-semibold text-indigo-500">DIF</span>
+                              <span className={`text-[11px] font-black tabular-nums ${team.dg > 0 ? 'text-green-600' : team.dg < 0 ? 'text-red-600' : 'text-slate-800 dark:text-slate-200'}`}>
+                                {team.dg > 0 ? `+${team.dg}` : team.dg}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* VISTA DESKTOP COMPLETÍSIMA (>=640px) */}
+              <div className="hidden sm:block overflow-hidden">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-slate-50/50 dark:bg-slate-800/50">
-                      <th className="px-3 sm:px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Equipo</th>
-                      <th className="px-3 py-3 text-[10px] font-black text-slate-400 uppercase text-center w-12 sm:w-16">PJ</th>
-                      <th className="hidden sm:table-cell px-3 py-3 text-[10px] font-black text-slate-400 uppercase text-center">G</th>
-                      <th className="hidden sm:table-cell px-3 py-3 text-[10px] font-black text-slate-400 uppercase text-center">E</th>
-                      <th className="hidden sm:table-cell px-3 py-3 text-[10px] font-black text-slate-400 uppercase text-center">P</th>
-                      <th className="hidden sm:table-cell px-3 py-3 text-[10px] font-black text-slate-400 uppercase text-center">GF</th>
-                      <th className="hidden sm:table-cell px-3 py-3 text-[10px] font-black text-slate-400 uppercase text-center">GC</th>
-                      <th className="hidden sm:table-cell px-3 py-3 text-[10px] font-black text-slate-400 uppercase text-center">DG</th>
-                      <th className="px-4 sm:px-6 py-3 text-[10px] font-black text-slate-900 dark:text-white uppercase text-center bg-slate-100 dark:bg-slate-700 w-16 sm:w-20">Pts</th>
+                    <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-700">
+                      <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Equipo</th>
+                      <th className="px-3 py-3.5 text-[10px] font-black text-slate-400 uppercase text-center w-16">PJ</th>
+                      <th className="px-3 py-3.5 text-[10px] font-black text-slate-400 uppercase text-center w-12">G</th>
+                      <th className="px-3 py-3.5 text-[10px] font-black text-slate-400 uppercase text-center w-12">E</th>
+                      <th className="px-3 py-3.5 text-[10px] font-black text-slate-400 uppercase text-center w-12">P</th>
+                      <th className="px-3 py-3.5 text-[10px] font-black text-slate-400 uppercase text-center w-12">GF</th>
+                      <th className="px-3 py-3.5 text-[10px] font-black text-slate-400 uppercase text-center w-12">GC</th>
+                      <th className="px-3 py-3.5 text-[10px] font-black text-slate-400 uppercase text-center w-16">DG</th>
+                      <th className="px-6 py-3.5 text-[10px] font-black text-slate-900 dark:text-white uppercase text-center bg-slate-100 dark:bg-slate-700 w-20">Pts</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
+                  <tbody className="divide-y divide-slate-50 dark:divide-slate-700/50">
                     {stats.map((team, tIdx) => (
                       <tr key={tIdx} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors h-14">
-                        <td className="px-3 sm:px-6 py-3">
-                          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                            <span className={`text-[10px] font-black w-3 sm:w-4 shrink-0 text-center ${tIdx < 2 ? 'text-green-500' : 'text-slate-300'}`}>{tIdx + 1}</span>
-                            <div className="w-6 h-4 sm:w-8 sm:h-5 overflow-hidden rounded shadow-xs border border-slate-100 dark:border-slate-700 shrink-0">
+                        <td className="px-6 py-3">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <span className={`text-[10px] font-black w-4 shrink-0 text-center ${tIdx < 2 ? 'text-green-500' : 'text-slate-300'}`}>{tIdx + 1}</span>
+                            <div className="w-8 h-5 overflow-hidden rounded shadow-xs border border-slate-100 dark:border-slate-700 shrink-0">
                               <img src={TEAM_FLAGS[team.flag] || TEAM_FLAGS['FIFA']} alt={team.name} className="w-full h-full object-cover" />
                             </div>
-                            <span className={`text-[10px] sm:text-[11px] font-black uppercase truncate whitespace-nowrap min-w-0 flex-1 ${team.flag === 'FIFA' ? 'text-slate-300 italic' : 'text-slate-800 dark:text-slate-100'}`}>
+                            <span className={`text-xs font-bold uppercase truncate whitespace-nowrap min-w-0 flex-1 ${team.flag === 'FIFA' ? 'text-slate-300 italic' : 'text-slate-800 dark:text-slate-100'}`}>
                               {team.name}
                             </span>
                           </div>
                         </td>
-                        <td className="px-3 py-3 text-[11px] font-bold text-slate-500 text-center">{team.pj}</td>
-                        <td className="hidden sm:table-cell px-3 py-3 text-[11px] font-bold text-slate-500 text-center">{team.g}</td>
-                        <td className="hidden sm:table-cell px-3 py-3 text-[11px] font-bold text-slate-500 text-center">{team.e}</td>
-                        <td className="hidden sm:table-cell px-3 py-3 text-[11px] font-bold text-slate-500 text-center">{team.p}</td>
-                        <td className="hidden sm:table-cell px-3 py-3 text-[11px] font-bold text-slate-500 text-center">{team.gf}</td>
-                        <td className="hidden sm:table-cell px-3 py-3 text-[11px] font-bold text-slate-500 text-center">{team.gc}</td>
-                        <td className={`hidden sm:table-cell px-3 py-3 text-[11px] font-bold text-center ${team.dg > 0 ? 'text-green-600' : team.dg < 0 ? 'text-red-600' : 'text-slate-500'}`}>
+                        <td className="px-3 py-3 text-xs font-bold text-slate-500 text-center tabular-nums">{team.pj}</td>
+                        <td className="px-3 py-3 text-xs font-bold text-slate-500 text-center tabular-nums">{team.g}</td>
+                        <td className="px-3 py-3 text-xs font-bold text-slate-500 text-center tabular-nums">{team.e}</td>
+                        <td className="px-3 py-3 text-xs font-bold text-slate-500 text-center tabular-nums">{team.p}</td>
+                        <td className="px-3 py-3 text-xs font-bold text-slate-500 text-center tabular-nums">{team.gf}</td>
+                        <td className="px-3 py-3 text-xs font-bold text-slate-500 text-center tabular-nums">{team.gc}</td>
+                        <td className={`px-3 py-3 text-xs font-bold text-center tabular-nums ${team.dg > 0 ? 'text-green-600' : team.dg < 0 ? 'text-red-600' : 'text-slate-500'}`}>
                           {team.dg > 0 ? `+${team.dg}` : team.dg}
                         </td>
-                        <td className="px-4 sm:px-6 py-3 text-[11px] sm:text-[13px] font-black text-slate-900 dark:text-white text-center bg-slate-50/50 dark:bg-slate-700/50">{team.pts}</td>
+                        <td className="px-6 py-3 text-xs sm:text-sm font-black text-slate-900 dark:text-white text-center bg-slate-50/50 dark:bg-slate-700/50 tabular-nums">{team.pts}</td>
                       </tr>
                     ))}
                   </tbody>
