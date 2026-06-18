@@ -609,89 +609,216 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ matches, onBack, onRefre
               };
 
               return (
-                <div key={match.id || `match-${index}`} className={`bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row items-center gap-6 transition-opacity ${isDeleting === match.id ? 'opacity-50' : ''}`}>
-                  {/* RESPONSIVE: Adaptado a flex vertical en móvil ultra-estrecho (320px) para acomodar nombres de equipos y campos de score */}
-                  <div className="flex-1 flex flex-col xs:flex-row items-center justify-between w-full gap-4 xs:gap-0">
-                    <div className="flex items-center gap-2 xs:gap-3 flex-1 justify-center xs:justify-end w-full xs:w-auto">
-                      <span className="text-xs xs:text-sm font-black uppercase text-slate-700 dark:text-slate-200 text-right truncate max-w-[120px] xs:max-w-none">{match.homeTeam}</span>
-                      <img src={TEAM_FLAGS[match.homeFlag]} alt="" className="w-7 h-4 xs:w-8 xs:h-5 object-cover rounded shadow-sm border border-slate-100 shrink-0" />
+                <div key={match.id || `match-${index}`} className={isDeleting === match.id ? 'opacity-50' : ''}>
+                  {/* COMPONENTE RESPONSIVE MOBILE: Card apilada individual (<640px) */}
+                  <div className="sm:hidden bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col gap-4">
+                    {/* Línea superior: grupo + fecha */}
+                    <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-700/50 pb-2.5">
+                      <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-tight truncate max-w-[170px]">
+                        {match.group}
+                      </span>
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest shrink-0">
+                        {match.date}
+                      </span>
                     </div>
 
-                    <div className="flex items-center gap-1.5 xs:gap-2 mx-2 xs:mx-4 shrink-0">
-                      <input 
-                        type="number"
-                        min="0"
-                        placeholder="-"
-                        value={currentEditing.home}
-                        onChange={(e) => handleScoreChange(match.id, 'home', e.target.value)}
-                        className="w-10 h-10 xs:w-12 xs:h-12 text-center text-lg xs:text-xl font-black border-2 border-slate-200 dark:border-slate-600 rounded-xl focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-none dark:bg-slate-700 dark:text-white"
-                      />
-                      <span className="font-black text-slate-300">:</span>
-                      <input 
-                        type="number"
-                        min="0"
-                        placeholder="-"
-                        value={currentEditing.away}
-                        onChange={(e) => handleScoreChange(match.id, 'away', e.target.value)}
-                        className="w-10 h-10 xs:w-12 xs:h-12 text-center text-lg xs:text-xl font-black border-2 border-slate-200 dark:border-slate-600 rounded-xl focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-none dark:bg-slate-700 dark:text-white"
-                      />
+                    {/* Nombres de los equipos e inputs de resultado apilados */}
+                    <div className="space-y-3.5 my-1">
+                      {/* Local */}
+                      <div className="flex items-center gap-3 w-full min-w-0">
+                        <img 
+                          src={TEAM_FLAGS[match.homeFlag]} 
+                          alt="" 
+                          className="w-8 h-5 object-cover rounded shadow-xs border border-slate-100 shrink-0" 
+                        />
+                        <span className="text-xs font-black uppercase text-slate-700 dark:text-slate-200 truncate flex-1 min-w-0">
+                          {match.homeTeam}
+                        </span>
+                        <input 
+                          type="number"
+                          min="0"
+                          placeholder="-"
+                          value={currentEditing.home}
+                          onChange={(e) => handleScoreChange(match.id, 'home', e.target.value)}
+                          className="w-11 h-11 text-center text-[15px] font-black border-2 border-slate-200 dark:border-slate-600 rounded-xl focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-none dark:bg-slate-700 dark:text-white shrink-0"
+                        />
+                      </div>
+
+                      {/* Divisor */}
+                      <div className="flex justify-center items-center h-1">
+                        <span className="text-[9px] font-black text-slate-300 dark:text-slate-600 uppercase tracking-widest">versus</span>
+                      </div>
+
+                      {/* Visitante */}
+                      <div className="flex items-center gap-3 w-full min-w-0">
+                        <img 
+                          src={TEAM_FLAGS[match.awayFlag]} 
+                          alt="" 
+                          className="w-8 h-5 object-cover rounded shadow-xs border border-slate-100 shrink-0" 
+                        />
+                        <span className="text-xs font-black uppercase text-slate-700 dark:text-slate-200 truncate flex-1 min-w-0">
+                          {match.awayTeam}
+                        </span>
+                        <input 
+                          type="number"
+                          min="0"
+                          placeholder="-"
+                          value={currentEditing.away}
+                          onChange={(e) => handleScoreChange(match.id, 'away', e.target.value)}
+                          className="w-11 h-11 text-center text-[15px] font-black border-2 border-slate-200 dark:border-slate-600 rounded-xl focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-none dark:bg-slate-700 dark:text-white shrink-0"
+                        />
+                      </div>
                     </div>
 
-                    <div className="flex items-center gap-2 xs:gap-3 flex-1 justify-center xs:justify-start w-full xs:w-auto">
-                      <img src={TEAM_FLAGS[match.awayFlag]} alt="" className="w-7 h-4 xs:w-8 xs:h-5 object-cover rounded shadow-sm border border-slate-100 shrink-0" />
-                      <span className="text-xs xs:text-sm font-black uppercase text-slate-700 dark:text-slate-200 truncate max-w-[120px] xs:max-w-none">{match.awayTeam}</span>
+                    {/* Botón de guardar / eliminar (full-width) */}
+                    <div className="flex flex-col gap-2 pt-2 border-t border-slate-100 dark:border-slate-700/50">
+                      <button
+                        onClick={() => handleSaveResult(match.id)}
+                        disabled={isProcessing || currentEditing.home === '' || currentEditing.away === ''}
+                        type="button"
+                        className={`w-full py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${
+                          isSuccess 
+                            ? 'bg-green-500 text-white' 
+                            : 'bg-indigo-600 dark:bg-white dark:text-black text-white hover:opacity-90 active:scale-95 disabled:opacity-30'
+                        }`}
+                      >
+                        {isProcessing ? '...' : isSuccess ? <CheckCircle className="w-4 h-4" /> : <Save className="w-4 h-4" />}
+                        <span>{isSuccess ? 'RESULTADO GUARDADO' : 'Guardar Resultado'}</span>
+                      </button>
+
+                      {(match.actualHomeScore !== undefined || match.actualAwayScore !== undefined) && (
+                        <div className="w-full">
+                          {confirmDeleteId === match.id ? (
+                            <div className="flex items-center gap-2 w-full animate-in fade-in slide-in-from-right-1 duration-200">
+                              <button
+                                onClick={() => handleDeleteResult(match.id)}
+                                disabled={isDeleting === match.id}
+                                type="button"
+                                className="flex-1 py-2.5 rounded-xl bg-red-600 text-white font-black text-[10px] uppercase tracking-wider hover:bg-red-700 transition"
+                              >
+                                {isDeleting === match.id ? '...' : 'Sí, borrar'}
+                              </button>
+                              <button
+                                onClick={() => setConfirmDeleteId(null)}
+                                disabled={isDeleting === match.id}
+                                type="button"
+                                className="px-4 py-2.5 rounded-xl bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-black text-[10px] uppercase tracking-wider"
+                              >
+                                Cancelar
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => setConfirmDeleteId(match.id)}
+                              disabled={isDeleting === match.id}
+                              type="button"
+                              className="w-full py-2.5 rounded-xl bg-red-50 hover:bg-red-500 hover:text-white dark:bg-red-950/10 dark:hover:bg-red-900/40 text-red-500 dark:text-red-400 transition border border-red-100 dark:border-red-800/20 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-wider"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              <span>Borrar Resultado</span>
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  <div className="w-full sm:w-auto flex items-center gap-2">
-                    <button
-                      onClick={() => handleSaveResult(match.id)}
-                      disabled={isProcessing || currentEditing.home === '' || currentEditing.away === ''}
-                      type="button"
-                      className={`flex-1 sm:w-32 px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${
-                        isSuccess 
-                          ? 'bg-green-500 text-white' 
-                          : 'bg-indigo-600 dark:bg-white dark:text-black text-white hover:opacity-90 active:scale-95 disabled:opacity-30'
-                      }`}
-                    >
-                      {isProcessing ? '...' : isSuccess ? <CheckCircle className="w-4 h-4" /> : <Save className="w-4 h-4" />}
-                      <span>{isSuccess ? 'CARGADO' : 'Cargar'}</span>
-                    </button>
-
-                    {(match.actualHomeScore !== undefined || match.actualAwayScore !== undefined) && (
-                      <div className="flex items-center gap-1">
-                        {confirmDeleteId === match.id ? (
-                          <div className="flex items-center gap-1 animate-in fade-in slide-in-from-right-2 duration-300">
-                            <button
-                              onClick={() => handleDeleteResult(match.id)}
-                              disabled={isDeleting === match.id}
-                              type="button"
-                              className="px-3 py-3 rounded-xl bg-red-600 text-white font-black text-[9px] uppercase tracking-tighter hover:bg-red-700 transition-all shadow-lg"
-                            >
-                              {isDeleting === match.id ? '...' : '¿Borrar?'}
-                            </button>
-                            <button
-                              onClick={() => setConfirmDeleteId(null)}
-                              disabled={isDeleting === match.id}
-                              type="button"
-                              className="px-3 py-3 rounded-xl bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-black text-[9px] uppercase tracking-tighter"
-                            >
-                              NO
-                            </button>
-                          </div>
-                        ) : (
-                          <button
-                            onClick={() => setConfirmDeleteId(match.id)}
-                            disabled={isDeleting === match.id}
-                            title="Borrar resultado"
-                            type="button"
-                            className="p-3 rounded-xl bg-red-50 dark:bg-red-900/10 text-red-500 hover:bg-red-500 hover:text-white transition-all disabled:opacity-30 border border-red-200 dark:border-red-800/20 shadow-sm"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        )}
+                  {/* COMPONENTE DESKTOP TABLET: Fila horizontal tradicional (>=640px) */}
+                  <div className="hidden sm:flex bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-100 dark:border-slate-700 shadow-sm flex-row items-center gap-6">
+                    <div className="flex-1 flex flex-row items-center justify-between w-full">
+                      <div className="flex items-center gap-3 flex-1 justify-end w-auto min-w-0">
+                        <span className="text-sm font-black uppercase text-slate-700 dark:text-slate-200 text-right truncate">
+                          {match.homeTeam}
+                        </span>
+                        <img 
+                          src={TEAM_FLAGS[match.homeFlag]} 
+                          alt="" 
+                          className="w-8 h-5 object-cover rounded shadow-xs border border-slate-100 shrink-0" 
+                        />
                       </div>
-                    )}
+
+                      <div className="flex items-center gap-2 mx-4 shrink-0">
+                        <input 
+                          type="number"
+                          min="0"
+                          placeholder="-"
+                          value={currentEditing.home}
+                          onChange={(e) => handleScoreChange(match.id, 'home', e.target.value)}
+                          className="w-12 h-12 text-center text-xl font-black border-2 border-slate-200 dark:border-slate-600 rounded-xl focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-none dark:bg-slate-700 dark:text-white"
+                        />
+                        <span className="font-black text-slate-300">:</span>
+                        <input 
+                          type="number"
+                          min="0"
+                          placeholder="-"
+                          value={currentEditing.away}
+                          onChange={(e) => handleScoreChange(match.id, 'away', e.target.value)}
+                          className="w-12 h-12 text-center text-xl font-black border-2 border-slate-200 dark:border-slate-600 rounded-xl focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-none dark:bg-slate-700 dark:text-white"
+                        />
+                      </div>
+
+                      <div className="flex items-center gap-3 flex-1 justify-start w-auto min-w-0">
+                        <img 
+                          src={TEAM_FLAGS[match.awayFlag]} 
+                          alt="" 
+                          className="w-8 h-5 object-cover rounded shadow-xs border border-slate-100 shrink-0" 
+                        />
+                        <span className="text-sm font-black uppercase text-slate-700 dark:text-slate-200 truncate">
+                          {match.awayTeam}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="w-auto flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={() => handleSaveResult(match.id)}
+                        disabled={isProcessing || currentEditing.home === '' || currentEditing.away === ''}
+                        type="button"
+                        className={`w-32 px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${
+                          isSuccess 
+                            ? 'bg-green-500 text-white' 
+                            : 'bg-indigo-600 dark:bg-white dark:text-black text-white hover:opacity-90 active:scale-95 disabled:opacity-30'
+                        }`}
+                      >
+                        {isProcessing ? '...' : isSuccess ? <CheckCircle className="w-4 h-4" /> : <Save className="w-4 h-4" />}
+                        <span>{isSuccess ? 'CARGADO' : 'Cargar'}</span>
+                      </button>
+
+                      {(match.actualHomeScore !== undefined || match.actualAwayScore !== undefined) && (
+                        <div className="flex items-center gap-1">
+                          {confirmDeleteId === match.id ? (
+                            <div className="flex items-center gap-1 animate-in fade-in slide-in-from-right-2 duration-300">
+                              <button
+                                onClick={() => handleDeleteResult(match.id)}
+                                disabled={isDeleting === match.id}
+                                type="button"
+                                className="px-3 py-3 rounded-xl bg-red-600 text-white font-black text-[9px] uppercase tracking-tighter hover:bg-red-700 transition"
+                              >
+                                {isDeleting === match.id ? '...' : '¿Borrar?'}
+                              </button>
+                              <button
+                                onClick={() => setConfirmDeleteId(null)}
+                                disabled={isDeleting === match.id}
+                                type="button"
+                                className="px-3 py-3 rounded-xl bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-black text-[9px] uppercase tracking-tighter"
+                              >
+                                NO
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => setConfirmDeleteId(match.id)}
+                              disabled={isDeleting === match.id}
+                              title="Borrar resultado"
+                              type="button"
+                              className="p-3 rounded-xl bg-red-50 dark:bg-red-900/10 text-red-500 hover:bg-red-500 hover:text-white transition disabled:opacity-30 border border-red-200 dark:border-red-800/20 shadow-sm"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               );
