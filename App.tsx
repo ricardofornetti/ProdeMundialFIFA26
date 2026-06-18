@@ -335,10 +335,24 @@ const App: React.FC = () => {
 
         syncUserAndPredictions();
       } else {
-        // User is logged out
-        setUser(null);
-        localStorage.removeItem('active_user');
-        if (view !== 'auth') setView('auth');
+        // User is logged out from Firebase or the network is temporarily offline
+        // If we have an active session in local storage, keep it to allow offline use
+        // and prevent aggressive logout cycles in mobile browsers/PWAs.
+        const savedUser = localStorage.getItem('active_user');
+        if (!savedUser) {
+          setUser(null);
+          if (view !== 'auth') setView('auth');
+        } else {
+          try {
+            const parsed = JSON.parse(savedUser);
+            setUser(parsed);
+            if (view === 'auth') setView('main-menu');
+          } catch (e) {
+            setUser(null);
+            localStorage.removeItem('active_user');
+            if (view !== 'auth') setView('auth');
+          }
+        }
       }
       setIsAuthReady(true);
     });
@@ -626,6 +640,11 @@ const App: React.FC = () => {
   };
 
   const logout = () => {
+    if (auth) {
+      auth.signOut().catch((err) => {
+        console.warn("Failed to sign out from Firebase during logout:", err);
+      });
+    }
     localStorage.removeItem('active_user');
     setUser(null);
     setView('auth');
