@@ -118,39 +118,41 @@ export const GroupsSummary: React.FC<GroupsSummaryProps> = ({ groups, matches, o
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-slate-50/50 dark:bg-slate-800/50">
-                      <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Equipo</th>
-                      <th className="px-3 py-3 text-[10px] font-black text-slate-400 uppercase text-center">PJ</th>
-                      <th className="px-3 py-3 text-[10px] font-black text-slate-400 uppercase text-center">G</th>
-                      <th className="px-3 py-3 text-[10px] font-black text-slate-400 uppercase text-center">E</th>
-                      <th className="px-3 py-3 text-[10px] font-black text-slate-400 uppercase text-center">P</th>
-                      <th className="px-3 py-3 text-[10px] font-black text-slate-400 uppercase text-center">GF</th>
-                      <th className="px-3 py-3 text-[10px] font-black text-slate-400 uppercase text-center">GC</th>
-                      <th className="px-3 py-3 text-[10px] font-black text-slate-400 uppercase text-center">DG</th>
-                      <th className="px-6 py-3 text-[10px] font-black text-slate-900 dark:text-white uppercase text-center bg-slate-100 dark:bg-slate-700">Pts</th>
+                      <th className="px-3 sm:px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Equipo</th>
+                      <th className="px-3 py-3 text-[10px] font-black text-slate-400 uppercase text-center w-12 sm:w-16">PJ</th>
+                      <th className="hidden sm:table-cell px-3 py-3 text-[10px] font-black text-slate-400 uppercase text-center">G</th>
+                      <th className="hidden sm:table-cell px-3 py-3 text-[10px] font-black text-slate-400 uppercase text-center">E</th>
+                      <th className="hidden sm:table-cell px-3 py-3 text-[10px] font-black text-slate-400 uppercase text-center">P</th>
+                      <th className="hidden sm:table-cell px-3 py-3 text-[10px] font-black text-slate-400 uppercase text-center">GF</th>
+                      <th className="hidden sm:table-cell px-3 py-3 text-[10px] font-black text-slate-400 uppercase text-center">GC</th>
+                      <th className="hidden sm:table-cell px-3 py-3 text-[10px] font-black text-slate-400 uppercase text-center">DG</th>
+                      <th className="px-4 sm:px-6 py-3 text-[10px] font-black text-slate-900 dark:text-white uppercase text-center bg-slate-100 dark:bg-slate-700 w-16 sm:w-20">Pts</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
                     {stats.map((team, tIdx) => (
-                      <tr key={tIdx} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                        <td className="px-6 py-4 flex items-center gap-3">
-                          <span className={`text-[10px] font-black w-4 ${tIdx < 2 ? 'text-green-500' : 'text-slate-300'}`}>{tIdx + 1}</span>
-                          <div className="w-8 h-5 overflow-hidden rounded shadow-sm border border-slate-100 dark:border-slate-700 flex-shrink-0">
-                            <img src={TEAM_FLAGS[team.flag] || TEAM_FLAGS['FIFA']} alt={team.name} className="w-full h-full object-cover" />
+                      <tr key={tIdx} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors h-14">
+                        <td className="px-3 sm:px-6 py-3">
+                          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                            <span className={`text-[10px] font-black w-3 sm:w-4 shrink-0 text-center ${tIdx < 2 ? 'text-green-500' : 'text-slate-300'}`}>{tIdx + 1}</span>
+                            <div className="w-6 h-4 sm:w-8 sm:h-5 overflow-hidden rounded shadow-xs border border-slate-100 dark:border-slate-700 shrink-0">
+                              <img src={TEAM_FLAGS[team.flag] || TEAM_FLAGS['FIFA']} alt={team.name} className="w-full h-full object-cover" />
+                            </div>
+                            <span className={`text-[10px] sm:text-[11px] font-black uppercase truncate whitespace-nowrap min-w-0 flex-1 ${team.flag === 'FIFA' ? 'text-slate-300 italic' : 'text-slate-800 dark:text-slate-100'}`}>
+                              {team.name}
+                            </span>
                           </div>
-                          <span className={`text-[11px] font-black uppercase ${team.flag === 'FIFA' ? 'text-slate-300 italic' : 'text-slate-800 dark:text-slate-100'}`}>
-                            {team.name}
-                          </span>
                         </td>
-                        <td className="px-3 py-4 text-[11px] font-bold text-slate-500 text-center">{team.pj}</td>
-                        <td className="px-3 py-4 text-[11px] font-bold text-slate-500 text-center">{team.g}</td>
-                        <td className="px-3 py-4 text-[11px] font-bold text-slate-500 text-center">{team.e}</td>
-                        <td className="px-3 py-4 text-[11px] font-bold text-slate-500 text-center">{team.p}</td>
-                        <td className="px-3 py-4 text-[11px] font-bold text-slate-500 text-center">{team.gf}</td>
-                        <td className="px-3 py-4 text-[11px] font-bold text-slate-500 text-center">{team.gc}</td>
-                        <td className={`px-3 py-4 text-[11px] font-bold text-center ${team.dg > 0 ? 'text-green-600' : team.dg < 0 ? 'text-red-600' : 'text-slate-500'}`}>
+                        <td className="px-3 py-3 text-[11px] font-bold text-slate-500 text-center">{team.pj}</td>
+                        <td className="hidden sm:table-cell px-3 py-3 text-[11px] font-bold text-slate-500 text-center">{team.g}</td>
+                        <td className="hidden sm:table-cell px-3 py-3 text-[11px] font-bold text-slate-500 text-center">{team.e}</td>
+                        <td className="hidden sm:table-cell px-3 py-3 text-[11px] font-bold text-slate-500 text-center">{team.p}</td>
+                        <td className="hidden sm:table-cell px-3 py-3 text-[11px] font-bold text-slate-500 text-center">{team.gf}</td>
+                        <td className="hidden sm:table-cell px-3 py-3 text-[11px] font-bold text-slate-500 text-center">{team.gc}</td>
+                        <td className={`hidden sm:table-cell px-3 py-3 text-[11px] font-bold text-center ${team.dg > 0 ? 'text-green-600' : team.dg < 0 ? 'text-red-600' : 'text-slate-500'}`}>
                           {team.dg > 0 ? `+${team.dg}` : team.dg}
                         </td>
-                        <td className="px-6 py-4 text-[13px] font-black text-slate-900 dark:text-white text-center bg-slate-50/50 dark:bg-slate-700/50">{team.pts}</td>
+                        <td className="px-4 sm:px-6 py-3 text-[11px] sm:text-[13px] font-black text-slate-900 dark:text-white text-center bg-slate-50/50 dark:bg-slate-700/50">{team.pts}</td>
                       </tr>
                     ))}
                   </tbody>
