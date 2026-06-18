@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import logoMundial from './logo_mundial.png';
 import { User, AuthMode } from '../types';
-import { signInWithGoogle, loginUser, resetPassword, completeRegistration, registerUser } from '../services/firebaseService';
+import { signInWithGoogle, loginUser, resetPassword, completeRegistration, registerUser, getCloudGroup } from '../services/firebaseService';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
 
@@ -34,8 +34,6 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
       const pendingGroupId = localStorage.getItem('pending_join_group');
       if (pendingGroupId) {
         try {
-          // Lazy load helper to avoid pre-initialization dependencies blockages
-          const { getCloudGroup } = await import('../services/firebaseService');
           const group = await getCloudGroup(pendingGroupId);
           if (group) {
             setInvitedGroupName(group.name);

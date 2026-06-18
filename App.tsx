@@ -16,7 +16,7 @@ import { PrivateGroupsView } from './components/PrivateGroupsView';
 import { WORLD_CUP_MATCHES, WORLD_CUP_GROUPS, KNOCKOUT_PHASES } from './constants';
 import { testConnection, saveUserPrediction, getUserPredictions, getRealMatches, onAuthChange, joinCloudGroup } from './services/firebaseService';
 import { isMatchLocked } from './services/matchService';
-import { db } from './firebase';
+import { db, auth } from './firebase';
 import { doc, setDoc, getDoc } from "firebase/firestore";
 
 // --- ERROR BOUNDARY ---
@@ -192,11 +192,9 @@ const App: React.FC = () => {
 
         if (!isEmailAllowed) {
           console.warn(`Auth blocked/rejected for non-gmail: ${userEmail}`);
-          import('./firebase').then(({ auth: firebaseAuth }) => {
-            if (firebaseAuth) {
-              firebaseAuth.signOut();
-            }
-          });
+          if (auth) {
+            auth.signOut();
+          }
           localStorage.removeItem('active_user');
           setUser(null);
           setView('auth');
