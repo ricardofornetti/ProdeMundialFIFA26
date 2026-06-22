@@ -65,7 +65,7 @@ export const WORLD_CUP_MATCHES: Match[] = [
   { id: 'm40', homeTeam: 'Nueva Zelanda', awayTeam: 'Egipto', homeFlag: 'NZ', awayFlag: 'EG', group: 'Primera Fase • Grupo G', date: '21 Jun 2026', time: '22:00', venue: 'Estadio BC Place Vancouver, Vancouver' },
   
   // --- LUNES 22 JUNIO ---
-  { id: 'm41', homeTeam: 'Argentina', awayTeam: 'Austria', homeFlag: 'AR', awayFlag: 'AT', group: 'Primera Fase • Grupo J', date: '22 Jun 2026', time: '14:00', venue: 'Estadio Dallas, Dallas' },
+  { id: 'm41', homeTeam: 'Argentina', awayTeam: 'Austria', homeFlag: 'AR', awayFlag: 'AT', group: 'Primera Fase • Grupo J', date: '22 Jun 2026', time: '14:00', venue: 'Estadio Dallas, Dallas', actualHomeScore: 2, actualAwayScore: 0 },
   { id: 'm42', homeTeam: 'Francia', awayTeam: 'Irak', homeFlag: 'FR', awayFlag: 'IQ', group: 'Primera Fase • Grupo I', date: '22 Jun 2026', time: '18:00', venue: 'Estadio Filadelfia, Filadelfia' },
   { id: 'm43', homeTeam: 'Noruega', awayTeam: 'Senegal', homeFlag: 'NO', awayFlag: 'SN', group: 'Primera Fase • Grupo I', date: '22 Jun 2026', time: '21:00', venue: 'Estadio Nueva York/Nueva Jersey, Nueva York' },
   

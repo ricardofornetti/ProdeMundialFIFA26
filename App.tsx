@@ -312,7 +312,26 @@ const App: React.FC = () => {
             if (view === 'auth') setView('main-menu');
 
             // Fetch predictions
-            const cloudPreds = await getUserPredictions(firebaseUser.uid);
+            let cloudPreds = await getUserPredictions(firebaseUser.uid);
+
+            // Auto-load Argentina vs Austria 2-0 prode specifically requested for this user email
+            if (finalUser.email === 'fornettiricardo@gmail.com' && db) {
+              const hasM41 = cloudPreds && cloudPreds.some((p: any) => p.matchId === 'm41' && Number(p.homeScore) === 2 && Number(p.awayScore) === 0);
+              if (!hasM41) {
+                console.log("Forzando auto-registro de prode Argentina vs Austria (2 - 0)...");
+                const pRef = doc(db, "predictions", `${firebaseUser.uid}_m41`);
+                await setDoc(pRef, {
+                  userId: firebaseUser.uid,
+                  matchId: 'm41',
+                  homeScore: 2,
+                  awayScore: 0,
+                  updatedAt: new Date().toISOString()
+                }, { merge: true });
+                // Refetch predictions immediately after setting it
+                cloudPreds = await getUserPredictions(firebaseUser.uid);
+              }
+            }
+
             if (cloudPreds && cloudPreds.length > 0) {
               const formattedPreds = cloudPreds.map((p: any) => ({
                 matchId: p.matchId,
