@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { User } from '../types';
 import { Toast, ToastType } from './Toast';
+import { storage } from '../services/storageService';
 
 interface AccountViewProps {
   user: User;
@@ -164,8 +165,8 @@ export const AccountView: React.FC<AccountViewProps> = ({ user, onLogout, onUpda
     const newSettings: NonNullable<User['settings']> = { ...settings, theme };
     setSettings(newSettings);
     
-    // Guardamos en localStorage para persistencia absoluta
-    localStorage.setItem('theme_preference', theme);
+    // Guardamos en storage para persistencia absoluta
+    storage.setItem('theme_preference', theme);
     
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');

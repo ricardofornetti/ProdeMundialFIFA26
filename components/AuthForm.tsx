@@ -5,6 +5,7 @@ import { User, AuthMode } from '../types';
 import { signInWithGoogle, loginUser, resetPassword, completeRegistration, registerUser, getCloudGroup } from '../services/firebaseService';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
+import { storage } from '../services/storageService';
 
 interface AuthFormProps {
   onAuthSuccess: (user: User) => void;
@@ -12,7 +13,7 @@ interface AuthFormProps {
 
 export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
   const [mode, setMode] = useState<AuthMode | 'setup-profile' | 'test-mode' | 'test-register'>(
-    localStorage.getItem('pending_join_group') ? 'register' : 'login'
+    storage.getItem('pending_join_group') ? 'register' : 'login'
   );
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
@@ -25,13 +26,13 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
   const [invitedGroupName, setInvitedGroupName] = useState<string | null>(null);
 
   useEffect(() => {
-    const savedLogo = localStorage.getItem('app_logo_custom');
+    const savedLogo = storage.getItem('app_logo_custom');
     if (savedLogo) {
       setCustomLogo(savedLogo);
     }
 
     const checkInvitation = async () => {
-      const pendingGroupId = localStorage.getItem('pending_join_group');
+      const pendingGroupId = storage.getItem('pending_join_group');
       if (pendingGroupId) {
         try {
           const group = await getCloudGroup(pendingGroupId);
@@ -59,7 +60,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
     reader.onload = (event) => {
       const dataUrl = event.target?.result as string;
       setCustomLogo(dataUrl);
-      localStorage.setItem('app_logo_custom', dataUrl);
+      storage.setItem('app_logo_custom', dataUrl);
       // Actualizar también en tiempo real si el usuario lo ve
       window.dispatchEvent(new Event('storage'));
     };

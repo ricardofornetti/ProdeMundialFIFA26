@@ -18,6 +18,7 @@ import { testConnection, saveUserPrediction, getUserPredictions, getRealMatches,
 import { isMatchLocked } from './services/matchService';
 import { db, auth } from './firebase';
 import { doc, setDoc, getDoc } from "firebase/firestore";
+import { storage } from './services/storageService';
 
 // --- ERROR BOUNDARY ---
 class ErrorBoundary extends (Component as any) {
@@ -195,7 +196,7 @@ const App: React.FC = () => {
           if (auth) {
             auth.signOut();
           }
-          localStorage.removeItem('active_user');
+          storage.removeItem('active_user');
           setUser(null);
           setView('auth');
           setIsAuthReady(true);
@@ -203,17 +204,19 @@ const App: React.FC = () => {
         }
 
         // First, fast render using cached credentials
-        const savedUser = localStorage.getItem('active_user');
+        const savedUser = storage.getItem('active_user');
         let initialUser = null;
+        let isMatched = false;
         if (savedUser) {
           try {
             const parsed = JSON.parse(savedUser);
             if (parsed.uid === firebaseUser.uid) {
+              isMatched = true;
               initialUser = parsed;
               setUser(parsed);
               if (view === 'auth') setView('main-menu');
               
-              const savedPreds = localStorage.getItem(`prode_predictions_${parsed.uid || parsed.email || parsed.username}`);
+              const savedPreds = storage.getItem(`prode_predictions_${parsed.uid || parsed.email || parsed.username}`);
               if (savedPreds) {
                 setPredictions(JSON.parse(savedPreds));
               }
@@ -221,6 +224,31 @@ const App: React.FC = () => {
           } catch (e) {
             console.error("Error setting initial cached user profile:", e);
           }
+        }
+
+        // Si hay una discrepancia (el usuario guardado no coincide con el de Firebase Auth) o no hay usuario guardado,
+        // establecemos inmediatamente el perfil base correcto para evitar mostrar la cuenta e info de otro usuario anterior.
+        if (!isMatched) {
+          const isUserAdmin = ADMIN_EMAILS.some(e => e.toLowerCase() === userEmail.toLowerCase());
+          const fallbackUsername = firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Usuario';
+          const baseUser: User = {
+            uid: firebaseUser.uid,
+            email: firebaseUser.email || '',
+            username: fallbackUsername,
+            photoUrl: firebaseUser.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${firebaseUser.uid}`,
+            isVerified: true,
+            totalScore: 0,
+            role: isUserAdmin ? 'admin' : 'user',
+            settings: {
+              notifyResults: true,
+              notifyMatchStart: true,
+              theme: 'light'
+            }
+          };
+          setUser(baseUser);
+          storage.setItem('active_user', JSON.stringify(baseUser));
+          setPredictions([]); // Limpiar predicciones anteriores temporalmente
+          if (view === 'auth') setView('main-menu');
         }
 
         // Asynchronously sync latest user profile and predictions list from Firestore
@@ -308,15 +336,18 @@ const App: React.FC = () => {
             }
 
             setUser(finalUser);
-            localStorage.setItem('active_user', JSON.stringify(finalUser));
+            storage.setItem('active_user', JSON.stringify(finalUser));
             if (view === 'auth') setView('main-menu');
 
             // Fetch predictions
             let cloudPreds = await getUserPredictions(firebaseUser.uid);
 
-            // Auto-load Argentina vs Austria 2-0 prode specifically requested for this user email
+            // Auto-load Argentina vs Austria 2-0 and Francia vs Irak 3-0 prodes specifically requested for this user email
             if (finalUser.email === 'fornettiricardo@gmail.com' && db) {
               const hasM41 = cloudPreds && cloudPreds.some((p: any) => p.matchId === 'm41' && Number(p.homeScore) === 2 && Number(p.awayScore) === 0);
+              const hasM42 = cloudPreds && cloudPreds.some((p: any) => p.matchId === 'm42' && Number(p.homeScore) === 3 && Number(p.awayScore) === 0);
+              let needsUpdate = false;
+
               if (!hasM41) {
                 console.log("Forzando auto-registro de prode Argentina vs Austria (2 - 0)...");
                 const pRef = doc(db, "predictions", `${firebaseUser.uid}_m41`);
@@ -327,7 +358,24 @@ const App: React.FC = () => {
                   awayScore: 0,
                   updatedAt: new Date().toISOString()
                 }, { merge: true });
-                // Refetch predictions immediately after setting it
+                needsUpdate = true;
+              }
+
+              if (!hasM42) {
+                console.log("Forzando auto-registro de prode Francia vs Irak (3 - 0)...");
+                const pRef = doc(db, "predictions", `${firebaseUser.uid}_m42`);
+                await setDoc(pRef, {
+                  userId: firebaseUser.uid,
+                  matchId: 'm42',
+                  homeScore: 3,
+                  awayScore: 0,
+                  updatedAt: new Date().toISOString()
+                }, { merge: true });
+                needsUpdate = true;
+              }
+
+              if (needsUpdate) {
+                // Refetch predictions immediately after setting them
                 cloudPreds = await getUserPredictions(firebaseUser.uid);
               }
             }
@@ -339,10 +387,10 @@ const App: React.FC = () => {
                 awayScore: p.awayScore
               }));
               setPredictions(formattedPreds);
-              localStorage.setItem(`prode_predictions_${firebaseUser.uid}`, JSON.stringify(formattedPreds));
+              storage.setItem(`prode_predictions_${firebaseUser.uid}`, JSON.stringify(formattedPreds));
             } else if (!savedUser) {
               // Try loading historical item key
-              const oldSavedPreds = localStorage.getItem(`prode_predictions_${finalUser.uid || finalUser.email || finalUser.username}`);
+              const oldSavedPreds = storage.getItem(`prode_predictions_${finalUser.uid || finalUser.email || finalUser.username}`);
               if (oldSavedPreds) {
                 setPredictions(JSON.parse(oldSavedPreds));
               }
@@ -354,36 +402,24 @@ const App: React.FC = () => {
 
         syncUserAndPredictions();
       } else {
-        // User is logged out from Firebase or the network is temporarily offline
-        // If we have an active session in local storage, keep it to allow offline use
-        // and prevent aggressive logout cycles in mobile browsers/PWAs.
-        const savedUser = localStorage.getItem('active_user');
-        if (!savedUser) {
-          setUser(null);
-          if (view !== 'auth') setView('auth');
-        } else {
-          try {
-            const parsed = JSON.parse(savedUser);
-            setUser(parsed);
-            if (view === 'auth') setView('main-menu');
-          } catch (e) {
-            setUser(null);
-            localStorage.removeItem('active_user');
-            if (view !== 'auth') setView('auth');
-          }
-        }
+        // Firebase declara que no hay ningún usuario autenticado activo.
+        // Sincronizamos el estado de la aplicación inmediatamente limpiando la sesión local para evitar mezclas o usurpaciones de cuentas anteriores.
+        console.log("Firebase reports no active user. Clearing local cached session.");
+        setUser(null);
+        storage.removeItem('active_user');
+        if (view !== 'auth') setView('auth');
       }
       setIsAuthReady(true);
     });
 
-    const themePref = localStorage.getItem('theme_preference');
+    const themePref = storage.getItem('theme_preference');
     if (themePref === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
 
-    const activeUser = localStorage.getItem('active_user');
+    const activeUser = storage.getItem('active_user');
     if (activeUser) {
       try {
         const parsedUser = JSON.parse(activeUser);
@@ -408,7 +444,7 @@ const App: React.FC = () => {
           document.documentElement.classList.remove('dark');
         }
         
-        const savedPreds = localStorage.getItem(`prode_predictions_${parsedUser.uid || parsedUser.email || parsedUser.username}`);
+        const savedPreds = storage.getItem(`prode_predictions_${parsedUser.uid || parsedUser.email || parsedUser.username}`);
         if (savedPreds) {
           setPredictions(JSON.parse(savedPreds));
         }
@@ -431,7 +467,7 @@ const App: React.FC = () => {
     };
 
     // Cargar logo guardado si existe
-    const savedLogo = localStorage.getItem('app_logo_custom');
+    const savedLogo = storage.getItem('app_logo_custom');
     if (savedLogo) {
       setCustomLogo(savedLogo);
     }
@@ -446,7 +482,7 @@ const App: React.FC = () => {
     const params = new URLSearchParams(window.location.search);
     const joinGroupId = params.get('joinGroup');
     if (joinGroupId) {
-      localStorage.setItem('pending_join_group', joinGroupId);
+      storage.setItem('pending_join_group', joinGroupId);
       // Clean query parameter from URL to keep it pristine
       const newUrl = window.location.pathname;
       window.history.replaceState({}, '', newUrl);
@@ -456,7 +492,7 @@ const App: React.FC = () => {
   useEffect(() => {
     if (!user || !user.uid || !isAuthReady) return;
 
-    const pendingGroupId = localStorage.getItem('pending_join_group');
+    const pendingGroupId = storage.getItem('pending_join_group');
     if (pendingGroupId) {
       const joinGroupAsync = async () => {
         try {
@@ -471,7 +507,7 @@ const App: React.FC = () => {
           console.error("Error joining pending group:", err);
           alert("Error al unirse al grupo privado.");
         } finally {
-          localStorage.removeItem('pending_join_group');
+          storage.removeItem('pending_join_group');
         }
       };
 
@@ -516,10 +552,10 @@ const App: React.FC = () => {
           const userRef = doc(db, "users", user.uid!);
           await setDoc(userRef, { totalScore: currentCalculatedScore, lastUpdate: new Date() }, { merge: true });
           
-          // Actualizar el estado local y localStorage
+          // Actualizar el estado local y storage
           const updatedUser = { ...user, totalScore: currentCalculatedScore };
           setUser(updatedUser);
-          localStorage.setItem('active_user', JSON.stringify(updatedUser));
+          storage.setItem('active_user', JSON.stringify(updatedUser));
           console.log(`Puntaje de usuario sincronizado automáticamente en Firestore a: ${currentCalculatedScore} PTS`);
         } catch (e) {
           console.error("Error al sincronizar el puntaje con Firestore:", e);
@@ -562,7 +598,7 @@ const App: React.FC = () => {
       authUser.role = 'admin';
     }
     
-    localStorage.setItem('active_user', JSON.stringify(authUser));
+    storage.setItem('active_user', JSON.stringify(authUser));
     setUser(authUser);
     setView('main-menu');
     
@@ -602,7 +638,7 @@ const App: React.FC = () => {
         return;
       }
 
-      localStorage.setItem(`prode_predictions_${user.uid || user.email || user.username}`, JSON.stringify(predictions));
+      storage.setItem(`prode_predictions_${user.uid || user.email || user.username}`, JSON.stringify(predictions));
       if (db && user.uid) {
         await Promise.all(unlockedPredictions.map(pred => {
           if (pred.homeScore !== '' && pred.awayScore !== '') {
@@ -634,9 +670,9 @@ const App: React.FC = () => {
 
     setSavingMatchId(matchId);
     try {
-      // Save to localStorage
+      // Save to storage
       const updatedPredictions = [...predictions];
-      localStorage.setItem(`prode_predictions_${user.uid || user.email || user.username}`, JSON.stringify(updatedPredictions));
+      storage.setItem(`prode_predictions_${user.uid || user.email || user.username}`, JSON.stringify(updatedPredictions));
 
       if (db) {
         await saveUserPrediction(user.uid || user.email || user.username, matchId, Number(pred.homeScore), Number(pred.awayScore));
@@ -664,7 +700,7 @@ const App: React.FC = () => {
         console.warn("Failed to sign out from Firebase during logout:", err);
       });
     }
-    localStorage.removeItem('active_user');
+    storage.removeItem('active_user');
     setUser(null);
     setView('auth');
     setPredictions([]);
@@ -692,7 +728,7 @@ const App: React.FC = () => {
 
   const handleUpdateUser = async (updatedUser: User) => {
     setUser(updatedUser);
-    localStorage.setItem('active_user', JSON.stringify(updatedUser));
+    storage.setItem('active_user', JSON.stringify(updatedUser));
     if (db && updatedUser.uid) {
       try {
         const userRef = doc(db, "users", updatedUser.uid);
@@ -714,7 +750,7 @@ const App: React.FC = () => {
     reader.onload = (event) => {
       const dataUrl = event.target?.result as string;
       setCustomLogo(dataUrl);
-      localStorage.setItem('app_logo_custom', dataUrl);
+      storage.setItem('app_logo_custom', dataUrl);
     };
     reader.readAsDataURL(file);
   };

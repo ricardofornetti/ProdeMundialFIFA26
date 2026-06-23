@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { User, PrivateGroup, GroupMember } from '../types';
 import { saveCloudGroup, getUserCloudGroups, deleteCloudGroup, getAllUsers } from '../services/firebaseService';
 import { db } from '../firebase';
+import { storage } from '../services/storageService';
 
 interface PrivateGroupsViewProps {
   user: User;
@@ -82,8 +83,8 @@ export const PrivateGroupsView: React.FC<PrivateGroupsViewProps> = ({ user, onBa
         setGroups(synchronizedGroups);
       } catch (err) {
         console.error("Error fetching cloud groups:", err);
-        // Fallback a local storage por si acaso el usuario no tiene conexión pero sí datos previos
-        const saved = localStorage.getItem(`private_groups_${user.email}`);
+        // Fallback a storage por si acaso el usuario no tiene conexión pero sí datos previos
+        const saved = storage.getItem(`private_groups_${user.email}`);
         if (saved) setGroups(JSON.parse(saved));
       } finally {
         setIsLoading(false);

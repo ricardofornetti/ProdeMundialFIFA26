@@ -70,7 +70,7 @@ export const WORLD_CUP_MATCHES: Match[] = [
   { id: 'm43', homeTeam: 'Noruega', awayTeam: 'Senegal', homeFlag: 'NO', awayFlag: 'SN', group: 'Primera Fase • Grupo I', date: '22 Jun 2026', time: '21:00', venue: 'Estadio Nueva York/Nueva Jersey, Nueva York' },
   
   // --- MARTES 23 JUNIO ---
-  { id: 'm44', homeTeam: 'Argelia', awayTeam: 'Jordania', homeFlag: 'DZ', awayFlag: 'JO', group: 'Primera Fase • Grupo J', date: '22 Jun 2026', time: '17:00', venue: 'Estadio Houston, Houston' },
+  { id: 'm44', homeTeam: 'Jordania', awayTeam: 'Argelia', homeFlag: 'JO', awayFlag: 'DZ', group: 'Primera Fase • Grupo J', date: '23 Jun 2026', time: '20:00', venue: 'Estadio Houston, Houston' },
   { id: 'm45', homeTeam: 'Portugal', awayTeam: 'Uzbekistán', homeFlag: 'PT', awayFlag: 'UZ', group: 'Primera Fase • Grupo K', date: '23 Jun 2026', time: '14:00', venue: 'Estadio Houston, Houston' },
   { id: 'm46', homeTeam: 'Inglaterra', awayTeam: 'Ghana', homeFlag: 'GB-ENG', awayFlag: 'GH', group: 'Primera Fase • Grupo L', date: '23 Jun 2026', time: '17:00', venue: 'Estadio Boston, Boston' },
   { id: 'm47', homeTeam: 'Panamá', awayTeam: 'Croacia', homeFlag: 'PA', awayFlag: 'HR', group: 'Primera Fase • Grupo L', date: '23 Jun 2026', time: '20:00', venue: 'Estadio de Toronto, Toronto' },

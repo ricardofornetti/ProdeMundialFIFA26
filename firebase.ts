@@ -9,6 +9,10 @@ export const db = getFirestore(app, (firebaseConfig as any).firestoreDatabaseId)
 export const auth = getAuth(app);
 
 // Force session persistence to local storage to prevent session loss on mobile devices and PWAs
-setPersistence(auth, browserLocalPersistence).catch((err) => {
-  console.error("Firebase persistence initialization failed: ", err);
-});
+try {
+  setPersistence(auth, browserLocalPersistence).catch((err) => {
+    console.warn("Firebase persistence initialization failed: ", err);
+  });
+} catch (err) {
+  console.warn("Firebase persistence initialization failed synchronously (likely because of iframe/sandbox localStorage access limit): ", err);
+}
