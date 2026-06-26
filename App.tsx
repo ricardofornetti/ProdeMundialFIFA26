@@ -14,7 +14,7 @@ import { FullCalendar } from './components/FullCalendar';
 import { HistoryView } from './components/HistoryView';
 import { PrivateGroupsView } from './components/PrivateGroupsView';
 import { WORLD_CUP_MATCHES, WORLD_CUP_GROUPS, KNOCKOUT_PHASES } from './constants';
-import { testConnection, saveUserPrediction, getUserPredictions, getRealMatches, onAuthChange, joinCloudGroup } from './services/firebaseService';
+import { testConnection, saveUserPrediction, getUserPredictions, getRealMatches, onAuthChange, joinCloudGroup, recalculateAllScores } from './services/firebaseService';
 import { isMatchLocked } from './services/matchService';
 import { db, auth } from './firebase';
 import { doc, setDoc, getDoc } from "firebase/firestore";
@@ -203,20 +203,18 @@ const App: React.FC = () => {
           return;
         }
 
-        // First, fast render using cached credentials
+        // Check cached credentials matching current Firebase user ID for immediate rendering
         const savedUser = storage.getItem('active_user');
-        let initialUser = null;
-        let isMatched = false;
+        let matchedUser: User | null = null;
         if (savedUser) {
           try {
             const parsed = JSON.parse(savedUser);
             if (parsed.uid === firebaseUser.uid) {
-              isMatched = true;
-              initialUser = parsed;
+              matchedUser = parsed;
               setUser(parsed);
               if (view === 'auth') setView('main-menu');
               
-              const savedPreds = storage.getItem(`prode_predictions_${parsed.uid || parsed.email || parsed.username}`);
+              const savedPreds = storage.getItem(`prode_predictions_${parsed.uid}`);
               if (savedPreds) {
                 setPredictions(JSON.parse(savedPreds));
               }
@@ -226,32 +224,6 @@ const App: React.FC = () => {
           }
         }
 
-        // Si hay una discrepancia (el usuario guardado no coincide con el de Firebase Auth) o no hay usuario guardado,
-        // establecemos inmediatamente el perfil base correcto para evitar mostrar la cuenta e info de otro usuario anterior.
-        if (!isMatched) {
-          const isUserAdmin = ADMIN_EMAILS.some(e => e.toLowerCase() === userEmail.toLowerCase());
-          const fallbackUsername = firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Usuario';
-          const baseUser: User = {
-            uid: firebaseUser.uid,
-            email: firebaseUser.email || '',
-            username: fallbackUsername,
-            photoUrl: firebaseUser.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${firebaseUser.uid}`,
-            isVerified: true,
-            totalScore: 0,
-            role: isUserAdmin ? 'admin' : 'user',
-            settings: {
-              notifyResults: true,
-              notifyMatchStart: true,
-              theme: 'light'
-            }
-          };
-          setUser(baseUser);
-          storage.setItem('active_user', JSON.stringify(baseUser));
-          setPredictions([]); // Limpiar predicciones anteriores temporalmente
-          if (view === 'auth') setView('main-menu');
-        }
-
-        // Asynchronously sync latest user profile and predictions list from Firestore
         const syncUserAndPredictions = async () => {
           try {
             let cloudUser: User | null = null;
@@ -260,16 +232,8 @@ const App: React.FC = () => {
               if (userDoc.exists()) {
                 cloudUser = { ...userDoc.data(), uid: firebaseUser.uid } as User;
               } else {
-                // Si el usuario se loguea pero no existe en Firestore (ej: bypass por Google Sign-In),
-                // le creamos su perfil por defecto con los datos de Auth para que quede registrado en la base de datos.
-                const ADMIN_EMAILS = [
-                  'fornettiricardo@gmail.com', 
-                  'FORNETTIRICARDO@GMAIL.COM',
-                  'ricardofornetti@hotmail.com.ar',
-                  'RICARDOFORNETTI@HOTMAIL.COM.AR'
-                ];
-                const isUserAdmin = ADMIN_EMAILS.includes(firebaseUser.email || '');
-
+                // If profile doesn't exist in Firestore (e.g. first-time Google sign-in bypass), register it now
+                const isUserAdmin = ADMIN_EMAILS.some(e => e.toLowerCase() === userEmail.toLowerCase());
                 const fallbackUsername = firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Usuario';
                 let finalUsername = fallbackUsername.trim();
                 if (!finalUsername) {
@@ -291,33 +255,29 @@ const App: React.FC = () => {
                   }
                 };
 
-                try {
-                  await setDoc(doc(db, "users", firebaseUser.uid), {
-                    ...newUserDoc,
-                    createdAt: new Date(),
-                    updatedAt: new Date()
-                  });
-                  // Guardar el mapeo del nombre de usuario en minúsculas
-                  await setDoc(doc(db, "usernames", finalUsername.toLowerCase()), {
-                    email: firebaseUser.email || '',
-                    uid: firebaseUser.uid
-                  });
-                  cloudUser = newUserDoc;
-                  console.log("Perfil de Firestore autogenerado con éxito para el usuario logueado:", newUserDoc);
-                } catch (writeErr) {
-                  console.error("Error al autogenerar perfil de Firestore para el usuario:", writeErr);
-                }
+                await setDoc(doc(db, "users", firebaseUser.uid), {
+                  ...newUserDoc,
+                  createdAt: new Date(),
+                  updatedAt: new Date()
+                });
+
+                await setDoc(doc(db, "usernames", finalUsername.toLowerCase()), {
+                  email: firebaseUser.email || '',
+                  uid: firebaseUser.uid
+                });
+
+                cloudUser = newUserDoc;
               }
             }
 
-            const finalUser = cloudUser || initialUser || {
+            const baseUserObj = cloudUser || matchedUser || {
               uid: firebaseUser.uid,
               email: firebaseUser.email || '',
               username: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Usuario',
-              photoUrl: firebaseUser.photoURL || '',
+              photoUrl: firebaseUser.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${firebaseUser.uid}`,
               isVerified: true,
               totalScore: 0,
-              role: 'user',
+              role: ADMIN_EMAILS.some(e => e.toLowerCase() === userEmail.toLowerCase()) ? 'admin' : 'user',
               settings: {
                 notifyResults: true,
                 notifyMatchStart: true,
@@ -325,13 +285,12 @@ const App: React.FC = () => {
               }
             };
 
-            const ADMIN_EMAILS = [
-              'fornettiricardo@gmail.com', 
-              'FORNETTIRICARDO@GMAIL.COM',
-              'ricardofornetti@hotmail.com.ar',
-              'RICARDOFORNETTI@HOTMAIL.COM.AR'
-            ];
-            if (ADMIN_EMAILS.includes(finalUser.email)) {
+            const finalUser: User = {
+              ...baseUserObj,
+              email: baseUserObj.email || firebaseUser.email || ''
+            };
+
+            if (finalUser.email && ADMIN_EMAILS.some(e => e.toLowerCase() === finalUser.email.toLowerCase())) {
               finalUser.role = 'admin';
             }
 
@@ -339,17 +298,16 @@ const App: React.FC = () => {
             storage.setItem('active_user', JSON.stringify(finalUser));
             if (view === 'auth') setView('main-menu');
 
-            // Fetch predictions
+            // Fetch predictions from Firestore
             let cloudPreds = await getUserPredictions(firebaseUser.uid);
 
-            // Auto-load Argentina vs Austria 2-0 and Francia vs Irak 3-0 prodes specifically requested for this user email
-            if (finalUser.email === 'fornettiricardo@gmail.com' && db) {
+            // Particular auto-fill rules for Ricardo's official predictions
+            if (finalUser.email && finalUser.email.toLowerCase() === 'fornettiricardo@gmail.com' && db) {
               const hasM41 = cloudPreds && cloudPreds.some((p: any) => p.matchId === 'm41' && Number(p.homeScore) === 2 && Number(p.awayScore) === 0);
               const hasM42 = cloudPreds && cloudPreds.some((p: any) => p.matchId === 'm42' && Number(p.homeScore) === 3 && Number(p.awayScore) === 0);
               let needsUpdate = false;
 
               if (!hasM41) {
-                console.log("Forzando auto-registro de prode Argentina vs Austria (2 - 0)...");
                 const pRef = doc(db, "predictions", `${firebaseUser.uid}_m41`);
                 await setDoc(pRef, {
                   userId: firebaseUser.uid,
@@ -362,7 +320,6 @@ const App: React.FC = () => {
               }
 
               if (!hasM42) {
-                console.log("Forzando auto-registro de prode Francia vs Irak (3 - 0)...");
                 const pRef = doc(db, "predictions", `${firebaseUser.uid}_m42`);
                 await setDoc(pRef, {
                   userId: firebaseUser.uid,
@@ -375,8 +332,66 @@ const App: React.FC = () => {
               }
 
               if (needsUpdate) {
-                // Refetch predictions immediately after setting them
                 cloudPreds = await getUserPredictions(firebaseUser.uid);
+              }
+
+              // Self-healing Firestore matches correction for m57 and m58
+              try {
+                const m57Snap = await getDoc(doc(db, "matches", "m57"));
+                const m58Snap = await getDoc(doc(db, "matches", "m58"));
+                let updatedMatches = false;
+
+                if (!m57Snap.exists() || 
+                    m57Snap.data()?.homeTeam !== "Japón" || 
+                    m57Snap.data()?.awayTeam !== "Suecia" ||
+                    m57Snap.data()?.actualHomeScore !== 1 || 
+                    m57Snap.data()?.actualAwayScore !== 1) {
+                  
+                  await setDoc(doc(db, "matches", "m57"), {
+                    homeTeam: "Japón",
+                    awayTeam: "Suecia",
+                    homeFlag: "JP",
+                    awayFlag: "SE",
+                    group: "Primera Fase • Grupo F",
+                    date: "25 Jun 2026",
+                    time: "20:00",
+                    venue: "Estadio Dallas, Dallas",
+                    actualHomeScore: 1,
+                    actualAwayScore: 1,
+                    updatedAt: new Date().toISOString()
+                  }, { merge: true });
+                  updatedMatches = true;
+                }
+
+                if (!m58Snap.exists() || 
+                    m58Snap.data()?.homeTeam !== "Túnez" || 
+                    m58Snap.data()?.awayTeam !== "Países Bajos" ||
+                    m58Snap.data()?.actualHomeScore !== 1 || 
+                    m58Snap.data()?.actualAwayScore !== 3) {
+                  
+                  await setDoc(doc(db, "matches", "m58"), {
+                    homeTeam: "Túnez",
+                    awayTeam: "Países Bajos",
+                    homeFlag: "TN",
+                    awayFlag: "NL",
+                    group: "Primera Fase • Grupo F",
+                    date: "25 Jun 2026",
+                    time: "20:00",
+                    venue: "Estadio Kansas City, Kansas City",
+                    actualHomeScore: 1,
+                    actualAwayScore: 3,
+                    updatedAt: new Date().toISOString()
+                  }, { merge: true });
+                  updatedMatches = true;
+                }
+
+                if (updatedMatches) {
+                  console.log("m57 and m58 results automatically updated in Firestore! Recalculating scores...");
+                  await recalculateAllScores();
+                  fetchMatches();
+                }
+              } catch (matchErr) {
+                console.error("Error checking or updating m57/m58:", matchErr);
               }
             }
 
@@ -388,15 +403,18 @@ const App: React.FC = () => {
               }));
               setPredictions(formattedPreds);
               storage.setItem(`prode_predictions_${firebaseUser.uid}`, JSON.stringify(formattedPreds));
-            } else if (!savedUser) {
-              // Try loading historical item key
-              const oldSavedPreds = storage.getItem(`prode_predictions_${finalUser.uid || finalUser.email || finalUser.username}`);
+            } else {
+              const oldSavedPreds = storage.getItem(`prode_predictions_${finalUser.uid}`);
               if (oldSavedPreds) {
                 setPredictions(JSON.parse(oldSavedPreds));
               }
             }
           } catch (error) {
-            console.error("Error in post-login Firestore background sync:", error);
+            console.error("Error in profile sync:", error);
+            if (matchedUser) {
+              setUser(matchedUser);
+              if (view === 'auth') setView('main-menu');
+            }
           }
         };
 
@@ -417,40 +435,6 @@ const App: React.FC = () => {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
-    }
-
-    const activeUser = storage.getItem('active_user');
-    if (activeUser) {
-      try {
-        const parsedUser = JSON.parse(activeUser);
-        
-        // Mantener rol de admin si el email coincide
-        const ADMIN_EMAILS = [
-          'fornettiricardo@gmail.com', 
-          'FORNETTIRICARDO@GMAIL.COM',
-          'ricardofornetti@hotmail.com.ar',
-          'RICARDOFORNETTI@HOTMAIL.COM.AR'
-        ];
-        if (ADMIN_EMAILS.includes(parsedUser.email)) {
-          parsedUser.role = 'admin';
-        }
-
-        setUser(parsedUser);
-        setView('main-menu');
-        
-        if (parsedUser.settings?.theme === 'dark') {
-          document.documentElement.classList.add('dark');
-        } else if (parsedUser.settings?.theme === 'light') {
-          document.documentElement.classList.remove('dark');
-        }
-        
-        const savedPreds = storage.getItem(`prode_predictions_${parsedUser.uid || parsedUser.email || parsedUser.username}`);
-        if (savedPreds) {
-          setPredictions(JSON.parse(savedPreds));
-        }
-      } catch (e) {
-        setView('auth');
-      }
     }
 
     const fetchMatches = async () => {
@@ -594,7 +578,7 @@ const App: React.FC = () => {
       'ricardofornetti@hotmail.com.ar',
       'RICARDOFORNETTI@HOTMAIL.COM.AR'
     ];
-    if (ADMIN_EMAILS.includes(authUser.email)) {
+    if (authUser.email && ADMIN_EMAILS.some(e => e.toLowerCase() === authUser.email.toLowerCase())) {
       authUser.role = 'admin';
     }
     
