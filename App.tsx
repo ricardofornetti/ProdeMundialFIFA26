@@ -1,5 +1,6 @@
 
-import React, { useState, useEffect, Component } from 'react';
+import React, { useState, useEffect, Component, useMemo } from 'react';
+import { resolveBracketMatches } from './utils/bracketResolver';
 import logoMundial from './components/logo_mundial.png';
 import { motion, AnimatePresence } from 'motion/react';
 import { CheckCircle, Shield, Settings } from 'lucide-react';
@@ -174,6 +175,14 @@ const App: React.FC = () => {
   };
 
   const [isAuthReady, setIsAuthReady] = useState(false);
+
+  const resolvedMatchesForPredictions = useMemo(() => {
+    return resolveBracketMatches(realMatches, predictions, true);
+  }, [realMatches, predictions]);
+
+  const resolvedMatchesForResults = useMemo(() => {
+    return resolveBracketMatches(realMatches, [], false);
+  }, [realMatches]);
 
   useEffect(() => {
     testConnection();
@@ -460,6 +469,58 @@ const App: React.FC = () => {
 
     return () => unsubscribe();
   }, []);
+
+  // Auto-load/resolve and save official knockout matches to Firestore
+  useEffect(() => {
+    // Only run if the user is an admin, to avoid permission-denied errors for regular users
+    if (!user || user.role !== 'admin' || realMatches.length === 0 || !db) return;
+
+    const autoLoadKnockoutMatches = async () => {
+      try {
+        const resolved = resolveBracketMatches(realMatches, [], false);
+        let updatedAny = false;
+
+        for (const resolvedMatch of resolved) {
+          if (resolvedMatch.group.includes('Grupo')) continue;
+
+          const originalMatch = realMatches.find(m => m.id === resolvedMatch.id);
+          if (!originalMatch) continue;
+
+          // Check if resolved teams are different from what we currently have
+          const homeChanged = resolvedMatch.homeTeam !== originalMatch.homeTeam || resolvedMatch.homeFlag !== originalMatch.homeFlag;
+          const awayChanged = resolvedMatch.awayTeam !== originalMatch.awayTeam || resolvedMatch.awayFlag !== originalMatch.awayFlag;
+
+          if (homeChanged || awayChanged) {
+            console.log(`Auto-updating knockout match ${resolvedMatch.id} in Firestore: ${resolvedMatch.homeTeam} vs ${resolvedMatch.awayTeam}`);
+            await setDoc(doc(db, "matches", resolvedMatch.id), {
+              homeTeam: resolvedMatch.homeTeam,
+              homeFlag: resolvedMatch.homeFlag,
+              awayTeam: resolvedMatch.awayTeam,
+              awayFlag: resolvedMatch.awayFlag,
+              updatedAt: new Date().toISOString()
+            }, { merge: true });
+            updatedAny = true;
+          }
+        }
+
+        if (updatedAny) {
+          console.log("Knockout matches automatically loaded/updated in Firestore! Recalculating scores...");
+          await recalculateAllScores();
+          // Re-fetch matches to update state
+          const cloudMatches = await getRealMatches();
+          const merged = WORLD_CUP_MATCHES.map(m => {
+            const cloud = (cloudMatches || []).find(cm => cm.id === m.id);
+            return cloud ? { ...m, ...cloud } : m;
+          });
+          setRealMatches(merged as Match[]);
+        }
+      } catch (err) {
+        console.error("Error auto-loading knockout matches:", err);
+      }
+    };
+
+    autoLoadKnockoutMatches();
+  }, [user, realMatches]);
 
   // Handle joinGroup link parameter and join action
   useEffect(() => {
@@ -1020,7 +1081,7 @@ const App: React.FC = () => {
                   <div className="space-y-4">
                     {KNOCKOUT_PHASES.map((phase) => {
                       const isExpanded = expandedZones.includes(phase.name);
-                      const phaseMatches = realMatches.filter(m => m.group === phase.name);
+                      const phaseMatches = resolvedMatchesForPredictions.filter(m => m.group === phase.name);
                       const completedPreds = phaseMatches.filter(m => predictions.find(p => p.matchId === m.id && p.homeScore !== '' && p.awayScore !== '')).length;
 
                       return (
@@ -1103,7 +1164,7 @@ const App: React.FC = () => {
             <PrivateGroupsView user={user} onBack={() => setView('main-menu')} />
           ) : view === 'admin' && user?.role === 'admin' ? (
              <AdminPanel 
-               matches={realMatches} 
+               matches={resolvedMatchesForResults} 
                onBack={() => setView('main-menu')} 
                onRefresh={async () => {
                  const data = await getRealMatches();
@@ -1125,7 +1186,7 @@ const App: React.FC = () => {
                   <span>Volver</span>
                 </button>
               </div>
-               <FullCalendar matches={realMatches} predictions={predictions} userId={user?.uid} />
+               <FullCalendar matches={resolvedMatchesForPredictions} predictions={predictions} userId={user?.uid} />
             </main>
           ) : null}
         </>
