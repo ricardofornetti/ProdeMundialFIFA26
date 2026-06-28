@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import logoMundial from './logo_mundial.png';
 import { User, AuthMode } from '../types';
@@ -75,15 +74,32 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
     setIsLoading(true);
     try {
       const result = await signInWithGoogle();
+      console.log('🔍 Google Login Result:', { result, hasUser: !!result?.user, email: result?.user?.email });
+      
       if (result) {
         // Enforce Gmail / Admin Email restriction on Google Sign-In
-        const userEmail = result.user.email || '';
+        const userEmail = (result.user.email || '').trim().toLowerCase();
+        console.log('📧 Email after trim/lowercase:', userEmail);
+        
         const ADMIN_EMAILS = [
           'fornettiricardo@gmail.com'
         ];
-        const isEmailAllowed = userEmail.toLowerCase().endsWith('@gmail.com') || ADMIN_EMAILS.some(e => e.toLowerCase() === userEmail.toLowerCase());
+        
+        // Debug: Check individual conditions
+        const endsWithGmail = userEmail.endsWith('@gmail.com');
+        const isAdmin = ADMIN_EMAILS.some(e => e.toLowerCase() === userEmail);
+        const isEmailAllowed = endsWithGmail || isAdmin;
+        
+        console.log('✅ Validation Debug:', { 
+          userEmail, 
+          endsWithGmail, 
+          isAdmin, 
+          isEmailAllowed,
+          adminEmails: ADMIN_EMAILS 
+        });
 
         if (!isEmailAllowed) {
+          console.error('❌ Email blocked:', userEmail);
           if (auth) {
             await signOut(auth);
           }
@@ -92,6 +108,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
           return;
         }
 
+        console.log('✅ Email allowed, proceeding with login');
         if (result.isNew) {
           setTempUser(result.user);
           setUsername(result.user.username);
@@ -104,7 +121,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
         setError('No se pudo completar el inicio de sesión con Google. ¿Tal vez bloqueaste el popup?');
       }
     } catch (err: any) {
-      console.error(err);
+      console.error('❌ Google Login Error:', err);
       if (err.code === 'auth/popup-closed-by-user') {
         setError('La ventana de Google se cerró antes de terminar. Intenta de nuevo.');
       } else {
