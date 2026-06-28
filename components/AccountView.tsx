@@ -210,7 +210,7 @@ export const AccountView: React.FC<AccountViewProps> = ({ user, onLogout, onUpda
   };
 
   const handleEmail = () => {
-    window.location.href = "mailto:fornettiricardo@gmail.com?subject=Consulta Prode Mundial 2026";
+    window.location.href = "mailto:fornettiricardo@gmail.com?subject=...";
   };
 
   const handleShare = () => {
