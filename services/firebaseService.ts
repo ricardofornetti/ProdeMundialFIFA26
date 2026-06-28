@@ -28,6 +28,9 @@ import { Match, User, PrivateGroup } from "../types";
 import { db, auth } from "../firebase";
 
 const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({
+  prompt: 'select_account'
+});
 
 // --- ERROR HANDLING ---
 

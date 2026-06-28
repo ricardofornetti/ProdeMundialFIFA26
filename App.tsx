@@ -190,17 +190,14 @@ const App: React.FC = () => {
     // Listen to Firebase Auth changes
     const unsubscribe = onAuthChange((firebaseUser) => {
       if (firebaseUser) {
-        // Enforce Gmail / Admin Email restriction on all authed users
+        // Enforce @gmail.com restriction on all authed users
         const userEmail = firebaseUser.email || '';
         const ADMIN_EMAILS = [
-          'fornettiricardo@gmail.com', 
-          'FORNETTIRICARDO@GMAIL.COM',
-          'ricardofornetti@hotmail.com.ar',
-          'RICARDOFORNETTI@HOTMAIL.COM.AR'
+          'fornettiricardo@gmail.com'
         ];
-        const isEmailAllowed = userEmail.toLowerCase().endsWith('@gmail.com') || ADMIN_EMAILS.some(e => e.toLowerCase() === userEmail.toLowerCase());
-
-        if (!isEmailAllowed) {
+        
+        // Solo permitir @gmail.com
+        if (!userEmail.toLowerCase().endsWith('@gmail.com')) {
           console.warn(`Auth blocked/rejected for non-gmail: ${userEmail}`);
           if (auth) {
             auth.signOut();
@@ -623,12 +620,9 @@ const App: React.FC = () => {
   };
 
   const handleAuthSuccess = async (authUser: User) => {
-    // Definir administradores por email
+    // Definir administrador
     const ADMIN_EMAILS = [
-      'fornettiricardo@gmail.com', 
-      'FORNETTIRICARDO@GMAIL.COM',
-      'ricardofornetti@hotmail.com.ar',
-      'RICARDOFORNETTI@HOTMAIL.COM.AR'
+      'fornettiricardo@gmail.com'
     ];
     if (authUser.email && ADMIN_EMAILS.some(e => e.toLowerCase() === authUser.email.toLowerCase())) {
       authUser.role = 'admin';

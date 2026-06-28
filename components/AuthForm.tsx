@@ -79,10 +79,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
         // Enforce Gmail / Admin Email restriction on Google Sign-In
         const userEmail = result.user.email || '';
         const ADMIN_EMAILS = [
-          'fornettiricardo@gmail.com', 
-          'FORNETTIRICARDO@GMAIL.COM',
-          'ricardofornetti@hotmail.com.ar',
-          'RICARDOFORNETTI@HOTMAIL.COM.AR'
+          'fornettiricardo@gmail.com'
         ];
         const isEmailAllowed = userEmail.toLowerCase().endsWith('@gmail.com') || ADMIN_EMAILS.some(e => e.toLowerCase() === userEmail.toLowerCase());
 
@@ -125,10 +122,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
 
     const userEmail = tempUser.email || '';
     const ADMIN_EMAILS = [
-      'fornettiricardo@gmail.com', 
-      'FORNETTIRICARDO@GMAIL.COM',
-      'ricardofornetti@hotmail.com.ar',
-      'RICARDOFORNETTI@HOTMAIL.COM.AR'
+      'fornettiricardo@gmail.com'
     ];
     const isEmailAllowed = userEmail.toLowerCase().endsWith('@gmail.com') || ADMIN_EMAILS.some(e => e.toLowerCase() === userEmail.toLowerCase());
 
@@ -177,9 +171,9 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
     e.preventDefault();
     setError('');
 
-    // Validación de dominio de correo (Solo Google/Gmail)
+    // Validación de dominio de correo (Solo @gmail.com)
     if (!email.toLowerCase().endsWith('@gmail.com')) {
-      const msg = 'Solo se permiten correos de Google (@gmail.com).';
+      const msg = 'Solo se permiten correos @gmail.com.';
       alert(msg);
       setError(msg);
       return;
@@ -205,9 +199,9 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
     e.preventDefault();
     setError('');
     
-    // Validación de dominio de correo (Solo Google/Gmail)
+    // Validación de dominio de correo (Solo @gmail.com)
     if (!email.toLowerCase().endsWith('@gmail.com')) {
-      const msg = 'Solo se permiten correos de Google (@gmail.com).';
+      const msg = 'Solo se permiten correos @gmail.com.';
       alert(msg);
       setError(msg);
       return;
@@ -285,7 +279,14 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
             <button disabled={isLoading} className="w-full py-5 bg-indigo-600 text-white font-black rounded-2xl shadow-xl hover:bg-indigo-700 transition-all uppercase tracking-widest text-xs disabled:opacity-50">
               {isLoading ? 'ENVIANDO...' : 'ENVIAR INSTRUCCIONES'}
             </button>
-            <button type="button" onClick={() => setMode('login')} className="w-full text-center text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-indigo-600 transition-colors">Cancelar</button>
+            <div className="flex flex-col gap-3 items-center mt-4 pt-2">
+              <button type="button" onClick={() => setMode('test-mode')} className="text-center text-[10px] font-black text-indigo-500 uppercase tracking-widest hover:text-indigo-700 transition-colors">
+                Volver a Login con Email
+              </button>
+              <button type="button" onClick={() => setMode('login')} className="text-center text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-colors">
+                Cancelar y Volver a Google Login
+              </button>
+            </div>
           </form>
         )}
       </div>
@@ -495,6 +496,16 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
             >
               {isRegistering ? '¿Ya tienes cuenta? Login' : '¿No tienes cuenta? Regístrate aquí'}
             </button>
+
+            {!isRegistering && (
+              <button 
+                type="button" 
+                onClick={() => setMode('forgot-password')} 
+                className="text-[10px] font-black text-rose-500 uppercase tracking-widest hover:text-rose-700"
+              >
+                ¿Olvidaste tu contraseña? Restablecer
+              </button>
+            )}
             
             <button 
               type="button" 
@@ -575,7 +586,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
         </button>
 
         {/* OPCIÓN DE EMAIL (GMAIL) SI NO QUIEREN USAR POPUP */}
-        <div className="pt-4 flex flex-col items-center border-t border-slate-50 mt-4">
+        <div className="pt-4 flex flex-col items-center border-t border-slate-50 mt-4 space-y-3">
           <button 
             type="button" 
             onClick={() => setMode('test-mode')}
@@ -586,6 +597,9 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
             </svg>
             <span>INGRESAR CON CORREO GMAIL</span>
           </button>
+          <p className="text-slate-400 text-[10px] text-center leading-relaxed max-w-xs px-2">
+            ¿Problemas con Google? Si estás en la vista previa o tienes bloqueados los popups, haz clic en <strong className="text-slate-500">INGRESAR CON CORREO GMAIL</strong> para registrarte o iniciar sesión con contraseña.
+          </p>
         </div>
       </div>
 

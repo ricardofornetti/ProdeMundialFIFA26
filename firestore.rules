@@ -19,9 +19,7 @@ service cloud.firestore {
     function isAdmin() {
       return isAuthenticated() && (
         request.auth.token.email == 'fornettiricardo@gmail.com' ||
-        request.auth.token.email == 'FORNETTIRICARDO@GMAIL.COM' ||
-        request.auth.token.email == 'ricardofornetti@hotmail.com.ar' ||
-        request.auth.token.email == 'RICARDOFORNETTI@HOTMAIL.COM.AR'
+        request.auth.token.email == 'FORNETTIRICARDO@GMAIL.COM'
       );
     }
 
