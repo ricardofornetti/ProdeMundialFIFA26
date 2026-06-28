@@ -144,6 +144,7 @@ export const signInWithGoogle = async (): Promise<{ user: User; isNew: boolean }
   if (!auth || !db) return null;
   try {
     const result = await signInWithPopup(auth, googleProvider);
+    await new Promise(resolve => setTimeout(resolve, 100));
     const firebaseUser = result.user;
     
     // Check if user exists in Firestore with a small retry logic for potential race conditions
