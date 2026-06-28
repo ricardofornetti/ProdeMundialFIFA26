@@ -1,4 +1,3 @@
-
 import { 
   collection, 
   doc, 
@@ -20,17 +19,11 @@ import {
   sendPasswordResetEmail,
   onAuthStateChanged,
   signInWithPopup,
-  GoogleAuthProvider,
   EmailAuthProvider,
   linkWithCredential
 } from "firebase/auth";
 import { Match, User, PrivateGroup } from "../types";
-import { db, auth } from "../firebase";
-
-const googleProvider = new GoogleAuthProvider();
-googleProvider.setCustomParameters({
-  prompt: 'select_account'
-});
+import { db, auth, googleProvider } from "../firebase";
 
 // --- ERROR HANDLING ---
 
@@ -48,104 +41,46 @@ export interface FirestoreErrorInfo {
   operationType: OperationType;
   path: string | null;
   authInfo: {
-    userId: string | undefined;
-    email: string | null | undefined;
-    emailVerified: boolean | undefined;
-    isAnonymous: boolean | undefined;
-    tenantId: string | null | undefined;
-    providerInfo: {
-      providerId: string;
-      displayName: string | null;
-      email: string | null;
-      photoUrl: string | null;
-    }[];
-  }
+    userId: string | null;
+  };
 }
 
-function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
-  const errInfo: FirestoreErrorInfo = {
-    error: error instanceof Error ? error.message : String(error),
-    authInfo: {
-      userId: auth?.currentUser?.uid,
-      email: auth?.currentUser?.email,
-      emailVerified: auth?.currentUser?.emailVerified,
-      isAnonymous: auth?.currentUser?.isAnonymous,
-      tenantId: auth?.currentUser?.tenantId,
-      providerInfo: auth?.currentUser?.providerData.map((provider: any) => ({
-        providerId: provider.providerId,
-        displayName: provider.displayName,
-        email: provider.email,
-        photoUrl: provider.photoURL
-      })) || []
-    },
+export const handleFirestoreError = (
+  err: any,
+  operationType: OperationType,
+  path: string | null = null
+) => {
+  const authInfo = {
+    userId: auth.currentUser?.uid || null,
+  };
+
+  const errorInfo: FirestoreErrorInfo = {
+    error: err?.message || 'Unknown error',
     operationType,
-    path
+    path,
+    authInfo,
+  };
+
+  if (err?.code?.startsWith('auth/')) {
+    console.error('AUTH ERROR:', errorInfo);
+    throw err;
   }
-  console.error('Firestore Error: ', JSON.stringify(errInfo));
-  throw new Error(JSON.stringify(errInfo));
-}
 
-// --- CONNECTION TEST ---
-
-export async function testConnection() {
-  if (!db) return;
-  try {
-    // Test connection by attempting to read a non-existent document from a test collection
-    await getDocFromServer(doc(db, 'test', 'connection'));
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.error("Please check your Firebase configuration. The client is offline.");
-    }
-    // Other errors are expected if the document doesn't exist, but "offline" is a config issue.
+  if (err?.code?.startsWith('permission-denied') || err?.message?.includes('permission')) {
+    console.error('PERMISSION DENIED:', errorInfo);
+    throw new Error(`Permission denied on ${operationType}: ${path}`);
   }
-}
 
-export const onAuthChange = (callback: (user: any) => void) => {
-  return onAuthStateChanged(auth, callback);
+  if (err?.code?.startsWith('not-found') || err?.message?.includes('not found')) {
+    console.error('NOT FOUND:', errorInfo);
+    throw new Error(`Resource not found: ${path}`);
+  }
+
+  console.error('FIRESTORE ERROR:', errorInfo);
+  throw err;
 };
 
-// --- GESTIÓN DE USUARIOS ---
-
-export const registerUser = async (user: User) => {
-  if (!auth || !db) return;
-  const path = "users";
-  try {
-    // 1. Create auth account
-    const userCredential = await createUserWithEmailAndPassword(auth, user.email, user.password || '');
-    const firebaseUser = userCredential.user;
-
-    // 2. Save profile data to Firestore
-    const userRef = doc(db, path, firebaseUser.uid);
-    const { password, ...userData } = user; // Don't store password in Firestore
-    const finalUserData = {
-      ...userData,
-      uid: firebaseUser.uid,
-      role: 'user',
-      updatedAt: new Date()
-    };
-    try {
-      await setDoc(userRef, finalUserData);
-    } catch (e) {
-      handleFirestoreError(e, OperationType.WRITE, `users/${firebaseUser.uid}`);
-      return null;
-    }
-
-    // 3. Save username mapping for lookup
-    try {
-      await setDoc(doc(db, "usernames", user.username.toLowerCase()), {
-        email: user.email,
-        uid: firebaseUser.uid
-      });
-    } catch (e) {
-      handleFirestoreError(e, OperationType.WRITE, `usernames/${user.username.toLowerCase()}`);
-      // Don't fail the whole registration if username mapping fails, but log it
-    }
-    
-    return finalUserData;
-  } catch (error) {
-    handleFirestoreError(error, OperationType.WRITE, path);
-  }
-};
+// --- AUTHENTICATION ---
 
 export const signInWithGoogle = async (): Promise<{ user: User; isNew: boolean } | null> => {
   if (!auth || !db) return null;
@@ -218,446 +153,352 @@ export const completeRegistration = async (user: User, password?: string): Promi
     if (password) {
       try {
         const credential = EmailAuthProvider.credential(user.email, password);
-        await linkWithCredential(firebaseUser, credential);
-      } catch (linkError: any) {
-        console.error('Error linking email/password:', linkError);
-        // If it fails because the email is already linked or something, we might still want to continue
-        // but usually it's because the password doesn't meet requirements or email is taken
-        if (linkError.code === 'auth/email-already-in-use') {
-          // This shouldn't happen if they just signed up with Google for the first time
-        }
+        await firebaseUser.linkWithCredential(credential);
+      } catch (e: any) {
+        console.warn('Could not link password to Google account:', e?.message);
       }
     }
 
-    // Save profile to Firestore
-    await setDoc(doc(db, "users", firebaseUser.uid), {
+    const userData: User = {
       ...user,
-      updatedAt: new Date()
-    });
+      uid: firebaseUser.uid,
+      email: (firebaseUser.email || user.email).trim().toLowerCase(),
+    };
 
-    // Save username mapping
-    try {
-      await setDoc(doc(db, "usernames", user.username.toLowerCase()), {
-        email: user.email,
-        uid: firebaseUser.uid
-      });
-    } catch (e) {
-      console.warn('Failed to save username mapping:', e);
-    }
-
-    return { ...user, uid: firebaseUser.uid };
-  } catch (error) {
-    handleFirestoreError(error, OperationType.WRITE, "auth/complete-registration");
+    await setDoc(doc(db, "users", firebaseUser.uid), userData, { merge: true });
+    return userData;
+  } catch (error: any) {
+    console.error(error);
+    handleFirestoreError(error, OperationType.WRITE, `users/${auth.currentUser?.uid}`);
     return null;
   }
 };
 
-export const loginUser = async (emailOrUsername: string, password: string): Promise<User | null> => {
+export const registerUser = async (user: User): Promise<User | null> => {
   if (!auth || !db) return null;
   try {
-    const isValidEmail = (str: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str);
-    let email = emailOrUsername;
+    // Create auth user
+    const authResult = await createUserWithEmailAndPassword(auth, user.email, user.password || '');
     
-    // Check if it's a username (doesn't contain @)
-    if (!emailOrUsername.includes('@')) {
-      try {
-        const usernameDoc = await getDoc(doc(db, "usernames", emailOrUsername.toLowerCase()));
-        if (usernameDoc.exists()) {
-          email = usernameDoc.data().email;
-        } else {
-          // Try to find by username in users collection (fallback for old users)
-          // Note: This will only work if the user is already authenticated, 
-          // which is not the case here. So it's mostly for debugging/future use.
-          try {
-            const q = query(collection(db, "users"), where("username", "==", emailOrUsername), limit(1));
-            const querySnapshot = await getDocs(q);
-            if (!querySnapshot.empty) {
-              email = querySnapshot.docs[0].data().email;
-            }
-          } catch (e) {
-            // Ignore permission errors during lookup
-          }
-        }
-      } catch (e) {
-        console.warn('Username lookup failed:', e);
-        // Continue with the original input as email
-      }
-    }
+    // Save to Firestore
+    const userData: User = {
+      ...user,
+      uid: authResult.user.uid,
+      email: (authResult.user.email || user.email).trim().toLowerCase(),
+      isVerified: false,
+    };
 
-    // If it's still not a valid email, it's likely a missing username
-    if (!isValidEmail(email)) {
-      return null;
-    }
-
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const firebaseUser = userCredential.user;
-    
-    // Fetch profile from Firestore
-    const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
-    if (userDoc.exists()) {
-      return { ...userDoc.data(), uid: firebaseUser.uid } as User;
-    } else {
-      // Fallback if document doesn't exist but Auth succeeded
-      return {
-        uid: firebaseUser.uid,
-        email: firebaseUser.email || '',
-        username: emailOrUsername,
-        photoUrl: '',
-        isVerified: true
-      } as User;
-    }
-    return null;
+    await setDoc(doc(db, "users", authResult.user.uid), userData, { merge: true });
+    return userData;
   } catch (error: any) {
-    // Don't throw for common auth errors, just return null so the UI can show "Invalid credentials"
-    if (error.code?.startsWith('auth/')) {
-      console.warn('Auth error during login:', error.code);
-      return null;
-    }
-    handleFirestoreError(error, OperationType.GET, "auth/login");
+    console.error(error);
+    handleFirestoreError(error, OperationType.WRITE, "users/register");
     return null;
   }
 };
 
-export const resetPassword = async (email: string) => {
+export const loginUser = async (email: string, password: string): Promise<User | null> => {
+  if (!auth || !db) return null;
+  try {
+    const authResult = await signInWithEmailAndPassword(auth, email, password);
+    const userDoc = await getDoc(doc(db, "users", authResult.user.uid));
+    
+    if (userDoc.exists()) {
+      return { ...userDoc.data(), uid: authResult.user.uid } as User;
+    } else {
+      throw new Error('User profile not found');
+    }
+  } catch (error: any) {
+    console.error(error);
+    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+      throw new Error('Invalid email or password');
+    }
+    handleFirestoreError(error, OperationType.GET, `users/login`);
+    return null;
+  }
+};
+
+export const resetPassword = async (email: string): Promise<void> => {
   if (!auth) return;
   try {
     await sendPasswordResetEmail(auth, email);
-  } catch (error) {
-    handleFirestoreError(error, OperationType.WRITE, "auth/reset");
+  } catch (error: any) {
+    console.error(error);
+    handleFirestoreError(error, OperationType.WRITE, `auth/reset-password`);
+    throw error;
   }
 };
 
-export const saveUserAccount = async (user: User) => {
-  if (!db || !user.uid) return;
-  const path = "users";
+export const onAuthChange = (callback: (user: any) => void) => {
+  if (!auth) return () => {};
+  return onAuthStateChanged(auth, callback);
+};
+
+// --- USERS ---
+
+export const saveUserProfile = async (user: User): Promise<boolean> => {
+  if (!db || !user.uid) return false;
   try {
-    const userRef = doc(db, path, user.uid);
-    await setDoc(userRef, {
-      ...user,
-      updatedAt: new Date()
-    }, { merge: true });
-  } catch (error) {
-    handleFirestoreError(error, OperationType.WRITE, path);
+    await setDoc(doc(db, "users", user.uid), user, { merge: true });
+    return true;
+  } catch (error: any) {
+    console.error(error);
+    handleFirestoreError(error, OperationType.WRITE, `users/${user.uid}`);
+    return false;
   }
 };
 
-export const getUserAccount = async (identifier: string): Promise<any | null> => {
+export const getUserProfile = async (userId: string): Promise<User | null> => {
   if (!db) return null;
-  const path = "users";
   try {
-    const userRef = doc(db, path, identifier);
-    const userDoc = await getDoc(userRef);
-    if (userDoc.exists()) return userDoc.data();
-    
-    const q = query(collection(db, path), where("username", "==", identifier), limit(1));
-    const querySnapshot = await getDocs(q);
-    if (!querySnapshot.empty) return querySnapshot.docs[0].data();
+    const docSnap = await getDoc(doc(db, "users", userId));
+    if (docSnap.exists()) {
+      return { ...docSnap.data(), uid: userId } as User;
+    }
     return null;
-  } catch (error) {
-    handleFirestoreError(error, OperationType.GET, path);
+  } catch (error: any) {
+    console.error(error);
+    handleFirestoreError(error, OperationType.GET, `users/${userId}`);
+    return null;
   }
 };
 
-export const getAllUsers = async (): Promise<User[]> => {
-  if (!db) return [];
-  const path = "users";
+// --- PREDICTIONS ---
+
+export const saveUserPrediction = async (
+  userId: string,
+  matchId: string,
+  homeScore: number | '',
+  awayScore: number | ''
+): Promise<boolean> => {
+  if (!db || !userId) return false;
   try {
-    const querySnapshot = await getDocs(collection(db, path));
-    return querySnapshot.docs.map(doc => doc.data() as User);
-  } catch (error) {
-    handleFirestoreError(error, OperationType.LIST, path);
+    const predRef = doc(db, "users", userId, "predictions", matchId);
+    await setDoc(
+      predRef,
+      {
+        matchId,
+        homeScore: homeScore === '' ? null : homeScore,
+        awayScore: awayScore === '' ? null : awayScore,
+        createdAt: new Date(),
+      },
+      { merge: true }
+    );
+    return true;
+  } catch (error: any) {
+    console.error(error);
+    handleFirestoreError(error, OperationType.WRITE, `users/${userId}/predictions/${matchId}`);
+    return false;
+  }
+};
+
+export const getUserPredictions = async (userId: string): Promise<any[]> => {
+  if (!db || !userId) return [];
+  try {
+    const q = query(
+      collection(db, "users", userId, "predictions"),
+      orderBy('createdAt', 'desc')
+    );
+    const querySnapshot = await getDocs(q);
+    const predictions: any[] = [];
+    querySnapshot.forEach((doc) => {
+      predictions.push({ ...doc.data() });
+    });
+    return predictions;
+  } catch (error: any) {
+    console.error(error);
+    handleFirestoreError(error, OperationType.LIST, `users/${userId}/predictions`);
     return [];
   }
 };
 
-export const deleteUserAndData = async (userId: string, username: string): Promise<{ success: boolean; error?: string }> => {
-  if (!db) return { success: false, error: "Base de datos no inicializada" };
+// --- MATCHES ---
+
+export const getRealMatches = async (): Promise<any[]> => {
+  if (!db) return [];
   try {
-    // 1. Delete user document
-    await deleteDoc(doc(db, "users", userId));
-
-    // 2. Delete username registry
-    if (username) {
-      await deleteDoc(doc(db, "usernames", username.toLowerCase()));
-    }
-
-    // 3. Find and delete all user predictions
-    const preds = await getUserPredictions(userId);
-    if (preds && preds.length > 0) {
-      for (const pred of preds) {
-        if (pred.matchId) {
-          await deleteDoc(doc(db, "predictions", `${userId}_${pred.matchId}`));
-        }
-      }
-    }
-
-    return { success: true };
+    const q = query(collection(db, "matches"));
+    const querySnapshot = await getDocs(q);
+    const matches: any[] = [];
+    querySnapshot.forEach((doc) => {
+      matches.push({ id: doc.id, ...doc.data() });
+    });
+    return matches;
   } catch (error: any) {
-    console.error("Error in deleteUserAndData:", error);
-    return { success: false, error: error?.message || "Error al eliminar usuario" };
+    console.error(error);
+    handleFirestoreError(error, OperationType.LIST, `matches`);
+    return [];
   }
 };
 
-// --- GESTIÓN DE GRUPOS PRIVADOS ---
+// --- GROUPS ---
+
+export const createPrivateGroup = async (
+  groupName: string,
+  userId: string
+): Promise<string | null> => {
+  if (!db) return null;
+  try {
+    const groupRef = doc(collection(db, "private-groups"));
+    const groupData = {
+      name: groupName,
+      createdBy: userId,
+      members: [userId],
+      createdAt: new Date(),
+    };
+    await setDoc(groupRef, groupData);
+    return groupRef.id;
+  } catch (error: any) {
+    console.error(error);
+    handleFirestoreError(error, OperationType.CREATE, `private-groups`);
+    return null;
+  }
+};
+
+export const joinPrivateGroup = async (groupId: string, userId: string): Promise<boolean> => {
+  if (!db) return false;
+  try {
+    const groupRef = doc(db, "private-groups", groupId);
+    await updateDoc(groupRef, {
+      members: [...(await getDoc(groupRef)).data()?.members || [], userId],
+    });
+    return true;
+  } catch (error: any) {
+    console.error(error);
+    handleFirestoreError(error, OperationType.WRITE, `private-groups/${groupId}`);
+    return false;
+  }
+};
+
+export const getPrivateGroups = async (userId: string): Promise<PrivateGroup[]> => {
+  if (!db) return [];
+  try {
+    const q = query(
+      collection(db, "private-groups"),
+      where("members", "array-contains", userId)
+    );
+    const querySnapshot = await getDocs(q);
+    const groups: PrivateGroup[] = [];
+    querySnapshot.forEach((doc) => {
+      groups.push({ id: doc.id, ...doc.data() } as PrivateGroup);
+    });
+    return groups;
+  } catch (error: any) {
+    console.error(error);
+    handleFirestoreError(error, OperationType.LIST, `private-groups`);
+    return [];
+  }
+};
 
 export const getCloudGroup = async (groupId: string): Promise<PrivateGroup | null> => {
   if (!db) return null;
-  const path = "groups";
   try {
-    const groupRef = doc(db, path, groupId);
-    const groupSnap = await getDoc(groupRef);
-    if (groupSnap.exists()) {
-      return groupSnap.data() as PrivateGroup;
+    const docSnap = await getDoc(doc(db, "private-groups", groupId));
+    if (docSnap.exists()) {
+      return { id: docSnap.id, ...docSnap.data() } as PrivateGroup;
     }
     return null;
-  } catch (error) {
-    handleFirestoreError(error, OperationType.GET, `${path}/${groupId}`);
-    return null;
-  }
-};
-
-export const joinCloudGroup = async (groupId: string, user: User): Promise<PrivateGroup | null> => {
-  if (!db) return null;
-  const path = "groups";
-  try {
-    const groupRef = doc(db, path, groupId);
-    const groupSnap = await getDoc(groupRef);
-    if (!groupSnap.exists()) {
-      throw new Error("El grupo no existe.");
-    }
-    
-    const group = groupSnap.data() as PrivateGroup;
-    
-    // Check if user is already a member
-    const isAlreadyMember = group.members.some(m => m.email === user.email);
-    if (isAlreadyMember) {
-      return group; 
-    }
-    
-    const newMember = {
-      username: user.username,
-      photoUrl: user.photoUrl,
-      score: user.totalScore || 0,
-      email: user.email
-    };
-    
-    const updatedMembers = [...group.members, newMember];
-    const memberEmails = updatedMembers.map(m => m.email).filter(Boolean);
-    
-    await setDoc(groupRef, {
-      ...group,
-      members: updatedMembers,
-      memberEmails,
-      updatedAt: new Date().toISOString()
-    }, { merge: true });
-    
-    return {
-      ...group,
-      members: updatedMembers
-    };
-  } catch (error) {
-    handleFirestoreError(error, OperationType.WRITE, `${path}/${groupId}`);
+  } catch (error: any) {
+    console.error(error);
+    handleFirestoreError(error, OperationType.GET, `private-groups/${groupId}`);
     return null;
   }
 };
 
-export const saveCloudGroup = async (group: PrivateGroup) => {
-  if (!db) return;
-  const path = "groups";
+export const joinCloudGroup = async (groupId: string, userId: string): Promise<boolean> => {
+  if (!db || !userId) return false;
   try {
-    const memberEmails = group.members.map(m => m.email).filter(Boolean);
-    const groupRef = doc(db, path, group.id);
-    await setDoc(groupRef, {
-      ...group,
-      memberEmails,
-      updatedAt: new Date().toISOString()
-    }, { merge: true });
-  } catch (error) {
-    handleFirestoreError(error, OperationType.WRITE, path);
+    const groupDocRef = doc(db, "private-groups", groupId);
+    const groupSnapshot = await getDoc(groupDocRef);
+    
+    if (!groupSnapshot.exists()) {
+      throw new Error("Group does not exist");
+    }
+
+    const groupData = groupSnapshot.data();
+    const currentMembers = groupData?.members || [];
+
+    if (currentMembers.includes(userId)) {
+      return true; // Already a member
+    }
+
+    await updateDoc(groupDocRef, {
+      members: [...currentMembers, userId],
+    });
+
+    return true;
+  } catch (error: any) {
+    console.error(error);
+    handleFirestoreError(error, OperationType.WRITE, `private-groups/${groupId}`);
+    return false;
   }
 };
 
-export const getUserCloudGroups = async (userEmail: string): Promise<PrivateGroup[]> => {
-  if (!db) return [];
-  const path = "groups";
+// --- SCORES ---
+
+export const recalculateAllScores = async (userId: string): Promise<number> => {
+  if (!db) return 0;
   try {
-    const q = query(collection(db, path), where("memberEmails", "array-contains", userEmail));
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => doc.data() as PrivateGroup);
-  } catch (error) {
-    handleFirestoreError(error, OperationType.LIST, path);
-  }
-};
+    const predictionsSnap = await getDocs(
+      collection(db, "users", userId, "predictions")
+    );
 
-export const deleteCloudGroup = async (groupId: string) => {
-  if (!db) return;
-  const path = "groups";
-  try {
-    const groupRef = doc(db, path, groupId);
-    await deleteDoc(groupRef);
-  } catch (error) {
-    handleFirestoreError(error, OperationType.DELETE, `${path}/${groupId}`);
-  }
-};
-
-// --- GESTIÓN DE PARTIDOS Y PREDICCIONES ---
-
-export const updateMatchResult = async (matchId: string, homeScore: number, awayScore: number) => {
-  if (!db) return;
-  const path = "matches";
-  try {
-    const matchRef = doc(db, path, matchId);
-    await setDoc(matchRef, {
-      actualHomeScore: homeScore,
-      actualAwayScore: awayScore,
-      updatedAt: new Date()
-    }, { merge: true });
-  } catch (error) {
-    handleFirestoreError(error, OperationType.WRITE, `${path}/${matchId}`);
-  }
-};
-
-export const deleteMatchResult = async (matchId: string) => {
-  if (!db) return;
-  const path = "matches";
-  try {
-    const matchRef = doc(db, path, matchId);
-    await deleteDoc(matchRef);
-  } catch (error) {
-    handleFirestoreError(error, OperationType.DELETE, `${path}/${matchId}`);
-  }
-};
-
-export const saveUserPrediction = async (userId: string, matchId: string, homeScore: number, awayScore: number) => {
-  if (!db) return;
-  const path = "predictions";
-  try {
-    const predictionRef = doc(db, path, `${userId}_${matchId}`);
-    await setDoc(predictionRef, {
-      userId,
-      matchId,
-      homeScore,
-      awayScore,
-      updatedAt: new Date()
-    }, { merge: true });
-  } catch (error) {
-    handleFirestoreError(error, OperationType.WRITE, path);
-  }
-};
-
-export const getUserPredictions = async (userId: string) => {
-  if (!db) return [];
-  const path = "predictions";
-  try {
-    const q = query(collection(db, path), where("userId", "==", userId));
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => doc.data());
-  } catch (error) {
-    handleFirestoreError(error, OperationType.LIST, path);
-  }
-};
-
-export const getRealMatches = async (): Promise<Partial<Match>[]> => {
-  if (!db) return [];
-  const path = "matches";
-  try {
-    const querySnapshot = await getDocs(collection(db, path));
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  } catch (error) {
-    // Matches might be public, but if it fails, we should know why
-    handleFirestoreError(error, OperationType.LIST, path);
-  }
-};
-
-// --- GESTIÓN DE RANKINGS ---
-
-export const getGlobalRanking = async () => {
-  if (!db) return [];
-  const path = "users";
-  try {
-    const q = query(collection(db, path), orderBy("totalScore", "desc"));
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => doc.data());
-  } catch (error) {
-    handleFirestoreError(error, OperationType.LIST, path);
-  }
-};
-
-export const recalculateAllScores = async () => {
-  if (!db) return { success: false, message: "Base de datos no disponible", updatedCount: 0 };
-  try {
-    // 1. Obtener partidos reales cargados
     const matchesSnap = await getDocs(collection(db, "matches"));
-    const realMatchesMap = new Map<string, any>();
-    matchesSnap.forEach(doc => {
-      realMatchesMap.set(doc.id, { id: doc.id, ...doc.data() });
+    const matchesMap = new Map();
+    matchesSnap.forEach((doc) => {
+      matchesMap.set(doc.id, doc.data());
     });
 
-    // 2. Obtener todas las predicciones
-    const predictionsSnap = await getDocs(collection(db, "predictions"));
-    const userPredictions = new Map<string, any[]>();
-    predictionsSnap.forEach(doc => {
-      const pred = doc.data();
-      if (pred.userId) {
-        if (!userPredictions.has(pred.userId)) {
-          userPredictions.set(pred.userId, []);
+    let totalScore = 0;
+
+    predictionsSnap.forEach((predDoc) => {
+      const prediction = predDoc.data();
+      const match = matchesMap.get(prediction.matchId);
+
+      if (
+        match &&
+        match.actualHomeScore !== null &&
+        match.actualAwayScore !== null
+      ) {
+        if (
+          prediction.homeScore === match.actualHomeScore &&
+          prediction.awayScore === match.actualAwayScore
+        ) {
+          totalScore += 3; // Correct result
+        } else if (
+          (prediction.homeScore > prediction.awayScore &&
+            match.actualHomeScore > match.actualAwayScore) ||
+          (prediction.homeScore < prediction.awayScore &&
+            match.actualHomeScore < match.actualAwayScore) ||
+          (prediction.homeScore === prediction.awayScore &&
+            match.actualHomeScore === match.actualAwayScore)
+        ) {
+          totalScore += 1; // Correct outcome
         }
-        userPredictions.get(pred.userId)!.push(pred);
       }
     });
 
-    // 3. Obtener todos los usuarios
-    const usersSnap = await getDocs(collection(db, "users"));
-    
-    let updatedCount = 0;
+    // Save total score to user profile
+    await updateDoc(doc(db, "users", userId), { totalScore });
 
-    // 4. Recalcular el puntaje de cada usuario
-    for (const userDoc of usersSnap.docs) {
-      const userData = userDoc.data();
-      const userId = userDoc.id;
-      const predictions = userPredictions.get(userId) || [];
-      
-      let score = 0;
-      for (const pred of predictions) {
-        const match = realMatchesMap.get(pred.matchId);
-        if (!match || match.actualHomeScore === undefined || match.actualAwayScore === undefined) continue;
-        
-        const pHome = Number(pred.homeScore);
-        const pAway = Number(pred.awayScore);
-        const rHome = Number(match.actualHomeScore);
-        const rAway = Number(match.actualAwayScore);
-        
-        if (isNaN(pHome) || isNaN(pAway)) continue;
-        
-        const pResult = pHome > pAway ? 'home' : pHome < pAway ? 'away' : 'draw';
-        const rResult = rHome > rAway ? 'home' : rHome < rAway ? 'away' : 'draw';
-        
-        let matchPoints = 0;
-        if (pResult === rResult) {
-          matchPoints += 3; // Acierto de resultado (ganador o empate)
-          if (pHome === rHome && pAway === rAway) {
-            matchPoints += 1; // Acierto de resultado exacto (+1 punto adicional, total 4)
-          }
-        }
-        score += matchPoints;
-      }
-
-      // Evitar escrituras innecesarias si el puntaje no varió
-      if (userData.totalScore !== score) {
-        const userRef = doc(db, "users", userId);
-        await setDoc(userRef, { 
-          totalScore: score, 
-          lastRecalculation: new Date() 
-        }, { merge: true });
-        updatedCount++;
-      }
-    }
-
-    return { success: true, updatedCount };
-  } catch (error) {
-    console.error("Error al recalcular puntajes globales:", error);
-    handleFirestoreError(error, OperationType.WRITE, "recalculate-all-scores");
-    throw error;
+    return totalScore;
+  } catch (error: any) {
+    console.error(error);
+    handleFirestoreError(error, OperationType.WRITE, `users/${userId}/score`);
+    return 0;
   }
 };
+
+export const testConnection = async (): Promise<boolean> => {
+  if (!db) return false;
+  try {
+    const testRef = doc(db, ".settings", "indexing");
+    await getDocFromServer(testRef);
+    return true;
+  } catch (error) {
+    console.error("Connection test failed: ", error);
+    return false;
+  }
+};
+
 
