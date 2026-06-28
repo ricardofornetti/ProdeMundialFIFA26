@@ -168,8 +168,8 @@ export const signInWithGoogle = async (): Promise<{ user: User; isNew: boolean }
       // Or we can create a basic profile and return isNew: true
       const newUser: User = {
         uid: firebaseUser.uid,
-        email: (auth.currentUser?.email || firebaseUser.email || '').trim().toLowerCase(),
-        username: firebaseUser.displayName || auth.currentUser?.email?.split('@')[0] || 'Usuario',
+        email: (auth.currentUser?.email || '').trim().toLowerCase(),
+       username: firebaseUser.displayName || (auth.currentUser?.email?.split('@')[0]) || 'Usuario',
         photoUrl: firebaseUser.photoURL || '',
         isVerified: true,
         totalScore: 0,
