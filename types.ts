@@ -44,6 +44,7 @@ export interface Match {
   venue: string;
   actualHomeScore?: number;
   actualAwayScore?: number;
+  updatedAt?: string;
 }
 
 export interface Prediction {

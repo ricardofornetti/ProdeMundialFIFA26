@@ -367,6 +367,34 @@ export const getAllUsers = async (): Promise<User[]> => {
   }
 };
 
+export const deleteUserAndData = async (userId: string, username: string): Promise<{ success: boolean; error?: string }> => {
+  if (!db) return { success: false, error: "Base de datos no inicializada" };
+  try {
+    // 1. Delete user document
+    await deleteDoc(doc(db, "users", userId));
+
+    // 2. Delete username registry
+    if (username) {
+      await deleteDoc(doc(db, "usernames", username.toLowerCase()));
+    }
+
+    // 3. Find and delete all user predictions
+    const preds = await getUserPredictions(userId);
+    if (preds && preds.length > 0) {
+      for (const pred of preds) {
+        if (pred.matchId) {
+          await deleteDoc(doc(db, "predictions", `${userId}_${pred.matchId}`));
+        }
+      }
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error in deleteUserAndData:", error);
+    return { success: false, error: error?.message || "Error al eliminar usuario" };
+  }
+};
+
 // --- GESTIÓN DE GRUPOS PRIVADOS ---
 
 export const getCloudGroup = async (groupId: string): Promise<PrivateGroup | null> => {

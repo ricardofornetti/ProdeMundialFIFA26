@@ -145,7 +145,7 @@ export const resolveBracketMatches = (
 
   // 3. Assign 3rd-placed teams to their slots
   const slots = [
-    { matchId: 'm75', prefers: ['A', 'B', 'C', 'D', 'F'] },
+    { matchId: 'm74', prefers: ['A', 'B', 'C', 'D', 'F'] },
     { matchId: 'm78', prefers: ['C', 'D', 'F', 'G', 'H'] },
     { matchId: 'm79', prefers: ['C', 'E', 'F', 'H', 'I'] },
     { matchId: 'm80', prefers: ['E', 'H', 'I', 'J', 'K'] },
@@ -296,4 +296,42 @@ export const resolveBracketMatches = (
   }
 
   return resolvedMatches;
+};
+
+/**
+ * Merges official matches from constants with cloud matches from Firestore safely.
+ * For knockout matches, if constants.ts has concrete/real team names (e.g., from the new image layout)
+ * while the old cloud DB entries still have placeholders (like "2° Grupo A" or "1° Grupo E"),
+ * we ignore the cloud placeholders and preserve the fresh team names from constants,
+ * while still keeping any actual match scores loaded from the cloud.
+ */
+export const mergeCloudMatches = (
+  constantsMatches: Match[],
+  cloudMatches: Partial<Match>[]
+): Match[] => {
+  return constantsMatches.map(m => {
+    const cloud = (cloudMatches || []).find(cm => cm.id === m.id);
+    if (!cloud) return m;
+
+    // For knockout matches, check if we should keep constants' real teams over cloud placeholders
+    if (!m.group.includes('Grupo')) {
+      const cloudIsPlaceholder = 
+        (cloud.homeTeam && (cloud.homeTeam.includes('Grupo') || cloud.homeTeam.includes('Ganador') || cloud.homeTeam.includes('Perdedor') || cloud.homeTeam.includes('3°'))) ||
+        (cloud.awayTeam && (cloud.awayTeam.includes('Grupo') || cloud.awayTeam.includes('Ganador') || cloud.awayTeam.includes('Perdedor') || cloud.awayTeam.includes('3°')));
+      
+      const mIsReal = 
+        m.homeTeam && !(m.homeTeam.includes('Grupo') || m.homeTeam.includes('Ganador') || m.homeTeam.includes('Perdedor') || m.homeTeam.includes('3°'));
+
+      if (cloudIsPlaceholder && mIsReal) {
+        return {
+          ...m,
+          actualHomeScore: cloud.actualHomeScore,
+          actualAwayScore: cloud.actualAwayScore,
+          updatedAt: cloud.updatedAt
+        };
+      }
+    }
+
+    return { ...m, ...cloud };
+  });
 };

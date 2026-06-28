@@ -1,8 +1,9 @@
 {
   "projectId": "mundialfifa2026-6364c",
-  "appId": "1:753999332279:web:f31348d66ebb25c9dc5e32",
+  "appId": "1:753999332279:web:4c947f25b6a8953adc5e32",
   "apiKey": "AIzaSyAs-UQmipJEKg94nIKffEB7b7cK-v7v6W4",
   "authDomain": "mundialfifa2026-6364c.firebaseapp.com",
+  "firestoreDatabaseId": "ai-studio-mundialfifa2026-818bcbb9-41ab-4013-aebc-dd94dfea1f4f",
   "storageBucket": "mundialfifa2026-6364c.firebasestorage.app",
   "messagingSenderId": "753999332279",
   "measurementId": ""

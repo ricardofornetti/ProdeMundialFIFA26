@@ -117,48 +117,48 @@ export const WORLD_CUP_MATCHES: Match[] = [
   // - 1°F vs 2°C (m76, 29 Jun, Estadio Monterrey)
   // - 2°K vs 2°L (m84, 02 Jul, Toronto Stadium)
   // - 1°H vs 2°J (m83, 02 Jul, Los Ángeles Stadium)
-  // Los demás cruces con terceros puestos (ej: m75, m78, m79, etc.) dependen enteramente de qué
+  // Los demás cruces con terceros puestos (ej: m74, m78, m79, etc.) dependen enteramente de qué
   // terceros se clasifiquen, por lo que se representan aquí bajo la lógica por defecto de posiciones de grupo.
-  { id: 'm73', homeTeam: '2° Grupo A', awayTeam: '2° Grupo B', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Dieciseisavos de Final', date: '28 Jun 2026', time: '16:00', venue: 'Estadio Los Angeles, Los Ángeles' },
-  { id: 'm74', homeTeam: '1° Grupo C', awayTeam: '2° Grupo F', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Dieciseisavos de Final', date: '29 Jun 2026', time: '14:00', venue: 'Estadio Houston, Houston' },
-  { id: 'm75', homeTeam: '1° Grupo E', awayTeam: '3° A/B/C/D/F', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Dieciseisavos de Final', date: '29 Jun 2026', time: '17:30', venue: 'Estadio Boston, Boston' },
-  { id: 'm76', homeTeam: '1° Grupo F', awayTeam: '2° Grupo C', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Dieciseisavos de Final', date: '29 Jun 2026', time: '22:00', venue: 'Estadio Monterrey, Monterrey' },
-  { id: 'm77', homeTeam: '2° Grupo E', awayTeam: '2° Grupo I', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Dieciseisavos de Final', date: '30 Jun 2026', time: '14:00', venue: 'Estadio Dallas, Dallas' },
-  { id: 'm78', homeTeam: '1° Grupo I', awayTeam: '3° C/D/F/G/H', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Dieciseisavos de Final', date: '30 Jun 2026', time: '18:00', venue: 'Estadio Nueva York/Nueva Jersey, Nueva York' },
-  { id: 'm79', homeTeam: '1° Grupo A', awayTeam: '3° C/E/F/H/I', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Dieciseisavos de Final', date: '30 Jun 2026', time: '22:00', venue: 'Estadio Ciudad de México, Ciudad de México' },
-  { id: 'm80', homeTeam: '1° Grupo L', awayTeam: '3° E/H/I/J/K', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Dieciseisavos de Final', date: '01 Jul 2026', time: '13:00', venue: 'Estadio Atlanta, Atlanta' },
-  { id: 'm81', homeTeam: '1° Grupo G', awayTeam: '3° A/E/H/I/J', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Dieciseisavos de Final', date: '01 Jul 2026', time: '17:00', venue: 'Estadio de Seattle, Seattle' },
-  { id: 'm82', homeTeam: '1° Grupo D', awayTeam: '3° B/E/F/I/J', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Dieciseisavos de Final', date: '01 Jul 2026', time: '21:00', venue: 'Estadio de la Bahía de San Francisco, Área de la Bahía de San Francisco' },
-  { id: 'm83', homeTeam: '1° Grupo H', awayTeam: '2° Grupo J', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Dieciseisavos de Final', date: '02 Jul 2026', time: '16:00', venue: 'Estadio Los Angeles, Los Ángeles' },
-  { id: 'm84', homeTeam: '2° Grupo K', awayTeam: '2° Grupo L', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Dieciseisavos de Final', date: '02 Jul 2026', time: '20:00', venue: 'Estadio de Toronto, Toronto' },
-  { id: 'm85', homeTeam: '1° Grupo B', awayTeam: '3° E/F/G/I/J', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Dieciseisavos de Final', date: '03 Jul 2026', time: '00:00', venue: 'Estadio BC Place Vancouver, Vancouver' },
-  { id: 'm86', homeTeam: '2° Grupo D', awayTeam: '2° Grupo G', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Dieciseisavos de Final', date: '03 Jul 2026', time: '15:00', venue: 'Estadio Dallas, Dallas' },
-  { id: 'm87', homeTeam: '1° Grupo J', awayTeam: '2° Grupo H', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Dieciseisavos de Final', date: '03 Jul 2026', time: '19:00', venue: 'Estadio Miami, Miami' },
-  { id: 'm88', homeTeam: '1° Grupo K', awayTeam: '3° D/E/I/J/L', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Dieciseisavos de Final', date: '03 Jul 2026', time: '22:30', venue: 'Estadio Kansas City, Kansas City' },
+  { id: 'm73', homeTeam: 'Sudáfrica', awayTeam: 'Canadá', homeFlag: 'ZA', awayFlag: 'CA', group: 'Dieciseisavos de Final', date: '28 Jun 2026', time: '16:00', venue: 'Estadio Los Angeles, Los Ángeles' },
+  { id: 'm76', homeTeam: 'Brasil', awayTeam: 'Japón', homeFlag: 'BR', awayFlag: 'JP', group: 'Dieciseisavos de Final', date: '29 Jun 2026', time: '14:00', venue: 'Estadio Monterrey, Monterrey' },
+  { id: 'm74', homeTeam: 'Alemania', awayTeam: 'Paraguay', homeFlag: 'DE', awayFlag: 'PY', group: 'Dieciseisavos de Final', date: '29 Jun 2026', time: '17:30', venue: 'Estadio Boston, Boston' },
+  { id: 'm75', homeTeam: 'Países Bajos', awayTeam: 'Marruecos', homeFlag: 'NL', awayFlag: 'MA', group: 'Dieciseisavos de Final', date: '29 Jun 2026', time: '22:00', venue: 'Estadio Houston, Houston' },
+  { id: 'm78', homeTeam: 'Costa de Marfil', awayTeam: 'Noruega', homeFlag: 'CI', awayFlag: 'NO', group: 'Dieciseisavos de Final', date: '30 Jun 2026', time: '14:00', venue: 'Estadio Nueva York/Nueva Jersey, Nueva York' },
+  { id: 'm77', homeTeam: 'Francia', awayTeam: 'Suecia', homeFlag: 'FR', awayFlag: 'SE', group: 'Dieciseisavos de Final', date: '30 Jun 2026', time: '18:00', venue: 'Estadio Dallas, Dallas' },
+  { id: 'm79', homeTeam: 'México', awayTeam: 'Ecuador', homeFlag: 'MX', awayFlag: 'EC', group: 'Dieciseisavos de Final', date: '30 Jun 2026', time: '22:00', venue: 'Estadio Ciudad de México, Ciudad de México' },
+  { id: 'm80', homeTeam: 'Inglaterra', awayTeam: 'RD Congo', homeFlag: 'GB-ENG', awayFlag: 'CD', group: 'Dieciseisavos de Final', date: '01 Jul 2026', time: '13:00', venue: 'Estadio Atlanta, Atlanta' },
+  { id: 'm82', homeTeam: 'Bélgica', awayTeam: 'Senegal', homeFlag: 'BE', awayFlag: 'SN', group: 'Dieciseisavos de Final', date: '01 Jul 2026', time: '17:00', venue: 'Estadio de la Bahía de San Francisco, Área de la Bahía de San Francisco' },
+  { id: 'm81', homeTeam: 'EE. UU.', awayTeam: 'Bosnia y Herzegovina', homeFlag: 'US', awayFlag: 'BA', group: 'Dieciseisavos de Final', date: '01 Jul 2026', time: '21:00', venue: 'Estadio de Seattle, Seattle' },
+  { id: 'm84', homeTeam: 'España', awayTeam: 'Austria', homeFlag: 'ES', awayFlag: 'AT', group: 'Dieciseisavos de Final', date: '02 Jul 2026', time: '16:00', venue: 'Estadio de Toronto, Toronto' },
+  { id: 'm83', homeTeam: 'Portugal', awayTeam: 'Croacia', homeFlag: 'PT', awayFlag: 'HR', group: 'Dieciseisavos de Final', date: '02 Jul 2026', time: '20:00', venue: 'Estadio Los Angeles, Los Ángeles' },
+  { id: 'm85', homeTeam: 'Suiza', awayTeam: 'Argelia', homeFlag: 'CH', awayFlag: 'DZ', group: 'Dieciseisavos de Final', date: '03 Jul 2026', time: '00:00', venue: 'Estadio BC Place Vancouver, Vancouver' },
+  { id: 'm86', homeTeam: 'Australia', awayTeam: 'Egipto', homeFlag: 'AU', awayFlag: 'EG', group: 'Dieciseisavos de Final', date: '03 Jul 2026', time: '15:00', venue: 'Estadio Dallas, Dallas' },
+  { id: 'm88', homeTeam: 'Argentina', awayTeam: 'Cabo Verde', homeFlag: 'AR', awayFlag: 'CV', group: 'Dieciseisavos de Final', date: '03 Jul 2026', time: '19:00', venue: 'Estadio Kansas City, Kansas City' },
+  { id: 'm87', homeTeam: 'Colombia', awayTeam: 'Ghana', homeFlag: 'CO', awayFlag: 'GH', group: 'Dieciseisavos de Final', date: '03 Jul 2026', time: '22:30', venue: 'Estadio Miami, Miami' },
 
   // --- OCTAVOS DE FINAL ---
-  { id: 'm89', homeTeam: 'Ganador 73', awayTeam: 'Ganador 75', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Octavos de Final', date: '04 Jul 2026', time: '14:00', venue: 'Estadio Houston, Houston' },
-  { id: 'm90', homeTeam: 'Ganador 74', awayTeam: 'Ganador 77', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Octavos de Final', date: '04 Jul 2026', time: '18:00', venue: 'Estadio Filadelfia, Filadelfia' },
+  { id: 'm89', homeTeam: 'Ganador 74', awayTeam: 'Ganador 77', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Octavos de Final', date: '04 Jul 2026', time: '15:00', venue: 'Estadio Boston, Boston' },
+  { id: 'm90', homeTeam: 'Ganador 73', awayTeam: 'Ganador 75', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Octavos de Final', date: '04 Jul 2026', time: '14:00', venue: 'Estadio Houston, Houston' },
   { id: 'm91', homeTeam: 'Ganador 76', awayTeam: 'Ganador 78', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Octavos de Final', date: '05 Jul 2026', time: '17:00', venue: 'Estadio Nueva York/Nueva Jersey, Nueva York' },
   { id: 'm92', homeTeam: 'Ganador 79', awayTeam: 'Ganador 80', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Octavos de Final', date: '05 Jul 2026', time: '21:00', venue: 'Estadio Ciudad de México, Ciudad de México' },
-  { id: 'm93', homeTeam: 'Ganador 83', awayTeam: 'Ganador 84', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Octavos de Final', date: '06 Jul 2026', time: '16:00', venue: 'Estadio Dallas, Dallas' },
+  { id: 'm93', homeTeam: 'Ganador 83', awayTeam: 'Ganador 84', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Octavos de Final', date: '06 Jul 2026', time: '15:00', venue: 'Estadio Dallas, Dallas' },
   { id: 'm94', homeTeam: 'Ganador 81', awayTeam: 'Ganador 82', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Octavos de Final', date: '06 Jul 2026', time: '21:00', venue: 'Estadio de Seattle, Seattle' },
   { id: 'm95', homeTeam: 'Ganador 86', awayTeam: 'Ganador 88', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Octavos de Final', date: '07 Jul 2026', time: '13:00', venue: 'Estadio Atlanta, Atlanta' },
   { id: 'm96', homeTeam: 'Ganador 85', awayTeam: 'Ganador 87', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Octavos de Final', date: '07 Jul 2026', time: '17:00', venue: 'Estadio BC Place Vancouver, Vancouver' },
 
   // --- CUARTOS DE FINAL ---
   { id: 'm97', homeTeam: 'Ganador 89', awayTeam: 'Ganador 90', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Cuartos de Final', date: '09 Jul 2026', time: '17:00', venue: 'Estadio Boston, Boston' },
-  { id: 'm98', homeTeam: 'Ganador 93', awayTeam: 'Ganador 94', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Cuartos de Final', date: '10 Jul 2026', time: '16:00', venue: 'Estadio Los Angeles, Los Ángeles' },
-  { id: 'm99', homeTeam: 'Ganador 91', awayTeam: 'Ganador 92', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Cuartos de Final', date: '11 Jul 2026', time: '18:00', venue: 'Estadio Miami, Miami' },
+  { id: 'm98', homeTeam: 'Ganador 93', awayTeam: 'Ganador 94', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Cuartos de Final', date: '10 Jul 2026', time: '15:00', venue: 'Estadio Los Angeles, Los Ángeles' },
+  { id: 'm99', homeTeam: 'Ganador 91', awayTeam: 'Ganador 92', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Cuartos de Final', date: '11 Jul 2026', time: '15:00', venue: 'Estadio Miami, Miami' },
   { id: 'm100', homeTeam: 'Ganador 95', awayTeam: 'Ganador 96', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Cuartos de Final', date: '11 Jul 2026', time: '22:00', venue: 'Estadio Kansas City, Kansas City' },
 
   // --- SEMIFINALES ---
-  { id: 'm101', homeTeam: 'Ganador 97', awayTeam: 'Ganador 98', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Semifinal', date: '14 Jul 2026', time: '16:00', venue: 'Estadio Dallas, Dallas' },
-  { id: 'm102', homeTeam: 'Ganador 99', awayTeam: 'Ganador 100', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Semifinal', date: '15 Jul 2026', time: '16:00', venue: 'Estadio Atlanta, Atlanta' },
+  { id: 'm101', homeTeam: 'Ganador 97', awayTeam: 'Ganador 98', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Semifinal', date: '14 Jul 2026', time: '15:00', venue: 'Estadio Dallas, Dallas' },
+  { id: 'm102', homeTeam: 'Ganador 99', awayTeam: 'Ganador 100', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Semifinal', date: '15 Jul 2026', time: '15:00', venue: 'Estadio Atlanta, Atlanta' },
 
   // --- TERCER PUESTO Y FINAL ---
-  { id: 'm103', homeTeam: 'Perdedor 101', awayTeam: 'Perdedor 102', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Tercer Puesto', date: '18 Jul 2026', time: '18:00', venue: 'Estadio Miami, Miami' },
-  { id: 'm104', homeTeam: 'Ganador 101', awayTeam: 'Ganador 102', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Final', date: '19 Jul 2026', time: '16:00', venue: 'Estadio Nueva York/Nueva Jersey, Nueva York' }
+  { id: 'm103', homeTeam: 'Perdedor 101', awayTeam: 'Perdedor 102', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Tercer Puesto', date: '18 Jul 2026', time: '15:00', venue: 'Estadio Miami, Miami' },
+  { id: 'm104', homeTeam: 'Ganador 101', awayTeam: 'Ganador 102', homeFlag: 'FIFA', awayFlag: 'FIFA', group: 'Final', date: '19 Jul 2026', time: '15:00', venue: 'Estadio Nueva York/Nueva Jersey, Nueva York' }
 ];
 
 export const WORLD_CUP_GROUPS = [

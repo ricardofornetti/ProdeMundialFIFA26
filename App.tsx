@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, Component, useMemo } from 'react';
-import { resolveBracketMatches } from './utils/bracketResolver';
+import { resolveBracketMatches, mergeCloudMatches } from './utils/bracketResolver';
 import logoMundial from './components/logo_mundial.png';
 import { motion, AnimatePresence } from 'motion/react';
 import { CheckCircle, Shield, Settings } from 'lucide-react';
@@ -449,10 +449,7 @@ const App: React.FC = () => {
     const fetchMatches = async () => {
       try {
         const cloudMatches = await getRealMatches();
-        const merged = WORLD_CUP_MATCHES.map(m => {
-          const cloud = (cloudMatches || []).find(cm => cm.id === m.id);
-          return cloud ? { ...m, ...cloud } : m;
-        });
+        const merged = mergeCloudMatches(WORLD_CUP_MATCHES, cloudMatches);
         setRealMatches(merged as Match[]);
       } catch (e) {
         console.error('Error fetching matches:', e);
@@ -508,10 +505,7 @@ const App: React.FC = () => {
           await recalculateAllScores();
           // Re-fetch matches to update state
           const cloudMatches = await getRealMatches();
-          const merged = WORLD_CUP_MATCHES.map(m => {
-            const cloud = (cloudMatches || []).find(cm => cm.id === m.id);
-            return cloud ? { ...m, ...cloud } : m;
-          });
+          const merged = mergeCloudMatches(WORLD_CUP_MATCHES, cloudMatches);
           setRealMatches(merged as Match[]);
         }
       } catch (err) {
@@ -571,10 +565,7 @@ const App: React.FC = () => {
     const fetchMatches = async () => {
       try {
         const cloudMatches = await getRealMatches();
-        const merged = WORLD_CUP_MATCHES.map(m => {
-          const cloud = (cloudMatches || []).find(cm => cm.id === m.id);
-          return cloud ? { ...m, ...cloud } : m;
-        });
+        const merged = mergeCloudMatches(WORLD_CUP_MATCHES, cloudMatches);
         setRealMatches(merged as Match[]);
       } catch (e) {
         console.error('Error fetching matches on view change:', e);
@@ -1167,12 +1158,12 @@ const App: React.FC = () => {
                matches={resolvedMatchesForResults} 
                onBack={() => setView('main-menu')} 
                onRefresh={async () => {
-                 const data = await getRealMatches();
-                 const fullMatches = WORLD_CUP_MATCHES.map(m => {
+                 const data = await getRealMatches(); const fullMatches = mergeCloudMatches(WORLD_CUP_MATCHES, data);
+                 /* const fullMatches = WORLD_CUP_MATCHES.map(m => {
                    const real = (data || []).find(rd => rd.id === m.id);
                    return real ? { ...m, ...real } : m;
                  });
-                 setRealMatches(fullMatches as Match[]);
+                 */ setRealMatches(fullMatches as Match[]);
                }}
              />
           ) : view === 'calendar' ? (
