@@ -73,13 +73,36 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
     setError('');
     setIsLoading(true);
     try {
+      console.log('🟦 INICIANDO GOOGLE LOGIN...');
       const result = await signInWithGoogle();
-      console.log('🔍 Google Login Result:', { result, hasUser: !!result?.user, email: result?.user?.email });
+      
+      // LOG 1: El resultado completo de signInWithGoogle
+      console.log('🔍 [1] Google Login Raw Result:', result);
+      console.log('🔍 [1a] result.user:', result?.user);
+      console.log('🔍 [1b] result.user.email:', result?.user?.email);
+      console.log('🔍 [1c] result.user.email type:', typeof result?.user?.email);
+      console.log('🔍 [1d] result.user.email length:', result?.user?.email?.length);
+      
+      // LOG 2: El Firebase auth actual user
+      console.log('🔍 [2] auth.currentUser:', auth.currentUser);
+      console.log('🔍 [2a] auth.currentUser?.email:', auth.currentUser?.email);
+      
+      // LOG 3: Verificar el objeto result completo
+      console.log('🔍 [3] result.isNew:', result?.isNew);
+      console.log('🔍 [3a] result keys:', result ? Object.keys(result) : 'result is null');
       
       if (result) {
+        // LOG 4: Antes de trim/toLowerCase
+        console.log('🔍 [4] Before processing - result.user.email:', result.user.email);
+        console.log('🔍 [4a] Before processing - email || "" :', result.user.email || "");
+        
         // Enforce Gmail / Admin Email restriction on Google Sign-In
         const userEmail = (result.user.email || '').trim().toLowerCase();
-        console.log('📧 Email after trim/lowercase:', userEmail);
+        
+        // LOG 5: Después de trim/toLowerCase
+        console.log('📧 [5] Email after trim/lowercase:', userEmail);
+        console.log('📧 [5a] Email length:', userEmail.length);
+        console.log('📧 [5b] Email is empty:', userEmail === '');
         
         const ADMIN_EMAILS = [
           'fornettiricardo@gmail.com'
@@ -90,7 +113,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
         const isAdmin = ADMIN_EMAILS.some(e => e.toLowerCase() === userEmail);
         const isEmailAllowed = endsWithGmail || isAdmin;
         
-        console.log('✅ Validation Debug:', { 
+        console.log('✅ [6] Validation Debug:', { 
           userEmail, 
           endsWithGmail, 
           isAdmin, 
@@ -99,7 +122,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
         });
 
         if (!isEmailAllowed) {
-          console.error('❌ Email blocked:', userEmail);
+          console.error('❌ [7] Email blocked:', userEmail);
           if (auth) {
             await signOut(auth);
           }
@@ -108,20 +131,27 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
           return;
         }
 
-        console.log('✅ Email allowed, proceeding with login');
+        console.log('✅ [8] Email allowed, proceeding with login');
         if (result.isNew) {
+          console.log('✅ [9] User is NEW - showing setup-profile');
           setTempUser(result.user);
           setUsername(result.user.username);
           setPhotoPreview(result.user.photoUrl);
           setMode('setup-profile');
         } else {
+          console.log('✅ [10] User EXISTS - logging in directly');
           onAuthSuccess(result.user);
         }
       } else {
+        console.warn('⚠️ [11] result is null or falsy');
         setError('No se pudo completar el inicio de sesión con Google. ¿Tal vez bloqueaste el popup?');
       }
     } catch (err: any) {
-      console.error('❌ Google Login Error:', err);
+      console.error('❌ [ERROR] Google Login Error:', err);
+      console.error('❌ [ERROR] Error code:', err?.code);
+      console.error('❌ [ERROR] Error message:', err?.message);
+      console.error('❌ [ERROR] Error stack:', err?.stack);
+      
       if (err.code === 'auth/popup-closed-by-user') {
         setError('La ventana de Google se cerró antes de terminar. Intenta de nuevo.');
       } else {
